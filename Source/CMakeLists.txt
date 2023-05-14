@@ -1,0 +1,572 @@
+set(PROJECT_NAME Sakura)
+
+################################################################################
+# Source groups
+################################################################################
+set(no_group_source_files
+    "detours.pdb"
+)
+source_group("" FILES ${no_group_source_files})
+
+set(Headers
+    "Bytesa.h"
+    "configs/aes256.hpp"
+    "configs/base64.h"
+    "configs/configs.h"
+    "constchars.h"
+    "DiscordRpc.h"
+    "DiscordRPCSDK/Includes/discord_register.h"
+    "DiscordRPCSDK/Includes/discord_rpc.h"
+    "DiscordRPCSDK/SourceFiles/backoff.h"
+    "DiscordRPCSDK/SourceFiles/connection.h"
+    "DiscordRPCSDK/SourceFiles/msg_queue.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/allocators.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/cursorstreamwrapper.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/document.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/encodedstream.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/encodings.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/error/en.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/error/error.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/filereadstream.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/filewritestream.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/fwd.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/biginteger.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/clzll.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/diyfp.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/dtoa.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/ieee754.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/itoa.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/meta.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/pow10.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/regex.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/stack.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/strfunc.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/strtod.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/internal/swap.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/istreamwrapper.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/memorybuffer.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/memorystream.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/msinttypes/inttypes.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/msinttypes/stdint.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/ostreamwrapper.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/pointer.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/prettywriter.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/rapidjson.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/reader.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/schema.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/stream.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/stringbuffer.h"
+    "DiscordRPCSDK/SourceFiles/rapidjson/writer.h"
+    "DiscordRPCSDK/SourceFiles/rpc_connection.h"
+    "DiscordRPCSDK/SourceFiles/serialization.h"
+    "features/imgs/faprolight.h"
+    "features/imgs/hashes.h"
+    "features/imgs/logo_font.h"
+    "features/imgs/main_font.h"
+    "features/imgs/menu_font.h"
+    "features/imgs/skeet_tab.h"
+    "features/imgs/weapon_font.h"
+    "features/legitbot/backtrack.h"
+    "features/legitbot/legitbot.h"
+    "features/loli.h"
+    "features/menu.h"
+    "features/misc/key_binds.h"
+    "features/misc/logs.h"
+    "features/misc/misc.h"
+    "features/movement/airstrafe.h"
+    "features/movement/bunnyhop.h"
+    "features/movement/movement.h"
+    "features/movement/slowwalk.h"
+    "features/movement/walkbot.h"
+    "features/postprocessing/postproccessing.h"
+    "features/ragebot/antiaim.h"
+    "features/ragebot/autowall.h"
+    "features/ragebot/fakelag.h"
+    "features/ragebot/knifebot.h"
+    "features/ragebot/ragebot.h"
+    "features/ragebot/zeusbot.h"
+    "features/serverside/animation_system.h"
+    "features/serverside/engine_prediction.h"
+    "features/serverside/local_animations.h"
+    "features/serverside/setup_bones.h"
+    "features/visuals/bullet_tracers.h"
+    "features/visuals/dormant_esp.h"
+    "features/visuals/grenade_prediction.h"
+    "features/visuals/grenade_warning.h"
+    "features/visuals/night_mode.h"
+    "features/visuals/other_esp.h"
+    "features/visuals/player_esp.h"
+    "features/visuals/radar.h"
+    "features/visuals/world_esp.h"
+    "hooks/core/ClientHook.h"
+    "hooks/core/Detours.h"
+    "hooks/core/MinHook.h"
+    "hooks/hooks.hpp"
+    "hooks/libs/buffer.h"
+    "hooks/libs/hde/hde32.h"
+    "hooks/libs/hde/hde64.h"
+    "hooks/libs/hde/pstdint.h"
+    "hooks/libs/hde/table32.h"
+    "hooks/libs/hde/table64.h"
+    "hooks/libs/MinHook.h"
+    "hooks/libs/trampoline.h"
+    "ImGui/code_editor.h"
+    "ImGui/imconfig.h"
+    "ImGui/imgui.h"
+    "ImGui/imgui_freetype.h"
+    "ImGui/imgui_impl_dx9.h"
+    "ImGui/imgui_impl_win32.h"
+    "ImGui/imgui_internal.h"
+    "ImGui/imgui_stdlib.h"
+    "ImGui/imstb_rectpack.h"
+    "ImGui/imstb_textedit.h"
+    "ImGui/imstb_truetype.h"
+    "includes.hpp"
+    "javascript/api/api.h"
+    "javascript/api/config.h"
+    "javascript/function/js_functions.hpp"
+    "javascript/loader/js_loader.h"
+    "lua/Clua.h"
+    "lua/CLuaHook.h"
+    "lua/HTTPRequest.hpp"
+    "lua/Lua51.h"
+    "lua/menu_item.h"
+    "lua/sol.hpp"
+    "neverlose_icon/aa.h"
+    "neverlose_icon/configs.h"
+    "neverlose_icon/grenades.h"
+    "neverlose_icon/inventory.h"
+    "neverlose_icon/legit.h"
+    "neverlose_icon/main.h"
+    "neverlose_icon/players.h"
+    "neverlose_icon/rage.h"
+    "neverlose_icon/scripts.h"
+    "neverlose_icon/view.h"
+    "neverlose_icon/weapons.h"
+    "neverlose_icon/world.h"
+    "profileChanger/Messages.h"
+    "profileChanger/pbwrap.hpp"
+    "profileChanger/Protobuffs.h"
+    "profileChanger/ProtoField.h"
+    "profileChanger/ProtoWriter.h"
+    "profileChanger/valve_parser.h"
+    "resources/custom_sounds.hpp"
+    "resources/sounds.hpp"
+    "sdk/BBData.h"
+    "sdk/interfaces/CClientState.hpp"
+    "sdk/interfaces/CInput.hpp"
+    "sdk/interfaces/CSPlayerResource.h"
+    "sdk/interfaces/IAppSystem.hpp"
+    "sdk/interfaces/IBaseClientDll.hpp"
+    "sdk/interfaces/IClientEntity.hpp"
+    "sdk/interfaces/IClientEntityList.hpp"
+    "sdk/interfaces/IClientMode.hpp"
+    "sdk/interfaces/IClientNetworkable.hpp"
+    "sdk/interfaces/IClientRenderable.hpp"
+    "sdk/interfaces/IClientThinkable.hpp"
+    "sdk/interfaces/IClientUnknown.hpp"
+    "sdk/interfaces/ICollideable.hpp"
+    "sdk/interfaces/IConVar.hpp"
+    "sdk/interfaces/ICvar.hpp"
+    "sdk/interfaces/IEngineSound.hpp"
+    "sdk/interfaces/IEngineTrace.hpp"
+    "sdk/interfaces/IGameEventManager.hpp"
+    "sdk/interfaces/IInputInternal.hpp"
+    "sdk/interfaces/IInputSystem.hpp"
+    "sdk/interfaces/ILocalize.hpp"
+    "sdk/interfaces/IMaterialSystem.hpp"
+    "sdk/interfaces/IMDLCache.hpp"
+    "sdk/interfaces/IMemAlloc.h"
+    "sdk/interfaces/IMoveHelper.hpp"
+    "sdk/interfaces/IPanel.hpp"
+    "sdk/interfaces/IPanoramaUIEngine.hpp"
+    "sdk/interfaces/IPhysics.hpp"
+    "sdk/interfaces/IPrediction.hpp"
+    "sdk/interfaces/IRenderView.hpp"
+    "sdk/interfaces/ISurface.hpp"
+    "sdk/interfaces/IVDebugOverlay.hpp"
+    "sdk/interfaces/IVEngineClient.hpp"
+    "sdk/interfaces/IViewRenderBeams.hpp"
+    "sdk/interfaces/IVModelInfoClient.hpp"
+    "sdk/interfaces/IVModelRender.hpp"
+    "sdk/interfaces/IVStudioRender.hpp"
+    "sdk/interfaces/IWeaponSystem.h"
+    "sdk/ItemSchema.h"
+    "sdk/math/QAngle.hpp"
+    "sdk/math/Vector.hpp"
+    "sdk/math/Vector2D.hpp"
+    "sdk/math/Vector4D.hpp"
+    "sdk/math/VMatrix.hpp"
+    "sdk/Memory.h"
+    "sdk/misc/BaseHandle.hpp"
+    "sdk/misc/BeamInfo_t.hpp"
+    "sdk/misc/BitBuffer.h"
+    "sdk/misc/CBoneAccessor.hpp"
+    "sdk/misc/characterset.hpp"
+    "sdk/misc/checksum_crc.hpp"
+    "sdk/misc/checksum_md5.hpp"
+    "sdk/misc/ClientClass.hpp"
+    "sdk/misc/Color.hpp"
+    "sdk/misc/CommandContext.h"
+    "sdk/misc/Convar.hpp"
+    "sdk/misc/CUserCmd.hpp"
+    "sdk/misc/datamap.h"
+    "sdk/misc/EHandle.hpp"
+    "sdk/misc/Enums.hpp"
+    "sdk/misc/FnvHash.hpp"
+    "sdk/misc/GlobalVars.hpp"
+    "sdk/misc/glow_outline_effect.hpp"
+    "sdk/misc/IHandleEntity.hpp"
+    "sdk/misc/IKeyValuesSystem.hpp"
+    "sdk/misc/KeyValues.hpp"
+    "sdk/misc/MemAlloc.h"
+    "sdk/misc/platform.hpp"
+    "sdk/misc/Recv.hpp"
+    "sdk/misc/Studio.hpp"
+    "sdk/misc/threadtools.h"
+    "sdk/misc/UtlBuffer.hpp"
+    "sdk/misc/UtlMap.hpp"
+    "sdk/misc/UtlMemory.hpp"
+    "sdk/misc/UtlString.hpp"
+    "sdk/misc/UtlVector.hpp"
+    "sdk/misc/UtlVectorSimple.hpp"
+    "sdk/misc/vfunc.hpp"
+    "sdk/MusicStatus.hpp"
+    "sdk/ProtobufReader.h"
+    "sdk/Steam.h"
+    "sdk/SteamAPI.h"
+    "sdk/SteamInputAPI.h"
+    "sdk/structs.hpp"
+    "sdk/Threading.h"
+    "sdk/VirtualMethod.h"
+    "skinChanger/item_definitions.hpp"
+    "skinChanger/SkinChanger.h"
+    "skinChanger/Utilities/Platform.hpp"
+    "skinChanger/Utilities/vmt_smart_hook.hpp"
+    "steam_sdk/isteamapplist.h"
+    "steam_sdk/isteamapps.h"
+    "steam_sdk/isteamappticket.h"
+    "steam_sdk/isteamclient.h"
+    "steam_sdk/isteamcontroller.h"
+    "steam_sdk/isteamfriends.h"
+    "steam_sdk/isteamgamecoordinator.h"
+    "steam_sdk/isteamgameserver.h"
+    "steam_sdk/isteamgameserverstats.h"
+    "steam_sdk/isteamhtmlsurface.h"
+    "steam_sdk/isteamhttp.h"
+    "steam_sdk/isteaminput.h"
+    "steam_sdk/isteaminventory.h"
+    "steam_sdk/isteammatchmaking.h"
+    "steam_sdk/isteammusic.h"
+    "steam_sdk/isteammusicremote.h"
+    "steam_sdk/isteamnetworking.h"
+    "steam_sdk/isteamnetworkingmessages.h"
+    "steam_sdk/isteamnetworkingsockets.h"
+    "steam_sdk/isteamnetworkingutils.h"
+    "steam_sdk/isteamparentalsettings.h"
+    "steam_sdk/isteamps3overlayrenderer.h"
+    "steam_sdk/isteamremoteplay.h"
+    "steam_sdk/isteamremotestorage.h"
+    "steam_sdk/isteamscreenshots.h"
+    "steam_sdk/isteamugc.h"
+    "steam_sdk/isteamuser.h"
+    "steam_sdk/isteamuserstats.h"
+    "steam_sdk/isteamutils.h"
+    "steam_sdk/isteamvideo.h"
+    "steam_sdk/matchmakingtypes.h"
+    "steam_sdk/steam_api.h"
+    "steam_sdk/steam_api_common.h"
+    "steam_sdk/steam_api_flat.h"
+    "steam_sdk/steam_api_internal.h"
+    "steam_sdk/steam_gameserver.h"
+    "steam_sdk/steamclientpublic.h"
+    "steam_sdk/steamencryptedappticket.h"
+    "steam_sdk/steamhttpenums.h"
+    "steam_sdk/steamnetworkingfakeip.h"
+    "steam_sdk/steamnetworkingtypes.h"
+    "steam_sdk/steamps3params.h"
+    "steam_sdk/steamtypes.h"
+    "steam_sdk/steamuniverse.h"
+    "utils/AntiDetection.h"
+    "utils/cheat.hpp"
+    "utils/ConsoleUtils.h"
+    "utils/crypt_str.h"
+    "utils/csgo.hpp"
+    "utils/draw_manager.h"
+    "utils/EncodeUtils.h"
+    "utils/FileUtils.h"
+    "utils/FontUtils.h"
+    "utils/HTTPUtils.h"
+    "utils/HWIDUtils.h"
+    "utils/ImRender.h"
+    "utils/json.hpp"
+    "utils/Log.h"
+    "utils/m128.h"
+    "utils/math.hpp"
+    "utils/md5.h"
+    "utils/netmanager.hpp"
+    "utils/recv.h"
+    "utils/singleton.h"
+    "utils/SomeUtils.h"
+    "utils/StringUtils.h"
+    "utils/UnicodeFonts.h"
+    "utils/util.hpp"
+    "utils/WindowUtils.h"
+    "utils/x86RetSpoof.h"
+)
+source_group("Headers" FILES ${Headers})
+
+set(Sources
+    "configs/aes256.cpp"
+    "configs/configs.cpp"
+    "DiscordRpc.cpp"
+    "DiscordRPCSDK/SourceFiles/connection_win.cpp"
+    "DiscordRPCSDK/SourceFiles/discord_register_win.cpp"
+    "DiscordRPCSDK/SourceFiles/discord_rpc.cpp"
+    "DiscordRPCSDK/SourceFiles/rpc_connection.cpp"
+    "DiscordRPCSDK/SourceFiles/serialization.cpp"
+    "features/legitbot/backtrack.cpp"
+    "features/legitbot/legitbot.cpp"
+    "features/menu.cpp"
+    "features/menus.cpp"
+    "features/misc/key_binds.cpp"
+    "features/misc/logs.cpp"
+    "features/misc/misc.cpp"
+    "features/movement/airstrafe.cpp"
+    "features/movement/bunnyhop.cpp"
+    "features/movement/movement.cpp"
+    "features/movement/slowwalk.cpp"
+    "features/movement/walkbot.cpp"
+    "features/neverlose.cpp"
+    "features/postprocessing/postproccessing.cpp"
+    "features/ragebot/antiaim.cpp"
+    "features/ragebot/autowall.cpp"
+    "features/ragebot/fakelag.cpp"
+    "features/ragebot/knifebot.cpp"
+    "features/ragebot/ragebot.cpp"
+    "features/ragebot/zeusbot.cpp"
+    "features/serverside/animation_system.cpp"
+    "features/serverside/engine_prediction.cpp"
+    "features/serverside/local_animations.cpp"
+    "features/serverside/resolver.cpp"
+    "features/serverside/setup_bones.cpp"
+    "features/visuals/bullet_tracers.cpp"
+    "features/visuals/dormant_esp.cpp"
+    "features/visuals/grenade_prediction.cpp"
+    "features/visuals/grenade_warning.cpp"
+    "features/visuals/night_mode.cpp"
+    "features/visuals/other_esp.cpp"
+    "features/visuals/player_esp.cpp"
+    "features/visuals/world_esp.cpp"
+    "hooks/core/ClientHook.cpp"
+    "hooks/core/MinHook.cpp"
+    "hooks/hooks.cpp"
+    "hooks/hooks/hooked_beginframe.cpp"
+    "hooks/hooks/hooked_createmove.cpp"
+    "hooks/hooks/hooked_dme.cpp"
+    "hooks/hooks/hooked_drawfog.cpp"
+    "hooks/hooks/hooked_emitsound.cpp"
+    "hooks/hooks/hooked_events.cpp"
+    "hooks/hooks/hooked_findmdl.cpp"
+    "hooks/hooks/hooked_fsn.cpp"
+    "hooks/hooks/hooked_getmaterial.cpp"
+    "hooks/hooks/hooked_isconnected.cpp"
+    "hooks/hooks/hooked_ishltv.cpp"
+    "hooks/hooks/hooked_isplayingdemo.cpp"
+    "hooks/hooks/hooked_listleavesinbox.cpp"
+    "hooks/hooks/hooked_lockcursor.cpp"
+    "hooks/hooks/hooked_overrideview.cpp"
+    "hooks/hooks/hooked_painttraverse.cpp"
+    "hooks/hooks/hooked_player.cpp"
+    "hooks/hooks/hooked_postscreeneffects.cpp"
+    "hooks/hooks/hooked_runcommand.cpp"
+    "hooks/hooks/hooked_sceneend.cpp"
+    "hooks/hooks/hooked_senddatagram.cpp"
+    "hooks/hooks/hooked_svcheats.cpp"
+    "hooks/hooks/hooked_trace.cpp"
+    "hooks/libs/buffer.c"
+    "hooks/libs/hde/hde32.c"
+    "hooks/libs/hde/hde64.c"
+    "hooks/libs/hook.c"
+    "hooks/libs/trampoline.c"
+    "ImGui/code_editor.cpp"
+    "ImGui/imgui.cpp"
+    "ImGui/imgui_demo.cpp"
+    "ImGui/imgui_draw.cpp"
+    "ImGui/imgui_freetype.cpp"
+    "ImGui/imgui_impl_dx9.cpp"
+    "ImGui/imgui_impl_win32.cpp"
+    "ImGui/imgui_stdlib.cpp"
+    "ImGui/imgui_widgets.cpp"
+    "javascript/api/api.cpp"
+    "javascript/function/js_functions.cpp"
+    "javascript/loader/js_loader.cpp"
+    "lua/Clua.cpp"
+    "lua/CLuaHook.cpp"
+    "main.cpp"
+    "profileChanger/Protobuffs.cpp"
+    "profileChanger/valve_parser.cpp"
+    "resources/custom_sounds.cpp"
+    "sdk/BBData.cpp"
+    "sdk/math/Vector2D.cpp"
+    "sdk/math/Vector4D.cpp"
+    "sdk/math/VMatrix.cpp"
+    "sdk/Memory.cpp"
+    "sdk/misc/BitBuffer.cpp"
+    "sdk/misc/characterset.cpp"
+    "sdk/misc/checksum_crc.cpp"
+    "sdk/misc/checksum_md5.cpp"
+    "sdk/misc/Color.cpp"
+    "sdk/misc/Convar.cpp"
+    "sdk/misc/KeyValues.cpp"
+    "sdk/misc/threadtools.cpp"
+    "sdk/misc/UtlBuffer.cpp"
+    "sdk/misc/UtlString.cpp"
+    "sdk/SteamInputAPI.cpp"
+    "sdk/structs.cpp"
+    "skinChanger/item_definitions.cpp"
+    "skinChanger/SkinChanger.cpp"
+    "skinChanger/Utilities/Platform.cpp"
+    "utils/AntiDetection.cpp"
+    "utils/cheat.cpp"
+    "utils/ConsoleUtils.cpp"
+    "utils/csgo.cpp"
+    "utils/draw_manager.cpp"
+    "utils/EncodeUtils.cpp"
+    "utils/FontUtils.cpp"
+    "utils/HTTPUtils.cpp"
+    "utils/HWIDUtils.cpp"
+    "utils/ImRender.cpp"
+    "utils/math.cpp"
+    "utils/md5.cpp"
+    "utils/netmanager.cpp"
+    "utils/recv.cpp"
+    "utils/UnicodeFonts.cpp"
+    "utils/util.cpp"
+)
+source_group("Sources" FILES ${Sources})
+
+set(ALL_FILES
+    ${no_group_source_files}
+    ${Headers}
+    ${Sources}
+)
+
+################################################################################
+# Target
+################################################################################
+add_library(${PROJECT_NAME} SHARED ${ALL_FILES})
+
+use_props(${PROJECT_NAME} "${CMAKE_CONFIGURATION_TYPES}" "${DEFAULT_CXX_PROPS}")
+set(ROOT_NAMESPACE Sakura)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    VS_GLOBAL_KEYWORD "Win32Proj"
+)
+################################################################################
+# Target name
+################################################################################
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    TARGET_NAME_DEBUG   "Sakura"
+    TARGET_NAME_RELEASE "Sakura"
+)
+################################################################################
+# Output directory
+################################################################################
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    OUTPUT_DIRECTORY_DEBUG   "${CMAKE_SOURCE_DIR}/Debug/"
+    OUTPUT_DIRECTORY_RELEASE "${CMAKE_SOURCE_DIR}/Release/"
+)
+set_target_properties(${PROJECT_NAME} PROPERTIES
+    INTERPROCEDURAL_OPTIMIZATION         "TRUE"
+)
+################################################################################
+# MSVC runtime library
+################################################################################
+get_property(MSVC_RUNTIME_LIBRARY_DEFAULT TARGET ${PROJECT_NAME} PROPERTY MSVC_RUNTIME_LIBRARY)
+string(CONCAT "MSVC_RUNTIME_LIBRARY_STR"
+    $<$<CONFIG:Release>:
+        MultiThreadedDLL
+    >
+    $<$<NOT:$<OR:$<CONFIG:Release>>>:${MSVC_RUNTIME_LIBRARY_DEFAULT}>
+)
+set_target_properties(${PROJECT_NAME} PROPERTIES MSVC_RUNTIME_LIBRARY ${MSVC_RUNTIME_LIBRARY_STR})
+
+################################################################################
+# Compile definitions
+################################################################################
+target_compile_definitions(${PROJECT_NAME} PRIVATE
+    "$<$<CONFIG:Debug>:"
+        "_DEBUG"
+    ">"
+    "$<$<CONFIG:Release>:"
+        "NDEBUG"
+    ">"
+    "WIN32;"
+    "Sakura_EXPORTS;"
+    "WIN32_LEAN_AND_MEAN;"
+    "_WINDOWS;"
+    "_USRDLL;"
+    "CURL_STATICLIB;"
+    "_CRT_SECURE_NO_WARNINGS;"
+    "_MBCS"
+)
+
+################################################################################
+# Compile and link options
+################################################################################
+if(MSVC)
+    target_compile_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:
+            /Oy-
+        >
+        /MP;
+        /std:c++17;
+        /GL;
+        /Od;
+        /Oi-;
+        /sdl-;
+        /GF-;
+        /Gy;
+        /w;
+        /Zi;
+        ${DEFAULT_CXX_EXCEPTION_HANDLING};
+        /GS-;
+        /Y-
+    )
+    target_link_options(${PROJECT_NAME} PRIVATE
+        $<$<CONFIG:Release>:
+            /FORCE:MULTIPLE
+        >
+        /NODEFAULTLIB:LIBCMT;
+        /DEBUG;
+        /SAFESEH:NO;
+        /SUBSYSTEM:WINDOWS;
+        /OPT:REF;
+        /OPT:ICF;
+        /INCREMENTAL:NO;
+        /ASSEMBLYDEBUG
+    )
+endif()
+
+################################################################################
+# Dependencies
+################################################################################
+#set(ADDITIONAL_LIBRARY_DEPENDENCIES
+#        "Ws2_32"
+#        "lua51"
+#        "minilua"
+#        "luajit"
+#        "detours"
+#        )
+#target_link_libraries(${PROJECT_NAME} PUBLIC "${ADDITIONAL_LIBRARY_DEPENDENCIES}")
+target_link_libraries(${PROJECT_NAME} ws2_32)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}\\Source\\lua\\lua51.lib)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}\\Source\\lua\\minilua.lib)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}\\Source\\lua\\luajit.lib)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}\\Source\\detours.lib)
+target_link_libraries(${PROJECT_NAME} ${PROJECT_SOURCE_DIR}\\Source\\ImGui\\win32\\freetype.lib)
+target_link_libraries(${PROJECT_NAME} "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3dx9.lib")
+target_link_libraries(${PROJECT_NAME} "C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Lib\\x86\\d3d9.lib")
+include_directories("C:\\Program Files (x86)\\Microsoft DirectX SDK (June 2010)\\Include")
+include_directories("ImGui\\include")

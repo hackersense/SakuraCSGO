@@ -1,0 +1,305 @@
+﻿#include "walkbot.h"
+#include <ShlObj_core.h>
+
+Color colorDefault = Color(0, 255, 0);
+Color colorclose = Color(255, 0, 0);
+Color colorselected = Color(0, 0, 255);
+Color colortarget = Color(255, 255, 0);
+
+float distancemeters(Vector v1, Vector v2) {
+	float dist = sqrt(v1.DistToSqr(v2));
+	return dist * 0.01905f;
+}
+
+bool file_exists(const char* fname)
+{
+	return GetFileAttributesA(fname) != NULL;
+}
+
+void walkbot::move(CUserCmd* cmd) {
+	if (!configs.misc.walkbot[WALKBOT_ENABLE])
+		return;
+
+	if (dots.size() < 2)
+		return;
+
+	if (!cheat.local() || !cheat.local()->is_alive())
+		return;
+
+	if (marker > dots.size() - 1) {
+		if (configs.misc.walkbot[WALKBOT_CYCLE]) {
+			prishel = true;
+			marker = dots.size() - 1;
+		}
+		else marker = 0;
+	}
+
+	Vector target = dots.at(marker);
+	Vector lookat = math::calculate_angle(cheat.globals.eye_pos, target);
+	lookat.Normalize();
+	lookat.Clamp();
+	lookat.x = 0;
+
+	cmd->m_viewangles = lookat;
+	cmd->m_forwardmove = 450;
+
+	if (cheat.local()->m_vecVelocity().Length2D() < 25 && !(marker == 0 || marker == dots.size() - 1))
+		cmd->m_buttons |= IN_JUMP;
+
+	float dist3D = distancemeters(cheat.local()->m_vecOrigin(), target);
+	if (dist3D <= 0.5f) {
+		if (configs.misc.walkbot[WALKBOT_SOUND]) m_engine()->ExecuteClientCmd(crypt_str("play buttons\\light_power_on_switch_01"));
+		if (configs.misc.walkbot[WALKBOT_CYCLE])
+			prishel ? marker-- : marker++;
+		else
+			marker++;
+
+		if (configs.misc.walkbot[WALKBOT_CYCLE])
+			if (marker == 0)
+				prishel = false;
+	}
+}
+
+void walkbot::update(bool showdebug) {
+
+	if (key_binds::get().get_key_bind_state(key_bind_features::BLOCK_BOT)) {
+		button_clicked = false;
+		button_down = true;
+	}
+	else if (!key_binds::get().get_key_bind_state(key_bind_features::BLOCK_BOT) && button_down) {
+		button_clicked = true;
+		button_down = false;
+	}
+	else {
+		button_clicked = false;
+		button_down = false;
+	}
+
+	std::string oldmapname = mapname;
+	mapname = m_engine()->GetLevelName();
+	if (oldmapname != mapname) {
+		//refresh(mapname, dots, configs.esp.walksave);
+		file("_def", file_load);
+		return;
+	}
+
+	int oldteamnum = teamnum;
+	teamnum = cheat.local()->m_iTeamNum();
+	if (oldteamnum != teamnum) {
+		//refresh(mapname, dots, configs.esp.walksave);
+		marker = 0;
+		prishel = false;
+		return;
+	}
+
+	if (!cheat.local())
+		return;
+
+	int w, h, cX, cY;
+	m_engine()->GetScreenSize(w, h);
+	cX = w / 2;
+	cY = h / 2;
+
+	bool spoterased = false, spotfound = false;
+
+	for (int i = 0; i < dots.size(); i++) {
+		Vector spot = dots.at(i);
+		Color c = colorDefault;
+
+		float dist3D = distancemeters(cheat.local()->GetAbsOrigin(), spot);
+		if (dist3D <= 1) c = colorclose;
+
+		Vector pos2d;
+		if (math::world_to_screen(spot, pos2d))
+		{
+			float dist2D = pos2d.DistTo(Vector(cX, cY, 0));
+			if (dist2D <= 15 && !spotfound)
+			{
+				c = colorselected;
+				spotfound = true;
+
+				if (button_clicked && !spoterased)
+				{
+					dots.erase(dots.begin() + i);
+					if (configs.misc.walkbot[WALKBOT_SOUND] && configs.misc.walkbot[WALKBOT_DEVELOPER_MODE])
+						m_engine()->ExecuteClientCmd(crypt_str("play error"));
+
+					spoterased = true;
+					continue;
+				}
+			}
+		}
+
+		Ray_t ray; CGameTrace tr; CTraceFilter filter;
+		ray.Init(cheat.globals.eye_pos, spot);
+		filter.pSkip = cheat.local();
+		m_trace()->TraceRay(ray, 0x46004003, &filter, &tr);
+
+		bool isvisible = tr.IsVisible();
+		if (isvisible)
+		{
+			if (i == marker)
+				if (c == colorselected)
+					m_debugoverlay()->AddSphereOverlay(spot, 7, 20, 20, c.r(), c.g(), c.b(), 255, 0.025f);
+				else
+					m_debugoverlay()->AddSphereOverlay(spot, 7, 20, 20, colortarget.r(), colortarget.g(), colortarget.b(), 255, 0.025f);
+			else
+				m_debugoverlay()->AddSphereOverlay(spot, 7, 20, 20, c.r(), c.g(), c.b(), 255, 0.025f);
+
+			if (i - 1 >= 0)
+				m_debugoverlay()->AddLineOverlay(dots.at(i - 1), spot, 255, 255, 255, 255, 0.025f);
+		}
+		else
+		{
+			char dist_to[32];
+			sprintf_s(dist_to, "%.0fm", dist3D);
+
+			if (i != marker)
+				render::get().text(fonts[LOGS], pos2d.x, pos2d.y, Color(255, 255, 255, 255), HFONT_CENTERED_Y | HFONT_CENTERED_X, dist_to);
+		}
+
+		if (i == marker)
+			render::get().text(fonts[LOGS], pos2d.x, pos2d.y, Color(255, 0, 0, 255), HFONT_CENTERED_Y | HFONT_CENTERED_X, crypt_str("> target <"));
+
+		if (showdebug) {
+			render::get().text(fonts[NAME], pos2d.x, pos2d.y - 5, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("index = ") + std::to_string(i)).c_str());
+			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 10, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("x = ") + std::to_string(spot.x)).c_str());
+			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 25, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("y = ") + std::to_string(spot.y)).c_str());
+			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 40, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("z = ") + std::to_string(spot.z)).c_str());
+			render::get().text(fonts[NAME], 100, 100, Color(255, 255, 0, 220), HFONT_CENTERED_Y, (crypt_str("velocity: ") + std::to_string(cheat.local()->m_vecVelocity().Length2D())).c_str());
+		}
+	}
+
+	if (button_clicked && !spoterased)
+	{
+		Vector tracestart, traceend;
+		Vector tuda;
+
+		m_engine()->GetViewAngles(tuda);
+		math::angle_vectors(tuda, traceend);
+
+		tracestart = cheat.globals.eye_pos;
+		traceend = tracestart + (traceend * 8192.0f);
+
+		Ray_t ray; CGameTrace tr; CTraceFilter filter;
+		ray.Init(tracestart, traceend);
+		filter.pSkip = cheat.local();
+
+		m_trace()->TraceRay(ray, 0x46004003, &filter, &tr);
+
+		Vector spot = tr.endpos;
+		dots.push_back(spot);
+
+		if (configs.misc.walkbot[WALKBOT_SOUND] && configs.misc.walkbot[WALKBOT_DEVELOPER_MODE])
+			m_engine()->ExecuteClientCmd(crypt_str("play resource\\warning"));
+	}
+}
+
+void walkbot::file(std::string addictive_name, int todo)
+{
+	std::string levelNameFixed;
+	for (size_t i = 0; i < mapname.size(); ++i)
+		if (mapname[i] != '\\') levelNameFixed += mapname[i];
+
+	if (cheat.local()->m_iTeamNum() > 0)
+		levelNameFixed += std::to_string(cheat.local()->m_iTeamNum());
+
+	levelNameFixed += addictive_name;
+
+	std::string file = cfg_manager->get_folder_path(PathType::Walkbot) + levelNameFixed + ".ini";
+
+	switch (todo)
+	{
+	case file_overwrite:
+		DeleteFileA(file.c_str());
+		for (int i = 0; i < dots.size(); i++) {
+			Vector spot = dots.at(i);
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("x"), std::to_string(spot.x).c_str(), file.c_str());
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("y"), std::to_string(spot.y).c_str(), file.c_str());
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("z"), std::to_string(spot.z).c_str(), file.c_str());
+		}
+
+		break;
+
+	case file_load:
+		if (file_exists(file.c_str())) {
+			char value[32] = { '\0' };
+			dots.clear();
+			int i = 0;
+			bool limitreached = false;
+			while (!limitreached) {
+				GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("x"), "", value, 32, file.c_str());
+				float x = atof(value);
+				GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("y"), "", value, 32, file.c_str());
+				float y = atof(value);
+				GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("z"), "", value, 32, file.c_str());
+				float z = atof(value);
+
+				if (x == 0 && y == 0 && z == 0) {
+					limitreached = true;
+					continue;
+				}
+				Vector spot = Vector(x, y, z);
+				dots.push_back(spot);
+				i++;
+			}
+			marker = 0;
+			prishel = false;
+		}
+		break;
+	}
+
+}
+
+void walkbot::refresh(std::string levelName, std::vector<Vector> spots, bool save)
+{
+	std::string levelNameFixed;
+	for (size_t i = 0; i < mapname.size(); ++i)
+		if (levelName[i] != '\\') levelNameFixed += levelName[i];
+
+	if (cheat.local()->m_iTeamNum() > 0)
+		levelNameFixed += std::to_string(cheat.local()->m_iTeamNum());
+
+	std::string file = cfg_manager->get_folder_path(PathType::Walkbot) + levelNameFixed + ".ini";
+
+	if (save) {
+		DeleteFileA(file.c_str());
+		for (int i = 0; i < spots.size(); i++) {
+			Vector spot = spots.at(i);
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("x"), std::to_string(spot.x).c_str(), file.c_str());
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("y"), std::to_string(spot.y).c_str(), file.c_str());
+			WritePrivateProfileStringA(std::to_string(i).c_str(), crypt_str("z"), std::to_string(spot.z).c_str(), file.c_str());
+		}
+	}
+	else {
+		char value[32] = { '\0' };
+		dots.clear();
+
+		int i = 0;
+		bool limitreached = false;
+
+		while (!limitreached) {
+			GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("x"), "", value, 32, file.c_str());
+			float x = atof(value);
+			GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("y"), "", value, 32, file.c_str());
+			float y = atof(value);
+			GetPrivateProfileStringA(std::to_string(i).c_str(), crypt_str("z"), "", value, 32, file.c_str());
+			float z = atof(value);
+
+			if (x == 0 && y == 0 && z == 0) {
+				limitreached = true;
+				continue;
+			}
+			Vector spot = Vector(x, y, z);
+			dots.push_back(spot);
+			i++;
+		}
+		//refresh(mapname, dots, false);
+	}
+}
+
+void walkbot::clear_dots() {
+	dots.clear();
+	marker = 0;
+	prishel = false;
+}
