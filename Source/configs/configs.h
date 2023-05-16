@@ -665,7 +665,11 @@ struct Config
 		bool fog;
 		int fog_distance;
 		int fog_density;
-		Color fog_color;
+        Color fog_color;
+        bool smoke_color_enabled;
+        Color smoke_color;
+        bool molotov_color_enabled;
+        Color molotov_color;
 		bool motionblur;
 		bool motionblur_forward;
 		float motionblur_falling_min;
@@ -686,8 +690,6 @@ struct Config
 		std::vector<int> grenade_esp;
 		Color grenade_glow_color;
 		Color grenade_box_color;
-		int grenadetracer;
-		Color grenadetrace;
 	} esp;
 
 	struct KillfeedChanger_t

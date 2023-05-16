@@ -6,5 +6,5 @@
 class legitbot : public singleton<legitbot>
 {
 public:
-	static void run(CUserCmd* cmd);
+    void run(CUserCmd* cmd);
 };

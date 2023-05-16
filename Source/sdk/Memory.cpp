@@ -65,6 +65,7 @@ Memory::Memory() noexcept
     modifyEyePosition = relativeToAbsolute<decltype(modifyEyePosition)>(findPattern(crypt_str("client"), "\xE8????\x8B\x06\x8B\xCE\xFF\x90????\x85\xC0\x74\x50") + 1);
     calculateView = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xEC\x14\x53\x56\x57\xFF\x75\x18");
     checkForSequenceChange = findPattern(crypt_str("client"), "\x55\x8B\xEC\x51\x53\x8B\x5D\x08\x56\x8B\xF1\x57\x85");
+    particleCollection = relativeToAbsolute<decltype(particleCollection)>(findPattern(crypt_str("client"), "\xE8????\x8B\x0E\x83\xC1\x10") + 1);
     physicsSimulate = findPattern(crypt_str("client"), "\x56\x8B\xF1\x8B?????\x83\xF9\xFF\x74\x23");
     getForeignFallbackFontName = findPattern(crypt_str("vguimatsurface"), "\x80\x3D?????\x74\x06\xB8");
     processInterpolatedList = findPattern(crypt_str("client"), "\x53\x0F\xB7\x1D????\x56");

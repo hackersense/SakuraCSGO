@@ -1479,7 +1479,7 @@ void c_lua::initialize()
 		(std::string)crypt_str("get_team"), &player_t::m_iTeamNum,
 		(std::string)crypt_str("is_alive"), &player_t::is_alive,
 		(std::string)crypt_str("get_velocity"), &player_t::m_vecVelocity,
-		(std::string)crypt_str("get_eye_position"), &player_t::get_shoot_position,
+		(std::string)crypt_str("get_eye_position"), &player_t::get_eye_position,
 		(std::string)crypt_str("get_hitbox_position"), &player_t::hitbox_position,
 		(std::string)crypt_str("has_helmet"), &player_t::m_bHasHelmet,
 		(std::string)crypt_str("has_heavy_armor"), &player_t::m_bHasHeavyArmor,

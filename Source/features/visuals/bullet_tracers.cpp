@@ -190,7 +190,7 @@ void bullettracers::draw_beams()
 				continue;
 			}
 
-			draw_beam(impacts.begin()->e == cheat.local(), impacts.begin()->e == cheat.local() ? ragebot::get().last_shoot_position : impacts.begin()->e->get_shoot_position(), impacts.begin()->impact_position, color);
+			draw_beam(impacts.begin()->e == cheat.local(), impacts.begin()->e == cheat.local() ? ragebot::get().last_shoot_position : impacts.begin()->e->get_eye_position(), impacts.begin()->impact_position, color);
 			impacts.erase(impacts.begin());
 			continue;
 		}

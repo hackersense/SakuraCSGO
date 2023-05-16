@@ -9,6 +9,7 @@
 #include "..\sdk\interfaces\IBaseClientDll.hpp"
 #include "..\sdk\interfaces\IClientMode.hpp"
 #include "..\sdk\misc\CUserCmd.hpp"
+#include "..\sdk\misc\ParticleCollection.h"
 #include "..\sdk\interfaces\IInputSystem.hpp"
 #include "..\sdk\interfaces\IMDLCache.hpp"
 #include "..\sdk\interfaces\IGameEventManager.hpp"
@@ -22,7 +23,7 @@ public:
 	void FireGameEvent(IGameEvent* event);
 	void Initialize();
 	void Uninstall();
-	int GetEventDebugID(void);
+	int GetEventDebugID();
 	void AddListener(const char* name);
 };
 
@@ -91,8 +92,9 @@ namespace Hooks
 	using PhysicsSimulateFn = void(__fastcall*)(player_t*);
 	using ModifyEyePositionFn = void(__thiscall*)(c_baseplayeranimationstate*, Vector&);
 	using CalcViewmodelBobFn = void(__thiscall*)(player_t*, Vector&);
-	using CheckForSequenceChangeFn = void(__thiscall*)(void*, void*, int, bool, bool);
-	using ProcessInterpolatedListFn = int(*)(void);
+    using CheckForSequenceChangeFn = void(__thiscall*)(void*, void*, int, bool, bool);
+    using ParticleCollectionFn = void(__thiscall*)(ParticleCollection* thisPointer);
+    using ProcessInterpolatedListFn = int(*)(void);
 	using CLMoveFn = void(__cdecl*)(float, bool);
 
 	extern DWORD original_getforeignfallbackfontname;
@@ -104,8 +106,9 @@ namespace Hooks
 	extern DWORD original_updateclientsideanimation;
 	extern DWORD original_calcviewmodelbob;
 	extern DWORD original_processinterpolatedlist;
-	extern DWORD original_checkforsequencechange;
-	extern DWORD original_clmove;
+    extern DWORD original_checkforsequencechange;
+    extern DWORD original_particlecollection;
+    extern DWORD original_clmove;
 
 	void __stdcall hooked_fsn(ClientFrameStage_t stage);
 	bool __stdcall hooked_createmove(float inputSampleTime, int sequenceNumber, bool active, CUserCmd* cmd, bool& sendPacket);

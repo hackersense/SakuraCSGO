@@ -480,7 +480,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 	eventlogs::get().events(event);
 }
 
-int C_HookedEvents::GetEventDebugID(void)
+int C_HookedEvents::GetEventDebugID()
 {
 	return EVENT_DEBUG_ID_INIT;
 }

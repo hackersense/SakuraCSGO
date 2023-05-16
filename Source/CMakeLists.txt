@@ -450,7 +450,7 @@ set(ALL_FILES
     ${no_group_source_files}
     ${Headers}
     ${Sources}
-)
+        sdk/misc/ParticleCollection.h utils/fnv.h)
 
 ################################################################################
 # Target

@@ -574,7 +574,7 @@ void misc::zeus_range()
 	if (!weapon_info)
 		return;
 
-	render::get().Draw3DRainbowCircle(cheat.local()->get_shoot_position(), weapon_info->flRange);
+	render::get().Draw3DRainbowCircle(cheat.local()->get_eye_position(), weapon_info->flRange);
 }
 
 void misc::night_mode()

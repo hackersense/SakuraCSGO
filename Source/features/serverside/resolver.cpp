@@ -57,9 +57,9 @@ bool resolver::isRoll(player_t* entity)
 	CGameTrace tone, ttwo, ttree;
 	CTraceFilter fl;
 	fl.pSkip = entity;
-	one.Init(cheat.local()->get_shoot_position(), first);
-	two.Init(cheat.local()->get_shoot_position(), second);
-	three.Init(cheat.local()->get_shoot_position(), third);
+	one.Init(cheat.local()->get_eye_position(), first);
+	two.Init(cheat.local()->get_eye_position(), second);
+	three.Init(cheat.local()->get_eye_position(), third);
 	m_trace()->TraceRay(one, MASK_PLAYERSOLID, &fl, &tone);
 	m_trace()->TraceRay(two, MASK_PLAYERSOLID, &fl, &ttwo);
 	m_trace()->TraceRay(three, MASK_PLAYERSOLID, &fl, &ttree);

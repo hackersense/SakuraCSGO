@@ -73,7 +73,7 @@ void setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	Vector vForward, vRight, vUp;
 	AngleVectors(angThrow, &vForward, &vRight, &vUp);
 
-	vecSrc = cheat.local()->get_shoot_position();
+	vecSrc = cheat.local()->get_eye_position();
 	float off = (power[grenade_act] * 12.0f) - 12.0f;
 	vecSrc.z += off;
 

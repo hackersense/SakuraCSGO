@@ -81,6 +81,7 @@ public:
     std::uintptr_t modifyEyePosition;
     std::uintptr_t calculateView;
     std::uintptr_t checkForSequenceChange;
+    std::uintptr_t particleCollection;
     std::uintptr_t physicsSimulate;
     std::uintptr_t getForeignFallbackFontName;
     std::uintptr_t processInterpolatedList;

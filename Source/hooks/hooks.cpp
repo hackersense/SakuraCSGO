@@ -220,8 +220,9 @@ namespace Hooks
 	DWORD original_updateclientsideanimation;
 	DWORD original_calcviewmodelbob;
 	DWORD original_processinterpolatedlist;
-	DWORD original_checkforsequencechange;
-	DWORD original_clmove;
+    DWORD original_checkforsequencechange;
+    DWORD original_particlecollection;
+    DWORD original_clmove;
 
 	ClientHook* player_hook;
 	ClientHook* clientstate_hook;

@@ -41,7 +41,7 @@ void legitbot::run(CUserCmd* cmd)
         auto bestFov = configs.legitbot.weapon[cheat.globals.current_weapon].fov;
         Vector bestTarget{ };
         player_t* bestEntity{ };
-        const auto localPlayerEyePosition = cheat.local()->get_shoot_position();
+        const auto localPlayerEyePosition = cheat.local()->get_eye_position();
 
         static auto weapon_recoil_scale = m_cvar()->FindVar(crypt_str("weapon_recoil_scale"));
 

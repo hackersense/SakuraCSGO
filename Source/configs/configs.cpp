@@ -324,7 +324,11 @@ void C_ConfigManager::setup()
 	setup_item(&configs.esp.lightning_on_hit_killonly, false, crypt_str("Lightning.kill_only"));
 	setup_item(&configs.esp.lightning_on_hit_width, 10, crypt_str("Lightning.width"));
 	setup_item(&configs.esp.lightning_on_hit_radius, 500, crypt_str("Lightning.radius"));
-	setup_item(&configs.esp.lightning_on_hit_beams, 12, crypt_str("Lightning.beams"));
+    setup_item(&configs.esp.lightning_on_hit_beams, 12, crypt_str("Lightning.beams"));
+    setup_item(&configs.esp.smoke_color_enabled, false, crypt_str("Smokecolor.enabled"));
+    setup_item(&configs.esp.smoke_color, Color::White, crypt_str("Smokecolor.color"));
+    setup_item(&configs.esp.molotov_color_enabled, false, crypt_str("Molotovcolor.enabled"));
+    setup_item(&configs.esp.molotov_color, Color::White, crypt_str("Molotovcolor.color"));
 
 	setup_item(&configs.esp.weapon, 6, crypt_str("Esp.dropped_weapon"));
 	setup_item(&configs.esp.box_color, Color::White, crypt_str("Esp.dropped_weapon_box_color"));

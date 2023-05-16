@@ -1473,7 +1473,12 @@ void menu::draw()
 				ImGui::SliderIntSkeet(crypt_str("Lightning radius"), &configs.esp.lightning_on_hit_radius, 0, 1000, "%.0f");
 				ImGui::SliderIntSkeet(crypt_str("Lightning beams"), &configs.esp.lightning_on_hit_beams, 0, 100, "%.0f");
 			}
-		}
+
+            ImGui::CheckboxSkeet(crypt_str("Smoke Color"), &configs.esp.smoke_color_enabled);
+            ImGui::ColorEdit4Fixed(crypt_str("##SMOKE_COLOR"), &configs.esp.smoke_color, ImGuiWindowFlags_NoTitleBar);
+            ImGui::CheckboxSkeet(crypt_str("Molotov Color"), &configs.esp.molotov_color_enabled);
+            ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOV_COLOR"), &configs.esp.molotov_color, ImGuiWindowFlags_NoTitleBar);
+        }
 		ImGui::EndChildSkeet();
 
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 160.2 + child_size.x, ImGui::GetWindowPos().y + 40.8 + child_size.y));
@@ -1496,7 +1501,7 @@ void menu::draw()
 			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTIONTRACER__COLOR"), &configs.esp.grenade_prediction_tracer_color, ImGuiWindowFlags_NoTitleBar);
 
 			if (configs.esp.grenade_prediction)
-				ImGui::CheckboxSkeet(crypt_str("Click only"), &configs.esp.grenade_prediction_click_only);
+				ImGui::CheckboxSkeet(crypt_str("Always Prediction"), &configs.esp.grenade_prediction_click_only);
 
 			ImGui::CheckboxSkeet(crypt_str("Grenade projectiles"), &configs.esp.projectiles);
 

@@ -647,26 +647,26 @@ float entity_t::get_first_sequence_anim_tag(int sequence, int animtag)
 	return returnValue;
 }
 
-Vector player_t::get_shoot_position()
+Vector player_t::get_eye_position()
 {
 	if (!this)
 		return ZERO;
 
-	//Vector shoot_position;
-	//VirtualMethod::call<void, 285>(this, std::ref(shoot_position));
+	//Vector position;
+	//VirtualMethod::call<void, 285>(this, std::ref(position));
 
-	Vector shoot_position = m_vecOrigin() + m_vecViewOffset();
+	Vector position = m_vecOrigin() + m_vecViewOffset();
 
 	if (this != cheat.local())
 	{
-		//modify_eye_position(get_animation_state(), shoot_position);
+		//modify_eye_position(get_animation_state(), position);
 
-		return shoot_position;
+		return position;
 	}
 
-	modify_eye_position(shoot_position);
+	modify_eye_position(position);
 
-	return shoot_position;
+	return position;
 }
 
 /*
