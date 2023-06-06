@@ -59,7 +59,6 @@ typedef int VertexFormat_t;
 typedef int MaterialPropertyTypes_t;
 
 class IClientRenderable;
-class IMaterial;
 class NEWMaterial;
 class c_studio_hdr;
 class IMatRenderContext;

@@ -11,12 +11,6 @@ public:
     VIRTUAL_METHOD(void, SetVecComponentValue, 26, (float value, int component), (this, value, component))
 };
 
-// enum class MaterialVarFlag {
-//     NO_DRAW = 1 << 2,
-//     IGNOREZ = 1 << 15,
-//     WIREFRAME = 1 << 28
-// };
-
 class NEWMaterial {
 public:
     VIRTUAL_METHOD(const char*, GetName, 0, (), (this))

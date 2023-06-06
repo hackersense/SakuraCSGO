@@ -635,8 +635,6 @@ std::string weapon_t::get_name()
 
 std::array<float, 24>& entity_t::m_flPoseParameter()
 {
-	// CCSPlayer
-
 	static auto _m_flPoseParameter = netvars::get().get_offset(crypt_str("CBaseAnimating"), crypt_str("m_flPoseParameter"));
 	return *reinterpret_cast<std::array<float, 24>*>(uintptr_t(this) + _m_flPoseParameter);
 }
@@ -1219,10 +1217,10 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 	cheat.globals.setuping_bones = true;
 	invalidate_bone_cache();
 
-	//if (mask == BONE_USED_BY_ANYTHING) {
-	setuped = SetupBones(matrix, maxBones, mask, currentTime);
-		/*
-	} else {
+	if (mask == BONE_USED_BY_ANYTHING) {
+		setuped = SetupBones(matrix, maxBones, mask, currentTime);
+	}
+	else {
 		CSetupBones setup_bones;
 
 		setup_bones.m_animating = this;
@@ -1259,7 +1257,7 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 
 		setuped = true;
 	}
-	*/
+
 	cheat.globals.setuping_bones = false;
 
 	if (this != cheat.local())
