@@ -56,15 +56,19 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		sendPacket = cheat.globals.need_shift_tickbase == 1;
 		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
 
-		if (cmd->m_sidemove > 5.0f)
-			cmd->m_sidemove = 450.0f;
-		else if (cmd->m_sidemove < -5.0f)
-			cmd->m_sidemove = -450.0f;
+		//if (cmd->m_sidemove > 5.0f)
+		//	cmd->m_sidemove = 450.0f;
+		//else if (cmd->m_sidemove < -5.0f)
+		//	cmd->m_sidemove = -450.0f;
 
-		if (cmd->m_forwardmove > 5.0f)
-			cmd->m_forwardmove = 450.0f;
-		else if (cmd->m_forwardmove < -5.0f)
-			cmd->m_forwardmove = -450.0f;
+		//if (cmd->m_forwardmove > 5.0f)
+		//	cmd->m_forwardmove = 450.0f;
+		//else if (cmd->m_forwardmove < -5.0f)
+		//	cmd->m_forwardmove = -450.0f;
+
+		const auto speed = util::get_speed_move(cmd);
+		cmd->m_forwardmove = speed.x;
+		cmd->m_sidemove = speed.y;
 
 		/*
 		if (configs.ragebot.disable_teleport)
@@ -105,7 +109,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 			else if (cheat.globals.original_sidemove < -5.0f)
 				cmd->m_sidemove = -max_move.y;
 		}
-		*/
+=
 
 		auto currentViewAngles{ cmd->m_viewangles };
 		auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
@@ -145,8 +149,8 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		}
 		else
 			cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
-
-		util::movement_fix(currentViewAngles, cmd);
+								*/
+		//util::movement_fix(currentViewAngles, cmd);
 
 		cheat.globals.in_createmove = false;
 		return false;
@@ -159,8 +163,8 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		++cheat.globals.ticks_allowed;
 
 		cmd->m_tickcount = INT_MAX;
-		//cmd->m_forwardmove = cmd->m_sidemove = cmd->m_upmove = 0.0f;
-		//cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
+		cmd->m_forwardmove = cmd->m_sidemove = cmd->m_upmove = 0.0f;
+		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
 
 		if (cheat.globals.ticks_allowed >= tickAllowed)
 		{
@@ -612,7 +616,7 @@ void __stdcall Hooks::CHLCreateMove(int sequenceNumber, float inputSampleTime, b
 {
 	client_hook.callOriginal<void, 22>(sequenceNumber, inputSampleTime, active);
 
-	//cheat.globals.in_createmove = false;
+	cheat.globals.in_createmove = false;
 
 	CUserCmd* cmd = m_input()->GetUserCmd(sequenceNumber);
 	CVerifiedUserCmd* verified = m_input()->GetVerifiedUserCmd(sequenceNumber);
