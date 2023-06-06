@@ -7,7 +7,7 @@ void nightmode::clear_stored_materials()
 	materials.clear();
 }
 
-void nightmode::modulate(MaterialHandle_t i, IMaterial* material, bool backup = false) 
+void nightmode::modulate(MaterialHandle_t i, NEWMaterial* material, bool backup = false) 
 {
 	auto name = material->GetTextureGroupName();
 
@@ -40,7 +40,7 @@ void nightmode::apply()
 	}
 
 	materials.clear();
-	auto materialsystem = m_materialsystem();
+	auto materialsystem = m_materialsystem2();
 
 	for (auto i = materialsystem->FirstMaterial(); i != materialsystem->InvalidMaterial(); i = materialsystem->NextMaterial(i))
 	{

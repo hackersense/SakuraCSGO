@@ -4,6 +4,7 @@
 #include "..\math\Vector4D.hpp"
 #include "..\math\Vector.hpp"
 #include "IMaterialSystem.hpp"
+#include "..\new\Material.h"
 
 class IVStudioRender
 {
@@ -40,7 +41,7 @@ public:
 		CallVFunc<void>(this, 28, flAlpha);
 	}
 
-	void ForcedMaterialOverride(IMaterial* pMaterial, OverrideType_t nOverrideType = 0, int nOverrides = 0)
+	void ForcedMaterialOverride(NEWMaterial* pMaterial, OverrideType_t nOverrideType = 0, int nOverrides = 0)
 	{
 		CallVFunc<void>(this, 33, pMaterial, nOverrideType, nOverrides);
 	}

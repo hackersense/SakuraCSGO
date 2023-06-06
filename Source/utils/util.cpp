@@ -386,6 +386,17 @@ namespace util
 		m_renderview()->SetColorModulation(color[0], color[1], color[2]);
 	}
 
+	void color_modulate(float color[3], NEWMaterial* material)
+	{
+		auto found = false;
+		auto var = material->FindVar(crypt_str("$envmaptint"), &found);
+
+		if (found)
+			var->SetVectorValue(color[0], color[1], color[2]);
+
+		m_renderview()->SetColorModulation(color[0], color[1], color[2]);
+	}
+
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix)
 	{
 		if (!configs.ragebot.enabled && !configs.legitbot.enabled && !configs.backtrack.enabled)

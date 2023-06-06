@@ -2,7 +2,7 @@
 #include "..\..\features\serverside\local_animations.h"
 #include "..\..\features\visuals\player_esp.h"
 
-IMaterial* CreateMaterial(bool lit, const std::string& material_data)
+NEWMaterial* CreateMaterial(bool lit, const std::string& material_data)
 {
 	static auto created = 0;
 	std::string type = lit ? crypt_str("VertexLitGeneric") : crypt_str("UnlitGeneric");
@@ -10,7 +10,7 @@ IMaterial* CreateMaterial(bool lit, const std::string& material_data)
 	auto matname = (cheat.cheatnamelower + crypt_str("_")).c_str() + std::to_string(created);
 	++created;
 
-	auto material = m_materialsystem()->CreateMaterial(matname.c_str(), KeyValues::FromString(type.c_str(), material_data.c_str()));
+	auto material = m_materialsystem2()->CreateMaterial(matname.c_str(), KeyValues::FromString(type.c_str(), material_data.c_str()));
 	material->IncrementReferenceCount();
 
 	return material;
@@ -47,7 +47,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	if (!is_player && !is_weapon && !is_arms && !is_sleeve)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
-	static IMaterial* materials[] =
+	static NEWMaterial* materials[] =
 	{
 		CreateMaterial(true, crypt_str(R"#("VertexLitGeneric"
 			{
@@ -96,11 +96,11 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				"$wireframe"				"0"
 			}
 		)#")),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
 		CreateMaterial(true, crypt_str(R"#("VertexLitGeneric" 
 			{ 
 				"$additive"					"1" 

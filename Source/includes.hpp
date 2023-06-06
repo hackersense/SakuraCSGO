@@ -73,6 +73,7 @@
 #define m_inputsystem g_csgo.m_inputsystem
 #define m_localize g_csgo.m_localize
 #define m_materialsystem g_csgo.m_materialsystem
+#define m_materialsystem2 g_csgo.m_materialsystem2
 #define m_memalloc g_csgo.m_memalloc
 #define m_modelcache g_csgo.m_modelcache
 #define m_modelinfo g_csgo.m_modelinfo

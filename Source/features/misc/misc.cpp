@@ -1233,6 +1233,54 @@ void misc::anti_exploit()
 	cl_lagcompensation->SetValue(!configs.misc.anti_exploit);
 }
 
+void misc::color_console() {
+	static NEWMaterial* material[5];
+	if (!material[0] || !material[1] || !material[2] || !material[3] || !material[4]) {
+		for (short h = m_materialsystem2()->FirstMaterial(); h != m_materialsystem2()->InvalidMaterial(); h = m_materialsystem2()->NextMaterial(h)) {
+			const auto mat = m_materialsystem2()->GetMaterial(h);
+
+			if (!mat)
+				continue;
+
+			if (strstr(mat->GetName(), "vgui_white"))
+				material[0] = mat;
+			else if (strstr(mat->GetName(), "800corner1"))
+				material[1] = mat;
+			else if (strstr(mat->GetName(), "800corner2"))
+				material[2] = mat;
+			else if (strstr(mat->GetName(), "800corner3"))
+				material[3] = mat;
+			else if (strstr(mat->GetName(), "800corner4"))
+				material[4] = mat;
+		}
+	}
+	else {
+		for (unsigned int num = 0; num < 5; num++) {
+			//if (reset == 1)
+			//{
+			//	material[num]->ColorModulate(1.f, 1.f, 1.f);
+			//	material[num]->AlphaModulate(1.f);
+			//	continue;
+			//}
+
+			if (!configs.esp.console_color_enabled || !m_engine()->Con_IsVisible()) {
+				material[num]->ColorModulate(1.f, 1.f, 1.f);
+				material[num]->AlphaModulate(1.f);
+				continue;
+			}
+
+			//if (config->visuals.console.rainbow) {
+			//	material[num]->ColorModulate(rainbowColor(config->visuals.console.rainbowSpeed));
+			//  material[num]->AlphaModulate(configs.esp.console_color.get_alpha());
+			//}
+			//else {
+			material[num]->ColorModulate(configs.esp.console_color.get_red() / 255.f, configs.esp.console_color.get_green() / 255.f, configs.esp.console_color.get_blue() / 255.f);
+			material[num]->AlphaModulate(configs.esp.console_color.get_alpha() / 255.f);
+			//}
+		}
+	}
+}
+
 void misc::draw_server_hitboxes() {
 	if (!configs.misc.server_hitbox)
 		return;
@@ -1245,8 +1293,8 @@ void misc::draw_server_hitboxes() {
 
 	if (!m_input()->m_bCameraInThirdPerson)
 		return;
-
-	auto get_player_by_index = [](int index) -> player_t* { //i dont need this shit func for anything else so it can be lambda
+	 
+	auto get_player_by_index = [](int index) -> player_t* { // i dont need this shit func for anything else so it can be lambda
 		typedef player_t* (__fastcall* player_by_index)(int);
 		static auto player_index = reinterpret_cast<player_by_index>(util::FindSignature(crypt_str("server.dll"), crypt_str("85 C9 7E 32 A1")));
 

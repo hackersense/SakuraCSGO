@@ -56,17 +56,17 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		sendPacket = cheat.globals.need_shift_tickbase == 1;
 		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
 
-        if (cmd->m_sidemove > 5.0f)
-            cmd->m_sidemove = 450.0f;
-        else if (cmd->m_sidemove < -5.0f)
-            cmd->m_sidemove = -450.0f;
+		if (cmd->m_sidemove > 5.0f)
+			cmd->m_sidemove = 450.0f;
+		else if (cmd->m_sidemove < -5.0f)
+			cmd->m_sidemove = -450.0f;
 
-        if (cmd->m_forwardmove > 5.0f)
-            cmd->m_forwardmove = 450.0f;
-        else if (cmd->m_forwardmove < -5.0f)
-            cmd->m_forwardmove = -450.0f;
+		if (cmd->m_forwardmove > 5.0f)
+			cmd->m_forwardmove = 450.0f;
+		else if (cmd->m_forwardmove < -5.0f)
+			cmd->m_forwardmove = -450.0f;
 
-        /*
+		/*
 		if (configs.ragebot.disable_teleport)
 		{
 			cmd->m_forwardmove = cmd->m_sidemove = 0.0f;
@@ -105,48 +105,48 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 			else if (cheat.globals.original_sidemove < -5.0f)
 				cmd->m_sidemove = -max_move.y;
 		}
-        */
+		*/
 
-        auto currentViewAngles{ cmd->m_viewangles };
-        auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
+		auto currentViewAngles{ cmd->m_viewangles };
+		auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
 
-        engineprediction::get().prediction_data.reset();
-        engineprediction::get().setup();
+		engineprediction::get().prediction_data.reset();
+		engineprediction::get().setup();
 
-        engineprediction::get().predict(cmd);
+		engineprediction::get().predict(cmd);
 
-        if (configs.misc.airstrafe)
-            airstrafe::get().create_move(cmd, currentViewAngles);
+		if (configs.misc.airstrafe)
+			airstrafe::get().create_move(cmd, currentViewAngles);
 
-        misc::get().blockbot(cmd);
+		misc::get().blockbot(cmd);
 
-        movement::get().longjump(cmd);
-        movement::get().jumpbug(cmd);
+		movement::get().longjump(cmd);
+		movement::get().jumpbug(cmd);
 
-        movement::get().edgejump(cmd);
+		movement::get().edgejump(cmd);
 
-        if (key_binds::get().get_key_bind_state(key_bind_features::SLOW_WALK))
-            slowwalk::get().create_move(cmd);
+		if (key_binds::get().get_key_bind_state(key_bind_features::SLOW_WALK))
+			slowwalk::get().create_move(cmd);
 
-        if (configs.ragebot.enabled && !cheat.globals.weapon->is_non_aim() && engineprediction::get().backup_data.flags & FL_ONGROUND && cheat.local()->m_fFlags() & FL_ONGROUND)
-            slowwalk::get().create_move(cmd, 0.95f + 0.003125f * (16.f - m_clientstate()->m_iChokedCommands));
+		if (configs.ragebot.enabled && !cheat.globals.weapon->is_non_aim() && engineprediction::get().backup_data.flags & FL_ONGROUND && cheat.local()->m_fFlags() & FL_ONGROUND)
+			slowwalk::get().create_move(cmd, 0.95f + 0.003125f * (16.f - m_clientstate()->m_iChokedCommands));
 
-        misc::get().automatic_peek(cmd, currentViewAngles.y);
+		misc::get().automatic_peek(cmd, currentViewAngles.y);
 
-        if (cheat.local()->is_alive())
-            memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
+		if (cheat.local()->is_alive())
+			memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
 
-        util::fix_mouse_delta(cmd);
+		util::fix_mouse_delta(cmd);
 
-        if (configs.misc.anti_untrusted)
-        {
-            math::normalize_angles(cmd->m_viewangles);
-            cmd->m_viewangles.z = 0.0f;
-        }
-        else
-            cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
+		if (configs.misc.anti_untrusted)
+		{
+			math::normalize_angles(cmd->m_viewangles);
+			cmd->m_viewangles.z = 0.0f;
+		}
+		else
+			cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
 
-        util::movement_fix(currentViewAngles, cmd);
+		util::movement_fix(currentViewAngles, cmd);
 
 		cheat.globals.in_createmove = false;
 		return false;
@@ -172,7 +172,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 		return false;
 	}
-	
+
 	if (cheat.globals.ticks_allowed < tickAllowed && (misc::get().double_tap_key || misc::get().hide_shots_key) && !cheat.globals.fakeducking)
 		cheat.globals.should_recharge = true;
 

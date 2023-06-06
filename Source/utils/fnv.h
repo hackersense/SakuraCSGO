@@ -1,7 +1,6 @@
 #include <cstdint>
 
-namespace fnv
-{
+namespace fnv {
     constexpr uint32_t offsetBasis = 0x811c9dc5;
     constexpr uint32_t prime = 0x1000193;
 
@@ -19,7 +18,6 @@ namespace fnv
             value ^= *str++;
             value *= prime;
         }
-
         return value;
     }
 }

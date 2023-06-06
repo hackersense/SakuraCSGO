@@ -45,6 +45,7 @@ public:
 	void blockbot(CUserCmd* cmd);
 	void anti_crasher();
 	void anti_exploit();
+	void color_console();
 	void draw_server_hitboxes();
 	void killfeed_changer(IGameEvent& event);
 	void preserve_killfeed(bool roundStart = false);

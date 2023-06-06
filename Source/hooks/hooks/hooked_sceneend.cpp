@@ -39,17 +39,17 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
 		if (!configs.player.type[type].ragdoll_chams)
 			continue;
 
-		static IMaterial* chams_materials[] =
+		static NEWMaterial* chams_materials[] =
 		{
-			m_materialsystem()->FindMaterial((cheat.cheatnamelower + crypt_str("_chams")).c_str(), nullptr),
-			m_materialsystem()->FindMaterial((cheat.cheatnamelower + crypt_str("_metallic")).c_str(), nullptr),
-			m_materialsystem()->FindMaterial((cheat.cheatnamelower + crypt_str("_flat")).c_str(), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
-			m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
-			m_materialsystem()->FindMaterial((cheat.cheatnamelower + crypt_str("_glow")).c_str(), nullptr)
+			m_materialsystem2()->FindMaterial((cheat.cheatnamelower + crypt_str("_chams")).c_str(), nullptr),
+			m_materialsystem2()->FindMaterial((cheat.cheatnamelower + crypt_str("_metallic")).c_str(), nullptr),
+			m_materialsystem2()->FindMaterial((cheat.cheatnamelower + crypt_str("_flat")).c_str(), nullptr),
+			m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
+			m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
+			m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
+			m_materialsystem2()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
+			m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
+			m_materialsystem2()->FindMaterial((cheat.cheatnamelower + crypt_str("_glow")).c_str(), nullptr)
 		};
 
 		auto material = chams_materials[configs.player.type[type].ragdoll_chams_material];

@@ -92,8 +92,8 @@ __forceinline void setup_skins()
     std::sort(SkinChanger::gloveKits.begin(), SkinChanger::gloveKits.end());
 }
 
-using GetEyeAngles = Vector*(__thiscall*)(void*);
-using BuildTransformations = Vector*(__thiscall*)(void*, c_studio_hdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
+using GetEyeAngles = Vector * (__thiscall*)(void*);
+using BuildTransformations = Vector * (__thiscall*)(void*, c_studio_hdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
 void* pBuildTransformationsEntity;
 Vector vecBuildTransformationsAngles;
 
@@ -221,52 +221,51 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
 
     switch (fnv::hash(rootName))
     {
-        case fnv::hash("molotov_groundfire"):
-        case fnv::hash("molotov_groundfire_00MEDIUM"):
-        case fnv::hash("molotov_groundfire_00HIGH"):
-        case fnv::hash("molotov_groundfire_fallback"):
-        case fnv::hash("molotov_groundfire_fallback2"):
-        case fnv::hash("molotov_explosion"):
-        case fnv::hash("explosion_molotov_air"):
-        case fnv::hash("extinguish_fire"):
-        case fnv::hash("weapon_molotov_held"):
-        case fnv::hash("weapon_molotov_fp"):
-        case fnv::hash("weapon_molotov_thrown"):
-        case fnv::hash("incgrenade_thrown_trail"):
-            switch (fnv::hash(thisPointer->def.object->name.buffer))
-            {
-                case fnv::hash("explosion_molotov_air_smoke"):
-                case fnv::hash("molotov_smoking_ground_child01"):
-                case fnv::hash("molotov_smoking_ground_child02"):
-                case fnv::hash("molotov_smoking_ground_child02_cheapo"):
-                case fnv::hash("molotov_smoking_ground_child03"):
-                case fnv::hash("molotov_smoking_ground_child03_cheapo"):
-                case fnv::hash("molotov_smoke_screen"):
-                    break;
-                default:
-                    if (configs.esp.molotov_color_enabled) {
-                        for (int i = 0; i < thisPointer->activeParticles; i++) {
-                            float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
-                            color[0] = configs.esp.molotov_color.get_red() / 255.f;
-                            color[4] = configs.esp.molotov_color.get_green() / 255.f;
-                            color[8] = configs.esp.molotov_color.get_blue() / 255.f;
-                            float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
-                            *alpha = configs.esp.molotov_color.get_alpha() / 255.f;
-                        }
-                    }
-                    break;
-            }
+    case fnv::hash("molotov_groundfire"):
+    case fnv::hash("molotov_groundfire_00MEDIUM"):
+    case fnv::hash("molotov_groundfire_00HIGH"):
+    case fnv::hash("molotov_groundfire_fallback"):
+    case fnv::hash("molotov_groundfire_fallback2"):
+    case fnv::hash("molotov_explosion"):
+    case fnv::hash("explosion_molotov_air"):
+    case fnv::hash("extinguish_fire"):
+    case fnv::hash("weapon_molotov_held"):
+    case fnv::hash("weapon_molotov_fp"):
+    case fnv::hash("weapon_molotov_thrown"):
+    case fnv::hash("incgrenade_thrown_trail"):
+        switch (fnv::hash(thisPointer->def.object->name.buffer))
+        {
+        case fnv::hash("explosion_molotov_air_smoke"):
+        case fnv::hash("molotov_smoking_ground_child01"):
+        case fnv::hash("molotov_smoking_ground_child02"):
+        case fnv::hash("molotov_smoking_ground_child02_cheapo"):
+        case fnv::hash("molotov_smoking_ground_child03"):
+        case fnv::hash("molotov_smoking_ground_child03_cheapo"):
+        case fnv::hash("molotov_smoke_screen"):
             break;
-        case fnv::hash("explosion_smokegrenade_fallback"): {
-            if (configs.esp.smoke_color_enabled) {
+        default:
+            if (configs.esp.molotov_color_enabled) {
                 for (int i = 0; i < thisPointer->activeParticles; i++) {
                     float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
-                    color[0] = configs.esp.smoke_color.get_red() / 255.f;
-                    color[4] = configs.esp.smoke_color.get_green() / 255.f;
-                    color[8] = configs.esp.smoke_color.get_blue() / 255.f;
+                    color[0] = configs.esp.molotov_color.get_red() / 255.f;
+                    color[4] = configs.esp.molotov_color.get_green() / 255.f;
+                    color[8] = configs.esp.molotov_color.get_blue() / 255.f;
                     float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
-                    *alpha = configs.esp.smoke_color.get_alpha() / 255.f;
+                    *alpha = configs.esp.molotov_color.get_alpha() / 255.f;
                 }
+            }
+            break;
+        }
+        break;
+    case fnv::hash("explosion_smokegrenade_fallback"):
+        if (configs.esp.smoke_color_enabled) {
+            for (int i = 0; i < thisPointer->activeParticles; i++) {
+                float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
+                color[0] = configs.esp.smoke_color.get_red() / 255.f;
+                color[4] = configs.esp.smoke_color.get_green() / 255.f;
+                color[8] = configs.esp.smoke_color.get_blue() / 255.f;
+                float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
+                *alpha = configs.esp.smoke_color.get_alpha() / 255.f;
             }
         }
     }
@@ -302,18 +301,18 @@ __declspec(naked) void __stdcall createMoveProxy(int sequenceNumber, float input
 {
     __asm
     {
-            PUSH	EBP
-            MOV		EBP, ESP
-            PUSH	EBX
-            LEA		ECX, [ESP]
-            PUSH	ECX
-            PUSH	active
-            PUSH	inputSampleTime
-            PUSH	sequenceNumber
-            CALL	Hooks::CHLCreateMove
-            POP		EBX
-            POP		EBP
-            RETN	0xC
+        PUSH	EBP
+        MOV		EBP, ESP
+        PUSH	EBX
+        LEA		ECX, [ESP]
+        PUSH	ECX
+        PUSH	active
+        PUSH	inputSampleTime
+        PUSH	sequenceNumber
+        CALL	Hooks::CHLCreateMove
+        POP		EBX
+        POP		EBP
+        RETN	0xC
     }
 }
 
@@ -584,11 +583,11 @@ int64_t getTimeStamp()
     mSecond = sys.wMilliseconds;
 #else
     struct timeval tv;
-	struct timezone tz;
-	struct tm* p;
-	gettimeofday(&tv, &tz);
-	p = localtime(&tv.tv_sec);
-	mSecond = tv.tv_usec / 1000;
+    struct timezone tz;
+    struct tm* p;
+    gettimeofday(&tv, &tz);
+    p = localtime(&tv.tv_sec);
+    mSecond = tv.tv_usec / 1000;
 #endif
     int64_t timeStamp = ((int64_t)time(NULL)) * 1000 + mSecond;
     return timeStamp;
@@ -611,7 +610,7 @@ static inline void adjustPrivileges()
 }
 
 typedef BOOL(WINAPI* MiniDumpWriteDumpT)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
-                                         PMINIDUMP_EXCEPTION_INFORMATION, PMINIDUMP_USER_STREAM_INFORMATION, PMINIDUMP_CALLBACK_INFORMATION);
+    PMINIDUMP_EXCEPTION_INFORMATION, PMINIDUMP_USER_STREAM_INFORMATION, PMINIDUMP_CALLBACK_INFORMATION);
 
 int CreateDump(PEXCEPTION_POINTERS pointers) {
     HMODULE dbg_help = LoadLibrary("DbgHelp.dll");
@@ -632,14 +631,14 @@ int CreateDump(PEXCEPTION_POINTERS pointers) {
 
     std::stringstream ss;
     ss << dump_dir << "\\sakura-" << local_time.wYear << "-" <<
-       std::setw(2) << std::setfill('0') << local_time.wMonth << "-" <<
-       std::setw(2) << std::setfill('0') << local_time.wDay << "-" <<
-       std::setw(2) << std::setfill('0') << local_time.wHour <<
-       std::setw(2) << std::setfill('0') << local_time.wMinute <<
-       std::setw(2) << std::setfill('0') << local_time.wSecond << ".dmp";
+        std::setw(2) << std::setfill('0') << local_time.wMonth << "-" <<
+        std::setw(2) << std::setfill('0') << local_time.wDay << "-" <<
+        std::setw(2) << std::setfill('0') << local_time.wHour <<
+        std::setw(2) << std::setfill('0') << local_time.wMinute <<
+        std::setw(2) << std::setfill('0') << local_time.wSecond << ".dmp";
 
     HANDLE dump_file = CreateFile(ss.str().c_str(), GENERIC_READ | GENERIC_WRITE,
-                                  FILE_SHARE_WRITE | FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+        FILE_SHARE_WRITE | FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
     if (INVALID_HANDLE_VALUE == dump_file) {
         FreeLibrary(dbg_help);
         return EXCEPTION_CONTINUE_EXECUTION;
@@ -653,7 +652,7 @@ int CreateDump(PEXCEPTION_POINTERS pointers) {
     // MiniDumpWithDataSegs : normal is good
     // MiniDumpNormal Small but MiniDumpWithFullMemory biger
     dump_writer(GetCurrentProcess(), GetCurrentProcessId(),
-                dump_file, MiniDumpWithDataSegs, (pointers ? &param : nullptr), nullptr, nullptr);
+        dump_file, MiniDumpWithDataSegs, (pointers ? &param : nullptr), nullptr, nullptr);
 
     CloseHandle(dump_file);
     FreeLibrary(dbg_help);

@@ -26,6 +26,7 @@ C_CSGO g_csgo;
 #undef m_localize
 #undef m_enginetool
 #undef m_materialsystem
+#undef m_materialsystem2
 #undef m_memalloc
 #undef m_modelcache
 #undef m_modelinfo
@@ -198,9 +199,16 @@ IPanoramaUIEngine* C_CSGO::m_panoramauiengine() {
 
 IMaterialSystem* C_CSGO::m_materialsystem() {
 	if (!p_materialsystem)
-		p_materialsystem = get_interface<IMaterialSystem>(crypt_str("materialsystem.dll"), crypt_str("VMaterialSystem"));
+		p_materialsystem = getInterface<IMaterialSystem>(crypt_str("materialsystem.dll"), crypt_str("VMaterialSystem080"));
 
 	return p_materialsystem;
+}
+
+MaterialSystem* C_CSGO::m_materialsystem2() {
+	if (!p_materialsystem2)
+		p_materialsystem2 = getInterface<MaterialSystem>(crypt_str("materialsystem.dll"), crypt_str("VMaterialSystem080"));
+
+	return p_materialsystem2;
 }
 
 IPanel* C_CSGO::m_panel() {

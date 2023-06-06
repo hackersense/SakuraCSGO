@@ -230,7 +230,10 @@ set(Headers
     "sdk/misc/UtlString.hpp"
     "sdk/misc/UtlVector.hpp"
     "sdk/misc/UtlVectorSimple.hpp"
+    "sdk/misc/ParticleCollection.h"
     "sdk/misc/vfunc.hpp"
+    "sdk/new/Material.h"
+    "sdk/new/MaterialSystem.h"
     "sdk/MusicStatus.hpp"
     "sdk/ProtobufReader.h"
     "sdk/Steam.h"
@@ -313,6 +316,7 @@ set(Headers
     "utils/util.hpp"
     "utils/WindowUtils.h"
     "utils/x86RetSpoof.h"
+    "utils/fnv.h"
 )
 source_group("Headers" FILES ${Headers})
 
@@ -450,7 +454,7 @@ set(ALL_FILES
     ${no_group_source_files}
     ${Headers}
     ${Sources}
-        sdk/misc/ParticleCollection.h utils/fnv.h)
+)
 
 ################################################################################
 # Target

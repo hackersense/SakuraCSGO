@@ -156,7 +156,7 @@ namespace Hooks
 		ImGui::NewFrame();
 
 		//PostProcessing::newFrame();
-		
+
 		if (const auto& displaySize = ImGui::GetIO().DisplaySize; displaySize.x > 0.0f && displaySize.y > 0.0f) {
 			imRender->BeginScene();
 
@@ -220,9 +220,9 @@ namespace Hooks
 	DWORD original_updateclientsideanimation;
 	DWORD original_calcviewmodelbob;
 	DWORD original_processinterpolatedlist;
-    DWORD original_checkforsequencechange;
-    DWORD original_particlecollection;
-    DWORD original_clmove;
+	DWORD original_checkforsequencechange;
+	DWORD original_particlecollection;
+	DWORD original_clmove;
 
 	ClientHook* player_hook;
 	ClientHook* clientstate_hook;

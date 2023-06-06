@@ -635,7 +635,9 @@ std::string weapon_t::get_name()
 
 std::array<float, 24>& entity_t::m_flPoseParameter()
 {
-	static auto _m_flPoseParameter = netvars::get().get_offset(crypt_str("CCSPlayer"), crypt_str("m_flPoseParameter"));
+	// CCSPlayer
+
+	static auto _m_flPoseParameter = netvars::get().get_offset(crypt_str("CBaseAnimating"), crypt_str("m_flPoseParameter"));
 	return *reinterpret_cast<std::array<float, 24>*>(uintptr_t(this) + _m_flPoseParameter);
 }
 

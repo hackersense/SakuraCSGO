@@ -1474,11 +1474,13 @@ void menu::draw()
 				ImGui::SliderIntSkeet(crypt_str("Lightning beams"), &configs.esp.lightning_on_hit_beams, 0, 100, "%.0f");
 			}
 
-            ImGui::CheckboxSkeet(crypt_str("Smoke Color"), &configs.esp.smoke_color_enabled);
-            ImGui::ColorEdit4Fixed(crypt_str("##SMOKE_COLOR"), &configs.esp.smoke_color, ImGuiWindowFlags_NoTitleBar);
-            ImGui::CheckboxSkeet(crypt_str("Molotov Color"), &configs.esp.molotov_color_enabled);
-            ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOV_COLOR"), &configs.esp.molotov_color, ImGuiWindowFlags_NoTitleBar);
-        }
+			ImGui::CheckboxSkeet(crypt_str("Smoke Color"), &configs.esp.smoke_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##SMOKE_COLOR"), &configs.esp.smoke_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Molotov Color"), &configs.esp.molotov_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOV_COLOR"), &configs.esp.molotov_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Console Color"), &configs.esp.console_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##CONSOLE_COLOR"), &configs.esp.console_color, ImGuiWindowFlags_NoTitleBar);
+		}
 		ImGui::EndChildSkeet();
 
 		ImGui::SetNextWindowPos(ImVec2(ImGui::GetWindowPos().x + 160.2 + child_size.x, ImGui::GetWindowPos().y + 40.8 + child_size.y));
@@ -1598,7 +1600,7 @@ void menu::draw()
 			ImGui::SliderIntSkeet(crypt_str("Thirdperson distance"), &configs.misc.thirdperson_distance, 100, 300, "%.0f");
 
 			ImGui::SliderIntSkeet(crypt_str("Field of view"), &configs.esp.fov, 0, 89, "%.0f");
-		
+
 			ImGui::CheckboxSkeet(crypt_str("Taser range"), &configs.esp.taser_range);
 			ImGui::CheckboxSkeet(crypt_str("Show spread"), &configs.esp.show_spread);
 
@@ -2717,7 +2719,7 @@ __forceinline void AngleMatrix(const QAngle& angView, matrix3x4_t& matOutput, co
 	matOutput.SetOrigin(vecOrigin);
 }
 
-IMaterial* fCreateMaterial(bool lit, const std::string& material_data)
+NEWMaterial* fCreateMaterial(bool lit, const std::string& material_data)
 {
 	static auto created = 0;
 	std::string type = lit ? crypt_str("VertexLitGeneric") : crypt_str("UnlitGeneric");
@@ -2725,7 +2727,7 @@ IMaterial* fCreateMaterial(bool lit, const std::string& material_data)
 	auto matname = cheat.cheatnamelower + crypt_str("_") + std::to_string(created);
 	++created;
 
-	auto material = m_materialsystem()->CreateMaterial(matname.c_str(), KeyValues::FromString(type.c_str(), material_data.c_str()));
+	auto material = m_materialsystem2()->CreateMaterial(matname.c_str(), KeyValues::FromString(type.c_str(), material_data.c_str()));
 	material->IncrementReferenceCount();
 
 	return material;
@@ -2733,9 +2735,9 @@ IMaterial* fCreateMaterial(bool lit, const std::string& material_data)
 
 void ApplyMaterial(int32_t iMaterial, bool bIgnoreZ, Color aColor, bool bCustom, bool bShotChams)
 {
-	IMaterial* pRenderMaterial = nullptr;
+	NEWMaterial* pRenderMaterial = nullptr;
 
-	static IMaterial* materials[] =
+	static NEWMaterial* materials[] =
 	{
 		fCreateMaterial(true, crypt_str(R"#("VertexLitGeneric"
 			{
@@ -2784,11 +2786,11 @@ void ApplyMaterial(int32_t iMaterial, bool bIgnoreZ, Color aColor, bool bCustom,
 				"$wireframe"				"0"
 			}
 		)#")),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
-		m_materialsystem()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/dogtags/dogtags_outline"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/trophy_majors/crystal_clear"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/cologne_prediction/cologne_prediction_glass"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("dev/glow_armsrace.vmt"), nullptr),
+		m_materialsystem2()->FindMaterial(crypt_str("models/inventory_items/wildfire_gold/wildfire_gold_detail"), nullptr),
 		fCreateMaterial(true, crypt_str(R"#("VertexLitGeneric" 
 			{ 
 				"$additive"					"1" 
@@ -2834,12 +2836,12 @@ void ApplyMaterial(int32_t iMaterial, bool bIgnoreZ, Color aColor, bool bCustom,
 	if (!pRenderMaterial)
 		return;
 
-	IMaterialVar* pMaterialVar = pRenderMaterial->FindVar(crypt_str("$envmaptint"), &bHasBeenFound);
+	NEWMaterialVar* pMaterialVar = pRenderMaterial->FindVar(crypt_str("$envmaptint"), &bHasBeenFound);
 	if (!pMaterialVar)
 		return;
 
 	if (bHasBeenFound && iMaterial > 1)
-		pMaterialVar->set_vec_value(aColor.r() / 255.0f, aColor.g() / 255.0f, aColor.b() / 255.0f);
+		pMaterialVar->SetVectorValue(aColor.r() / 255.0f, aColor.g() / 255.0f, aColor.b() / 255.0f);
 
 	const float aBlendColor[3] =
 	{

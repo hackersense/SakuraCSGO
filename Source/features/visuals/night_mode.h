@@ -5,13 +5,13 @@
 class MaterialBackup {
 public:
 	MaterialHandle_t handle;
-	IMaterial* material;
+	NEWMaterial* material;
 	float color[3];
 	float alpha;
 	bool translucent;
 	bool nodraw;
 
-	MaterialBackup(MaterialHandle_t h, IMaterial* p) 
+	MaterialBackup(MaterialHandle_t h, NEWMaterial* p) 
 	{
 		handle = h;
 		material = p;
@@ -36,7 +36,7 @@ class nightmode : public singleton <nightmode>
 {
 public:
 	void clear_stored_materials();
-	void modulate(MaterialHandle_t i, IMaterial *material, bool backup);
+	void modulate(MaterialHandle_t i, NEWMaterial *material, bool backup);
 	void apply();
 	void remove();
 };

@@ -32,6 +32,7 @@
 #include "..\sdk\interfaces\IGameEventManager.hpp"
 #include "..\sdk\interfaces\CSPlayerResource.h"
 #include "..\sdk\interfaces\IWeaponSystem.h"
+#include "..\sdk\new\MaterialSystem.h"
 #include <d3dx9.h>
 #include <d3d9.h>
 
@@ -64,6 +65,7 @@ public:
 	IVModelRender* m_modelrender();
 	IPanoramaUIEngine* m_panoramauiengine();
 	IMaterialSystem* m_materialsystem();
+	MaterialSystem* m_materialsystem2();
 	IPanel* m_panel();
 	IVModelInfoClient* m_modelinfo();
 	IPrediction* m_prediction();
@@ -106,7 +108,8 @@ private:
 	IMDLCache* p_modelcache = nullptr;
 	IVModelRender* p_modelrender = nullptr;
 	IPanoramaUIEngine* p_panoramauiengine = nullptr;
-	IMaterialSystem * p_materialsystem = nullptr;
+	IMaterialSystem* p_materialsystem = nullptr;
+	MaterialSystem* p_materialsystem2 = nullptr;
 	IPanel * p_panel = nullptr;
 	IVModelInfoClient * p_modelinfo = nullptr;
 	IPrediction * p_prediciton = nullptr;

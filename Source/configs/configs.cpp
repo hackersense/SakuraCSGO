@@ -14,9 +14,9 @@ Config configs;
 item_setting* get_by_definition_index(const int definition_index)
 {
 	auto it = std::find_if(std::begin(configs.skins.skinChanger), std::end(configs.skins.skinChanger), [definition_index](const item_setting& e)
-	{
-		return e.itemId == definition_index;
-	});
+		{
+			return e.itemId == definition_index;
+		});
 
 	return it == std::end(configs.skins.skinChanger) ? nullptr : &*it;
 }
@@ -32,7 +32,7 @@ void C_ConfigManager::setup()
 	setup_item(&configs.legitbot.ignore_flash, false, crypt_str("Legitbot.ignore_flash"));
 	setup_item(&configs.legitbot.jump_check, false, crypt_str("Legitbot.jump_check"));
 	setup_item(&configs.legitbot.ignore_smoke, false, crypt_str("Legitbot.ignore_smoke"));
-	
+
 	for (auto i = 0; i < 6; i++)
 	{
 		setup_item(&configs.legitbot.weapon[i].aimlock, false, std::to_string(i) + crypt_str("Legitbot.aimlock"));
@@ -75,7 +75,7 @@ void C_ConfigManager::setup()
 	setup_item(&configs.ragebot.double_tap_key, key_bind(TOGGLE), crypt_str("Ragebot.double_tap_key"));
 	setup_item(&configs.ragebot.hide_shots, false, crypt_str("Ragebot.hide_shots"));
 	setup_item(&configs.ragebot.hide_shots_key, key_bind(TOGGLE), crypt_str("Ragebot.hide_shots_key"));
-	setup_item(&configs.ragebot.autoscope, 0, crypt_str("Ragebot.autoscope")); 
+	setup_item(&configs.ragebot.autoscope, 0, crypt_str("Ragebot.autoscope"));
 	setup_item(&configs.ragebot.safe_point_key, key_bind(HOLD), crypt_str("Ragebot.safe_point_key"));
 	setup_item(&configs.ragebot.body_aim_key, key_bind(HOLD), crypt_str("Ragebot.body_aim_key"));
 	setup_item(&configs.ragebot.damage_override_key, key_bind(HOLD), crypt_str("Ragebot.damage_override_key"));
@@ -85,7 +85,7 @@ void C_ConfigManager::setup()
 	setup_item(&configs.ragebot.adaptive_resolver, false, crypt_str("Ragebot.adaptive_resolver"));
 	setup_item(&configs.ragebot.adaptive_resolver_ignore_body, false, crypt_str("Ragebot.adaptive_resolver_ignore_body"));
 	setup_item(&configs.ragebot.dormant, false, crypt_str("Ragebot.dormant"));
-	
+
 	for (auto i = 0; i < 10; i++)
 	{
 		if (i != 0)
@@ -324,11 +324,13 @@ void C_ConfigManager::setup()
 	setup_item(&configs.esp.lightning_on_hit_killonly, false, crypt_str("Lightning.kill_only"));
 	setup_item(&configs.esp.lightning_on_hit_width, 10, crypt_str("Lightning.width"));
 	setup_item(&configs.esp.lightning_on_hit_radius, 500, crypt_str("Lightning.radius"));
-    setup_item(&configs.esp.lightning_on_hit_beams, 12, crypt_str("Lightning.beams"));
-    setup_item(&configs.esp.smoke_color_enabled, false, crypt_str("Smokecolor.enabled"));
-    setup_item(&configs.esp.smoke_color, Color::White, crypt_str("Smokecolor.color"));
-    setup_item(&configs.esp.molotov_color_enabled, false, crypt_str("Molotovcolor.enabled"));
-    setup_item(&configs.esp.molotov_color, Color::White, crypt_str("Molotovcolor.color"));
+	setup_item(&configs.esp.lightning_on_hit_beams, 12, crypt_str("Lightning.beams"));
+	setup_item(&configs.esp.smoke_color_enabled, false, crypt_str("Smokecolor.enabled"));
+	setup_item(&configs.esp.smoke_color, Color::White, crypt_str("Smokecolor.color"));
+	setup_item(&configs.esp.molotov_color_enabled, false, crypt_str("Molotovcolor.enabled"));
+	setup_item(&configs.esp.molotov_color, Color::White, crypt_str("Molotovcolor.color"));
+	setup_item(&configs.esp.console_color_enabled, false, crypt_str("Consolecolor.enabled"));
+	setup_item(&configs.esp.console_color, Color::White, crypt_str("Consolecolor.color"));
 
 	setup_item(&configs.esp.weapon, 6, crypt_str("Esp.dropped_weapon"));
 	setup_item(&configs.esp.box_color, Color::White, crypt_str("Esp.dropped_weapon_box_color"));
@@ -453,23 +455,23 @@ void C_ConfigManager::setup()
 	setup_item(&configs.scripts.scripts, crypt_str("Scripts.loaded"));
 }
 
-void C_ConfigManager::add_item(void * pointer, const char * name, const std::string& type) {
+void C_ConfigManager::add_item(void* pointer, const char* name, const std::string& type) {
 	items.push_back(new C_ConfigItem(std::string(name), pointer, type));
 }
 
-void C_ConfigManager::setup_item(int * pointer, int value, const std::string& name) 
+void C_ConfigManager::setup_item(int* pointer, int value, const std::string& name)
 {
 	add_item(pointer, name.c_str(), crypt_str("int"));
 	*pointer = value;
 }
 
-void C_ConfigManager::setup_item(bool * pointer, bool value, const std::string& name)
+void C_ConfigManager::setup_item(bool* pointer, bool value, const std::string& name)
 {
 	add_item(pointer, name.c_str(), crypt_str("bool"));
 	*pointer = value;
 }
 
-void C_ConfigManager::setup_item(float * pointer, float value, const std::string& name)
+void C_ConfigManager::setup_item(float* pointer, float value, const std::string& name)
 {
 	add_item(pointer, name.c_str(), crypt_str("float"));
 	*pointer = value;
@@ -492,7 +494,7 @@ void C_ConfigManager::setup_item(Color* pointer, Color value, const std::string&
 	*pointer = value;
 }
 
-void C_ConfigManager::setup_item(std::vector<int>* pointer, int size, const std::string& name) 
+void C_ConfigManager::setup_item(std::vector<int>* pointer, int size, const std::string& name)
 {
 	add_item(pointer, name.c_str(), crypt_str("vector<int>"));
 	pointer->clear();
@@ -502,7 +504,7 @@ void C_ConfigManager::setup_item(std::vector<int>* pointer, int size, const std:
 }
 
 void C_ConfigManager::setup_item(std::vector<std::string>* pointer, const std::string& name)
-{ 
+{
 	add_item(pointer, name.c_str(), crypt_str("vector<string>"));
 }
 
@@ -525,11 +527,11 @@ void C_ConfigManager::save(std::string config)
 		j[crypt_str("name")] = it->name;
 		j[crypt_str("type")] = it->type;
 
-		if (!it->type.compare(crypt_str("int"))) 
+		if (!it->type.compare(crypt_str("int")))
 			j[crypt_str("value")] = (int)*(int*)it->pointer;
-		else if (!it->type.compare(crypt_str("float"))) 
+		else if (!it->type.compare(crypt_str("float")))
 			j[crypt_str("value")] = (float)*(float*)it->pointer;
-		else if (!it->type.compare(crypt_str("bool"))) 
+		else if (!it->type.compare(crypt_str("bool")))
 			j[crypt_str("value")] = (bool)*(bool*)it->pointer;
 		else if (!it->type.compare(crypt_str("KeyBind")))
 		{
@@ -550,7 +552,7 @@ void C_ConfigManager::save(std::string config)
 			std::vector<int> a = { c.r(), c.g(), c.b(), c.a() };
 			json ja;
 
-			for (auto& i : a) 
+			for (auto& i : a)
 				ja.push_back(i);
 
 			j[crypt_str("value")] = ja.dump();
@@ -575,8 +577,8 @@ void C_ConfigManager::save(std::string config)
 
 			j[crypt_str("value")] = ja.dump();
 		}
-		else if (!it->type.compare(crypt_str("string"))) 
-			j[crypt_str("value")] = (std::string)*(std::string*)it->pointer;
+		else if (!it->type.compare(crypt_str("string")))
+			j[crypt_str("value")] = (std::string) * (std::string*)it->pointer;
 
 		allJson.push_back(j);
 	}
@@ -599,9 +601,9 @@ void C_ConfigManager::save(std::string config)
 
 	for (auto i = 0; i < c_lua::get().scripts.size(); ++i)
 	{
-		auto& script = c_lua::get().scripts.at(i); 
+		auto& script = c_lua::get().scripts.at(i);
 
-		for (auto& item : c_lua::get().items.at(i)) 
+		for (auto& item : c_lua::get().items.at(i))
 		{
 			if (item.second.type == NEXT_LINE)
 				continue;
@@ -620,12 +622,12 @@ void C_ConfigManager::save(std::string config)
 				j[crypt_str("value")] = item.second.slider_float_value;
 			else if (!type.compare(crypt_str("Color")))
 			{
-				std::vector <int> color = 
-				{ 
-					item.second.color_picker_value.r(), 
+				std::vector <int> color =
+				{
+					item.second.color_picker_value.r(),
 					item.second.color_picker_value.g(),
-					item.second.color_picker_value.b(), 
-					item.second.color_picker_value.a() 
+					item.second.color_picker_value.b(),
+					item.second.color_picker_value.a()
 				};
 
 				json j_color;
@@ -654,7 +656,7 @@ void C_ConfigManager::save(std::string config)
 
 void C_ConfigManager::load(std::string config, bool load_script_items)
 {
-	static auto find_item = [](std::vector< C_ConfigItem* > items, std::string name) -> C_ConfigItem* 
+	static auto find_item = [](std::vector< C_ConfigItem* > items, std::string name) -> C_ConfigItem*
 	{
 		for (int i = 0; i < (int)items.size(); i++)
 			if (!items[i]->name.compare(name))
@@ -731,7 +733,7 @@ void C_ConfigManager::load(std::string config, bool load_script_items)
 					else
 						first_point = true;
 				}
-	
+
 				script_name.push_back(c);
 			}
 
@@ -854,8 +856,7 @@ void C_ConfigManager::config_files()
 		{
 			if (!(fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY))
 				files.push_back(fd.cFileName);
-		} 
-		while (FindNextFileA(hFind, &fd));
+		} while (FindNextFileA(hFind, &fd));
 
 		FindClose(hFind);
 	}

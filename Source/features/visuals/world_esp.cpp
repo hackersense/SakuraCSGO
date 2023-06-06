@@ -174,7 +174,7 @@ void worldesp::skybox_changer()
 		changed = false;
 		memory->loadSky(skybox_name.c_str());
 
-		auto materialsystem = m_materialsystem();
+		auto materialsystem = m_materialsystem2();
 
 		for (auto i = materialsystem->FirstMaterial(); i != materialsystem->InvalidMaterial(); i = materialsystem->NextMaterial(i))
 		{
@@ -382,23 +382,23 @@ void worldesp::motion_blur(CViewSetup* setup)
 		return;
 	}
 
-	const auto material = m_materialsystem()->FindMaterial("dev/motion_blur", "RenderTargets", false);
+	const auto material = m_materialsystem2()->FindMaterial("dev/motion_blur", "RenderTargets", false);
 	if (!material)
 		return;
 
 	const auto MotionBlurInternal = material->FindVar("$MotionBlurInternal", nullptr, false);
 
-	MotionBlurInternal->set_vec_component_value(motionBlurValues[0], 0);
-	MotionBlurInternal->set_vec_component_value(motionBlurValues[1], 1);
-	MotionBlurInternal->set_vec_component_value(motionBlurValues[2], 2);
-	MotionBlurInternal->set_vec_component_value(motionBlurValues[3], 3);
+	MotionBlurInternal->SetVecComponentValue(motionBlurValues[0], 0);
+	MotionBlurInternal->SetVecComponentValue(motionBlurValues[1], 1);
+	MotionBlurInternal->SetVecComponentValue(motionBlurValues[2], 2);
+	MotionBlurInternal->SetVecComponentValue(motionBlurValues[3], 3);
 
 	const auto MotionBlurViewPortInternal = material->FindVar("$MotionBlurViewportInternal", nullptr, false);
 
-	MotionBlurViewPortInternal->set_vec_component_value(0.0f, 0);
-	MotionBlurViewPortInternal->set_vec_component_value(0.0f, 1);
-	MotionBlurViewPortInternal->set_vec_component_value(1.0f, 2);
-	MotionBlurViewPortInternal->set_vec_component_value(1.0f, 3);
+	MotionBlurViewPortInternal->SetVecComponentValue(0.0f, 0);
+	MotionBlurViewPortInternal->SetVecComponentValue(0.0f, 1);
+	MotionBlurViewPortInternal->SetVecComponentValue(1.0f, 2);
+	MotionBlurViewPortInternal->SetVecComponentValue(1.0f, 3);
 
 	const auto drawFunction = memory->drawScreenEffectMaterial;
 	int w, h;

@@ -12,6 +12,7 @@ class matrix3x4_t;
 class IClientEntity;
 class CGameTrace;
 class IMaterial;
+class NEWMaterial;
 class CTraceFilter;
 class c_baseplayeranimationstate;
 
@@ -72,6 +73,7 @@ namespace util
 	void movement_fix(Vector& wish_angle, CUserCmd* m_pcmd);
 	unsigned int find_in_datamap(datamap_t* map, const char* name);
 	void color_modulate(float color[3], IMaterial* material);
+	void color_modulate(float color[3], NEWMaterial* material);
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix);
 	void create_state(c_baseplayeranimationstate* state, player_t* e);
 	void update_state(c_baseplayeranimationstate* state, const Vector& angles);

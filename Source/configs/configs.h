@@ -323,9 +323,9 @@ struct Config
 		bool friendly_fire;
 
 		bool autowall;
-		
+
 		bool autopistol;
-		
+
 		bool autoscope;
 
 		bool sniper_scope_only;
@@ -337,7 +337,7 @@ struct Config
 		bool ignore_smoke;
 
 		int smooth_mode;
-		
+
 		struct Weapon_t
 		{
 			bool aimlock;
@@ -355,7 +355,7 @@ struct Config
 			int maxAimInaccuracy;
 
 			int min_damage;
-			
+
 			bool between_shots;
 
 			int shotsFired;
@@ -665,11 +665,13 @@ struct Config
 		bool fog;
 		int fog_distance;
 		int fog_density;
-        Color fog_color;
-        bool smoke_color_enabled;
-        Color smoke_color;
-        bool molotov_color_enabled;
-        Color molotov_color;
+		Color fog_color;
+		bool smoke_color_enabled;
+		Color smoke_color;
+		bool molotov_color_enabled;
+		Color molotov_color;
+		bool console_color_enabled;
+		Color console_color;
 		bool motionblur;
 		bool motionblur_forward;
 		float motionblur_falling_min;

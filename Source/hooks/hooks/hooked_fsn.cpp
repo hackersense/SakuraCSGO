@@ -110,7 +110,7 @@ void remove_smoke()
 
 	for (auto material_name : smoke_materials)
 	{
-		auto material = m_materialsystem()->FindMaterial(material_name, nullptr);
+		auto material = m_materialsystem2()->FindMaterial(material_name, nullptr);
 
 		if (!material)
 			continue;
@@ -126,7 +126,10 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 	animation_system::get().init();
 
 	if (stage == FRAME_RENDER_START)
+	{
 		misc::get().fake_prime();
+		misc::get().color_console();
+	}
 
 	if (!cheat.available())
 	{
@@ -214,6 +217,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().ragdolls();
 		misc::get().anti_crasher();
 		misc::get().anti_exploit();
+		misc::get().color_console();
 
 		if (configs.esp.removals[REMOVALS_FLASH] && cheat.local()->m_flFlashDuration() && configs.player.enabled)
 			cheat.local()->m_flFlashDuration() = 0.0f;

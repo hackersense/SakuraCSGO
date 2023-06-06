@@ -3,7 +3,7 @@
 #include "IAppSystem.hpp"
 #include "IVModelRender.hpp"
 
-#define DECLARE_POINTER_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
+//#define DECLARE_POINTER_HANDLE(name) struct name##__ { int unused; }; typedef struct name##__ *name
 #define MAXSTUDIOSKINS		32
 
 #define TEXTURE_GROUP_LIGHTMAP						"Lightmaps"
@@ -219,7 +219,7 @@ typedef bool(*EndFramePriorToNextContextFunc_t)(void);
 typedef void(*OnLevelShutdownFunc_t)(void *pUserData);
 
 typedef unsigned short MaterialHandle_t;
-DECLARE_POINTER_HANDLE(MaterialLock_t);
+//DECLARE_POINTER_HANDLE(MaterialLock_t);
 
 class IMaterialSystem : public IAppSystem
 {
@@ -250,9 +250,9 @@ public:
 		return call_virtual< Fn >(this, 86)(this);
 	}
 
-	auto NextMaterial(MaterialHandle_t h) -> MaterialHandle_t {
+	auto NextMaterial(MaterialHandle_t handle) -> MaterialHandle_t {
 		using Fn = MaterialHandle_t(__thiscall*)(void*, MaterialHandle_t);
-		return call_virtual< Fn >(this, 87)(this, h);
+		return call_virtual< Fn >(this, 87)(this, handle);
 	}
 
 	auto InvalidMaterial() -> MaterialHandle_t {
@@ -260,9 +260,9 @@ public:
 		return call_virtual< Fn >(this, 88)(this);
 	}
 
-	auto GetMaterial(MaterialHandle_t h) -> IMaterial* {
+	auto GetMaterial(MaterialHandle_t handle) -> IMaterial* {
 		using Fn = IMaterial * (__thiscall*)(void*, MaterialHandle_t);
-		return call_virtual< Fn >(this, 89)(this, h);
+		return call_virtual< Fn >(this, 89)(this, handle);
 	}
 
 	auto BeginRenderTargetAllocation() -> void {
