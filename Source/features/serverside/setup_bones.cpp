@@ -509,11 +509,11 @@ void CSetupBones::fix_bones_rotations()
 
 		if (hdr)
 		{
-			auto hitbox_set = hdr->pHitboxSet(m_animating->m_nHitboxSet());
+			auto hitbox_set = hdr->getHitboxSet(m_animating->m_nHitboxSet());
 
 			for (auto i = 0; i < hitbox_set->numhitboxes; ++i)
 			{
-				auto hitbox = hitbox_set->pHitbox(i);
+				auto hitbox = hitbox_set->getHitbox(i);
 
 				if (hitbox->rotation.IsZero())
 					continue;

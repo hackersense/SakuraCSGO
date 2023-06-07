@@ -288,6 +288,7 @@ static bool __stdcall createMove(float inputSampleTime, CUserCmd* m_pcmd) noexce
     if (!cheat.available())
         return original_result;
 
+    /*
     misc::get().rank_reveal(m_pcmd);
     misc::get().clan_tag();
     backtrack::get().updateIncomingSequences();
@@ -296,15 +297,15 @@ static bool __stdcall createMove(float inputSampleTime, CUserCmd* m_pcmd) noexce
     static auto shadows = m_cvar()->FindVar(crypt_str("cl_csm_enabled"));
     sky->SetValue(~configs.esp.removals[REMOVALS_3DSKY]);
     shadows->SetValue(~configs.esp.removals[REMOVALS_SHADOWS]);
-
+    */
     if (!cheat.local()->is_alive())
         return original_result;
-
+    /*
     cheat.globals.weapon = cheat.local()->m_hActiveWeapon().Get();
 
     if (!cheat.globals.weapon)
         return original_result;
-
+        */
     //if (cheat.globals.should_recharge || cheat.globals.is_shifting)
     //	return false;
 
@@ -432,7 +433,7 @@ __forceinline void setup_hooks()
     Hooks::clientmode_hook = new ClientHook(m_clientmode());
     Hooks::clientmode_hook->hookAt(17, Hooks::hooked_drawfog);
     Hooks::clientmode_hook->hookAt(18, Hooks::hooked_overrideview);
-    //Hooks::clientmode_hook->hookAt(24, createMove);
+    Hooks::clientmode_hook->hookAt(24, createMove);
     Hooks::clientmode_hook->hookAt(44, Hooks::hooked_postscreeneffects);
 
     Hooks::inputinternal_hook = new ClientHook(m_inputinternal());

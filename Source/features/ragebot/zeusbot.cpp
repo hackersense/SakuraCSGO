@@ -405,12 +405,12 @@ bool zeusbot::can_hit(player_t* player, matrix3x4_t* bones, int box, const Vecto
 	if (!studio_model)
 		return false;
 
-	auto studio_set = studio_model->pHitboxSet(player->m_nHitboxSet());
+	auto studio_set = studio_model->getHitboxSet(player->m_nHitboxSet());
 
 	if (!studio_set)
 		return false;
 
-	auto hitbox = studio_set->pHitbox(box);
+	auto hitbox = studio_set->getHitbox(box);
 	if (!hitbox)
 		return false;
 
@@ -451,12 +451,12 @@ bool zeusbot::hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, 
 	if (!studio_model)
 		return false;
 
-	auto studio_set = studio_model->pHitboxSet(e->m_nHitboxSet());
+	auto studio_set = studio_model->getHitboxSet(e->m_nHitboxSet());
 
 	if (!studio_set)
 		return false;
 
-	auto studio_hitbox = studio_set->pHitbox(hitbox);
+	auto studio_hitbox = studio_set->getHitbox(hitbox);
 
 	if (!studio_hitbox)
 		return false;

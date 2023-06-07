@@ -4,12 +4,6 @@ void bunnyhop::create_move(CUserCmd* cmd)
 {
 	if (!configs.misc.bunnyhop || cheat.local()->get_move_type() == MOVETYPE_LADDER)
 		return;
-    //static auto wasLastTimeOnGround{ cheat.local()->m_fFlags() & IN_JUMP };
-
-   // if (configs.misc.bunnyhop && !(cheat.local()->m_fFlags() & IN_JUMP) && cheat.local()->get_move_type() != MOVETYPE_LADDER && !wasLastTimeOnGround)
-    //    cmd->m_buttons &= ~IN_JUMP;
-
-   // wasLastTimeOnGround = cheat.local()->m_fFlags() & IN_JUMP;
 
 	static auto last_jumped = false;
 	static auto should_jump = false;
@@ -23,8 +17,7 @@ void bunnyhop::create_move(CUserCmd* cmd)
 	{
 		if (cheat.local()->m_fFlags() & FL_ONGROUND)
 		{
-			last_jumped = true;
-			should_jump = true;
+			last_jumped = should_jump = true;
 		}
 		else 
 		{
@@ -34,7 +27,6 @@ void bunnyhop::create_move(CUserCmd* cmd)
 	}
 	else
 	{
-		last_jumped = false;
-		should_jump = false;
+		last_jumped = should_jump = false;
 	}
 }

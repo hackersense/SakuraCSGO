@@ -337,13 +337,13 @@ bool weapon_t::can_double_tap()
 
 int weapon_t::get_max_tickbase_shift()
 {
-	return m_gamerules()->m_bIsValveDS() ? 8 : 16;
+	return cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
 }
 
 int weapon_t::get_max_tickbase_shift_default()
 {
 	if (!can_double_tap())
-		return m_gamerules()->m_bIsValveDS() ? 8 : 16;
+		return cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
 
 	int max_tickbase_shift = 0;
 
@@ -396,7 +396,7 @@ int weapon_t::get_max_tickbase_shift_default()
 	}
 
 	if (m_gamerules()->m_bIsValveDS())
-		max_tickbase_shift = max(max_tickbase_shift, 8);
+		max_tickbase_shift = max(max_tickbase_shift, cheat.getMaxChokecCMD(true));
 
 	return max_tickbase_shift;
 }
@@ -659,7 +659,7 @@ Vector player_t::get_eye_position()
 
 	if (this != cheat.local())
 	{
-		//modify_eye_position(get_animation_state(), position);
+		modify_another_eye_position(get_animation_state(), position);
 
 		return position;
 	}
@@ -669,8 +669,7 @@ Vector player_t::get_eye_position()
 	return position;
 }
 
-/*
-void player_t::modify_eye_position(c_baseplayeranimationstate* animstate, Vector& eye_position)
+void player_t::modify_another_eye_position(c_baseplayeranimationstate* animstate, Vector& eye_position)
 {
 	if (!this)
 		return;
@@ -702,16 +701,13 @@ void player_t::modify_eye_position(c_baseplayeranimationstate* animstate, Vector
 
 	matrix3x4_t* bones = animstate->m_pBaseEntity->m_CachedBoneData().Base();
 
-	auto head_pos = Vector(bones[head_bone][0][3], bones[head_bone][1][3], bones[head_bone][2][3]);
-
-	head_pos.z += 1.7f;
+	auto head_pos = Vector(bones[head_bone][0][3], bones[head_bone][1][3], bones[head_bone][2][3] + 1.7f);
 
 	if (head_pos.z >= eye_position.z)
 		return;
 
 	eye_position.z = math::lerp2(math::simple_spline_remap_val_clamped(fabs(eye_position.z - head_pos.z), 4.0f, 10.0f, 0.0f, 1.0f), eye_position.z, head_pos.z);
 }
-*/
 
 void player_t::modify_eye_position(Vector& eye_position)
 {
@@ -794,12 +790,12 @@ int player_t::get_hitbox_bone_id(int hitbox_id)
 	if (!hdr)
 		return -1;
 
-	auto hitbox_set = hdr->pHitboxSet(m_nHitboxSet());
+	auto hitbox_set = hdr->getHitboxSet(m_nHitboxSet());
 
 	if (!hitbox_set)
 		return -1;
 
-	auto hitbox = hitbox_set->pHitbox(hitbox_id);
+	auto hitbox = hitbox_set->getHitbox(hitbox_id);
 
 	if (!hitbox)
 		return -1;
@@ -828,12 +824,12 @@ Vector player_t::hitbox_position(int hitbox_id)
 	if (!hdr)
 		return ZERO;
 
-	auto hitbox_set = hdr->pHitboxSet(m_nHitboxSet());
+	auto hitbox_set = hdr->getHitboxSet(m_nHitboxSet());
 
 	if (!hitbox_set)
 		return ZERO;
 
-	auto hitbox = hitbox_set->pHitbox(hitbox_id);
+	auto hitbox = hitbox_set->getHitbox(hitbox_id);
 
 	if (!hitbox)
 		return ZERO;
@@ -856,12 +852,12 @@ Vector player_t::hitbox_position_matrix(int hitbox_id, matrix3x4_t matrix[MAXSTU
 	if (!hdr)
 		return ZERO;
 
-	auto hitbox_set = hdr->pHitboxSet(m_nHitboxSet());
+	auto hitbox_set = hdr->getHitboxSet(m_nHitboxSet());
 
 	if (!hitbox_set)
 		return ZERO;
 
-	auto hitbox = hitbox_set->pHitbox(hitbox_id);
+	auto hitbox = hitbox_set->getHitbox(hitbox_id);
 
 	if (!hitbox)
 		return ZERO;
@@ -1217,10 +1213,10 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 	cheat.globals.setuping_bones = true;
 	invalidate_bone_cache();
 
-	if (mask == BONE_USED_BY_ANYTHING) {
-		setuped = SetupBones(matrix, maxBones, mask, currentTime);
-	}
-	else {
+	//if (mask == BONE_USED_BY_ANYTHING) {
+	setuped = SetupBones(matrix, maxBones, mask, currentTime);
+		/*
+	} else {
 		CSetupBones setup_bones;
 
 		setup_bones.m_animating = this;
@@ -1257,7 +1253,7 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 
 		setuped = true;
 	}
-
+	*/
 	cheat.globals.setuping_bones = false;
 
 	if (this != cheat.local())

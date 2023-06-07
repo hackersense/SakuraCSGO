@@ -188,12 +188,17 @@ public:
 
 	std::string getVersion()
 	{
-		return crypt_str("2.3 Gen");
+		return crypt_str("2.4");
 	}
 
 	auto getVersionLong()
 	{
 		return atoll(StringUtils::clearAllSpace(StringUtils::replaceAll(getVersion(), ".", "")).c_str());
+	}
+
+	int getMaxChokecCMD(bool isValveDS)
+	{
+		return (isValveDS ? 6 : 16);
 	}
 
 	player_t* local(player_t* e = nullptr, bool init = false);

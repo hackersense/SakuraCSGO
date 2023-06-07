@@ -488,6 +488,7 @@ public:
     bool setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, float currentTime);
     bool setup_bones_fixed(matrix3x4_t* matrix, int mask);
     Vector get_eye_position();
+    void modify_another_eye_position(c_baseplayeranimationstate* animstate, Vector& eye_position);
     void modify_eye_position(Vector& eye_position);
     uint32_t& m_fEffects();
     uint32_t& m_iEFlags();

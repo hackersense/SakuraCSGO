@@ -229,7 +229,6 @@ namespace Hooks
 	ClientHook* clientmode_hook;
 	ClientHook* inputinternal_hook;
 	ClientHook* renderview_hook;
-	ClientHook* materialsys_hook;
 	ClientHook* modelrender_hook;
 	ClientHook* bspquery_hook;
 	ClientHook* steam_hook;

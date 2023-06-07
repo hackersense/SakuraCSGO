@@ -261,15 +261,22 @@ void misc::auto_crouch(CUserCmd* cmd)
 		return;
 	}
 
-	cheat.globals.fakeducking = true;
+	if (m_clientstate()->m_iChokedCommands <= (cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS()) / 2))
+		cmd->m_buttons &= ~IN_DUCK;
+	else
+		cmd->m_buttons |= IN_DUCK;
 
+	cheat.send_packet = m_clientstate()->m_iChokedCommands >= cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
+
+	cheat.globals.fakeducking = true;
+	/*
 	if (m_clientstate()->m_iChokedCommands <= 6)
 		cmd->m_buttons &= ~IN_DUCK;
 	else
 		cmd->m_buttons |= IN_DUCK;
 
-	cheat.send_packet = m_clientstate()->m_iChokedCommands >= 14;
-	/*
+	cheat.send_packet = m_clientstate()->m_iChokedCommands >= 12;
+
 	if (!cheat.globals.fakeducking && m_clientstate()->iChokedCommands != 7)
 		return;
 
@@ -694,14 +701,14 @@ void misc::lag_hitbox()
 	if (!studio_model)
 		return;
 
-	auto hitbox_set = studio_model->pHitboxSet(player->m_nHitboxSet());
+	auto hitbox_set = studio_model->getHitboxSet(player->m_nHitboxSet());
 
 	if (!hitbox_set)
 		return;
 
 	for (auto i = 0; i < hitbox_set->numhitboxes; i++)
 	{
-		auto hitbox = hitbox_set->pHitbox(i);
+		auto hitbox = hitbox_set->getHitbox(i);
 
 		if (!hitbox)
 			continue;

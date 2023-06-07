@@ -55,6 +55,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	{
 		sendPacket = cheat.globals.need_shift_tickbase == 1;
 		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
+		cmd->m_buttons &= ~IN_JUMP;
 
 		//if (cmd->m_sidemove > 5.0f)
 		//	cmd->m_sidemove = 450.0f;
@@ -70,87 +71,13 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		cmd->m_forwardmove = speed.x;
 		cmd->m_sidemove = speed.y;
 
-		/*
-		if (configs.ragebot.disable_teleport)
-		{
-			cmd->m_forwardmove = cmd->m_sidemove = 0.0f;
-		}
-		else if (!cheat.globals.start_position.IsZero() && !misc::get().double_tap_disable)
-		{
-			auto& current_position = cheat.local()->GetAbsOrigin();
-			auto difference = current_position - cheat.globals.start_position;
-
-			if (difference.Length2D() > 5.0f)
-			{
-				auto velocity = Vector(difference.x * cos(cmd->m_viewangles.y / 180.0f * M_PI) + difference.y * sin(cmd->m_viewangles.y / 180.0f * M_PI), difference.y * cos(cmd->m_viewangles.y / 180.0f * M_PI) - difference.x * sin(cmd->m_viewangles.y / 180.0f * M_PI), difference.z);
-
-				cmd->m_forwardmove = -velocity.x * 20.0f;
-				cmd->m_sidemove = velocity.y * 20.0f;
-			}
-			else
-			{
-				//cheat.globals.fired_shot = false;
-				cheat.globals.start_position.Zero();
-			}
-		}
-		else
-		{
-			//const auto speed = util::get_speed_move(cmd);
-			//cmd->m_forwardmove = speed.x;
-			//cmd->m_sidemove = speed.y;
-			const auto max_move = util::get_max_move();
-			if (cheat.globals.original_forwardmove > 5.0f)
-				cmd->m_forwardmove = max_move.x;
-			else if (cheat.globals.original_forwardmove < -5.0f)
-				cmd->m_forwardmove = -max_move.x;
-
-			if (cheat.globals.original_sidemove > 5.0f)
-				cmd->m_sidemove = max_move.y;
-			else if (cheat.globals.original_sidemove < -5.0f)
-				cmd->m_sidemove = -max_move.y;
-		}
-=
-
-		auto currentViewAngles{ cmd->m_viewangles };
-		auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
-
-		engineprediction::get().prediction_data.reset();
-		engineprediction::get().setup();
-
-		engineprediction::get().predict(cmd);
-
-		if (configs.misc.airstrafe)
-			airstrafe::get().create_move(cmd, currentViewAngles);
-
-		misc::get().blockbot(cmd);
-
-		movement::get().longjump(cmd);
-		movement::get().jumpbug(cmd);
-
-		movement::get().edgejump(cmd);
-
-		if (key_binds::get().get_key_bind_state(key_bind_features::SLOW_WALK))
-			slowwalk::get().create_move(cmd);
-
-		if (configs.ragebot.enabled && !cheat.globals.weapon->is_non_aim() && engineprediction::get().backup_data.flags & FL_ONGROUND && cheat.local()->m_fFlags() & FL_ONGROUND)
-			slowwalk::get().create_move(cmd, 0.95f + 0.003125f * (16.f - m_clientstate()->m_iChokedCommands));
-
-		misc::get().automatic_peek(cmd, currentViewAngles.y);
-
-		if (cheat.local()->is_alive())
-			memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
-
-		util::fix_mouse_delta(cmd);
-
-		if (configs.misc.anti_untrusted)
-		{
-			math::normalize_angles(cmd->m_viewangles);
-			cmd->m_viewangles.z = 0.0f;
-		}
-		else
-			cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
-								*/
-		//util::movement_fix(currentViewAngles, cmd);
+		//if (configs.misc.anti_untrusted)
+		//{
+		//	math::normalize_angles(cmd->m_viewangles);
+		//	cmd->m_viewangles.z = 0.0f;
+		//}
+		//else
+		//	cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
 
 		cheat.globals.in_createmove = false;
 		return false;
@@ -261,8 +188,6 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 			current.func(cmd);
 
 	engineprediction::get().prediction_data.reset();
-	engineprediction::get().setup();
-
 	engineprediction::get().predict(cmd);
 
 	local_animations::get().update_prediction_animations();
@@ -318,7 +243,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	antiaim::get().desync_angle = 0.0f;
 	antiaim::get().create_move(cmd);
 
-	if (m_clientstate()->m_iChokedCommands >= (m_gamerules()->m_bIsValveDS() ? 8 : 16))
+	if (m_clientstate()->m_iChokedCommands >= cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS()))
 	{
 		cheat.send_packet = true;
 		fakelag::get().started_peeking = false;

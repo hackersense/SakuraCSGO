@@ -54,7 +54,6 @@ namespace Hooks
 	extern ClientHook* clientmode_hook;
 	extern ClientHook* inputinternal_hook;
 	extern ClientHook* renderview_hook;
-	extern ClientHook* materialsys_hook;
 	extern ClientHook* modelrender_hook;
 	extern ClientHook* bspquery_hook;
 	extern ClientHook* steam_hook;
@@ -139,7 +138,6 @@ namespace Hooks
 	bool __fastcall hooked_tracefilterforheadcollision(void* ecx, void* edx, player_t* player, unsigned int traceParams);
 	bool __fastcall hooked_shouldskipanimframe(void* ecx, void* edx);
 	int __fastcall processinterpolatedlist();
-	IMaterial* __fastcall hooked_getmaterial(void* ecx, void* edx, const char* material_name, const char* texture_group_name, bool complain, const char* complain_prefix);
 	void __fastcall hooked_packetstart(void* ecx, void* edx, int incoming, int outgoing);
 	void __fastcall hooked_packetend(void* ecx, void* edx);
 	void __fastcall hooked_packetprocess(void* ecx, void* edx, void* packet, bool header);

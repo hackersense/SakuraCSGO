@@ -373,7 +373,6 @@ set(Sources
     "hooks/hooks/hooked_events.cpp"
     "hooks/hooks/hooked_findmdl.cpp"
     "hooks/hooks/hooked_fsn.cpp"
-    "hooks/hooks/hooked_getmaterial.cpp"
     "hooks/hooks/hooked_isconnected.cpp"
     "hooks/hooks/hooked_ishltv.cpp"
     "hooks/hooks/hooked_isplayingdemo.cpp"

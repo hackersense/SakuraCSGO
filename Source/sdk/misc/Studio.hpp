@@ -33,7 +33,7 @@ typedef float RadianEuler[3];
 #define BONE_USED_BY_ANYTHING_AT_LOD(lod) ( BONE_USED_BY_ANYTHING & ~BONE_USED_BY_VERTEX_MASK) | BONE_USED_BY_VERTEX_AT_LOD(lod))
 
 #define MAX_NUM_LODS					8
-#define MAXSTUDIOBONES					128		// total bones actually used
+#define MAXSTUDIOBONES					256		// total bones actually used
 
 #define BONE_TYPE_MASK                  0x00F00000
 #define BONE_FIXED_ALIGNMENT            0x00100000    // bone can't spin 360 degrees, all interpolation is normalized around a fixed orientation
@@ -92,7 +92,7 @@ typedef unsigned short MDLHandle_t;
 struct mstudiobone_t
 {
 	int sznameindex;
-	inline char *const pszName(void) const { return ((char*)this) + sznameindex; }
+
 	int parent;
 	int bonecontroller[6];
 
@@ -109,14 +109,34 @@ struct mstudiobone_t
 	int proctype;
 	int procindex;
 	mutable int physicsbone;
-	inline void *pProcedure() const { if (procindex == 0) return NULL; else return  (void*)(((unsigned char*)this) + procindex); };
+
 	int surfacepropidx;
-	inline char *const pszSurfaceProp(void) const { return ((char*)this) + surfacepropidx; }
-	inline int GetSurfaceProp(void) const { return surfacepropLookup; }
 
 	int contents;
 	int surfacepropLookup;
 	int unused[7];
+
+	const char* getName()
+	{
+		return ((char*)this) + sznameindex;
+	}
+
+	void* getProcedure()
+	{
+		if (procindex == 0)
+			return nullptr;
+		return (void*)(((unsigned char*)this) + procindex);
+	}
+
+	const char* pszSurfaceProp()
+	{
+		return ((char*)this) + surfacepropidx;
+	}
+
+	int GetSurfaceProp()
+	{
+		return surfacepropLookup;
+	}
 };
 
 struct mstudiobbox_t
@@ -137,14 +157,14 @@ struct mstudiohitboxset_t
 	int    numhitboxes;
 	int    hitboxindex;
 
-	inline char *const pszName(void) const
+	const char* getName()
 	{
 		return ((char*)this) + sznameindex;
 	}
 
-	inline mstudiobbox_t *pHitbox(int i) const
+	mstudiobbox_t* getHitbox(int i)
 	{
-		return (mstudiobbox_t*)((( unsigned char*)this) + hitboxindex) + i;
+		return (mstudiobbox_t*)(((unsigned char*)this) + hitboxindex) + i;
 	}
 };
 
@@ -192,16 +212,19 @@ public:
 	int				numtextures;            //0x00CC 
 	int				textureindex;           //0x00D0
 
-	inline const char *pszName(void) const { return szName; }
+	const char* getName()
+	{
+		return szName;
+	}
 
-	mstudiohitboxset_t* pHitboxSet(int i)
+	mstudiohitboxset_t* getHitboxSet(int i)
 	{
 		if (i > numhitboxsets)
 			return nullptr;
 		return (mstudiohitboxset_t*)((uint8_t*)this + hitboxsetindex) + i;
 	}
 
-	mstudiobone_t* pBone(int i)
+	mstudiobone_t* getBone(int i)
 	{
 		if (i > numbones)
 			return nullptr;
@@ -223,7 +246,7 @@ public:
 	CUtlVector<int>					m_boneParent; //0x0050
 	void* activityToSequence;
 
-	studioseqdesc_t seqdesc(int sequence) noexcept
+	studioseqdesc_t getSeqdesc(int sequence)
 	{
 		return *reinterpret_cast<studioseqdesc_t*>(memory->seqdesc(this, sequence));
 	}

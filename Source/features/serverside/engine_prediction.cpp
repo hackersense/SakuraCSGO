@@ -63,39 +63,28 @@ void engineprediction::update_vel()
 }
 */
 
-void engineprediction::setup()
+void engineprediction::predict(CUserCmd* m_pcmd)
 {
-	if (prediction_data.prediction_stage != STAGE::SETUP)
-		return;
-
+	//if (m_clientstate()->m_iDeltaTick > 0)
+	m_prediction()->Update(m_clientstate()->m_iDeltaTick, m_clientstate()->m_iDeltaTick > 0, m_clientstate()->m_nLastCommandAck, m_clientstate()->m_nLastOutgoingCommand + m_clientstate()->m_iChokedCommands);
+	
 	backup_data.flags = cheat.local()->m_fFlags();
 	backup_data.velocity = cheat.local()->m_vecVelocity();
+
+	*memory->predictionRandomSeed = MD5_PseudoRandom(m_pcmd->m_command_number) & INT_MAX;
+	*memory->predictionPlayer = reinterpret_cast<int>(cheat.local());
 
 	prediction_data.old_curtime = m_globals()->m_curtime;
 	prediction_data.old_frametime = m_globals()->m_frametime;
 	prediction_data.old_is_first_time_predicted = m_prediction()->m_bIsFirstTimePredicted;
 	prediction_data.old_in_prediction = m_prediction()->m_bInPrediction;
-	
+
 	m_globals()->m_curtime = util::server_time();
 	m_globals()->m_frametime = m_prediction()->m_bEnginePaused ? 0.0f : m_globals()->m_intervalpertick;
 	m_prediction()->m_bIsFirstTimePredicted = false;
 	m_prediction()->m_bInPrediction = true;
 	//m_prediction()->m_bOldCLPredictValue = false;
 	//m_prediction()->split->m_bIsFirstTimePredicted = false;
-
-	prediction_data.prediction_stage = STAGE::PREDICT;
-}
-
-void engineprediction::predict(CUserCmd* m_pcmd)
-{
-	if (prediction_data.prediction_stage != STAGE::PREDICT)
-		return;
-
-	//if (m_clientstate()->m_iDeltaTick > 0)
-	m_prediction()->Update(m_clientstate()->m_iDeltaTick, m_clientstate()->m_iDeltaTick > 0, m_clientstate()->m_nLastCommandAck, m_clientstate()->m_nLastOutgoingCommand + m_clientstate()->m_iChokedCommands);
-
-	*memory->predictionRandomSeed = MD5_PseudoRandom(m_pcmd->m_command_number) & INT_MAX;
-	*memory->predictionPlayer = reinterpret_cast<int>(cheat.local());
 
 	if (m_pcmd->m_impulse)
 		cheat.local()->m_nImpulse() = m_pcmd->m_impulse;
@@ -161,8 +150,6 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	const auto activeWeapon = cheat.globals.weapon;
 	if (activeWeapon && !activeWeapon->is_grenade() && !activeWeapon->is_knife())
 		activeWeapon->update_accuracy_penality();
-
-	prediction_data.prediction_stage = STAGE::FINISH;
 }
 
 /*

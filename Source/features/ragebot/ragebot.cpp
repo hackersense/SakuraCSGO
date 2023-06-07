@@ -893,12 +893,12 @@ std::vector<scan_point> ragebot::get_points(adjust_data* record, int hitbox, boo
 	if (!hdr)
 		return points;
 
-	auto set = hdr->pHitboxSet(record->player->m_nHitboxSet());
+	auto set = hdr->getHitboxSet(record->player->m_nHitboxSet());
 
 	if (!set)
 		return points;
 
-	auto bbox = set->pHitbox(hitbox);
+	auto bbox = set->getHitbox(hitbox);
 
 	if (!bbox)
 		return points;
@@ -1782,12 +1782,12 @@ bool ragebot::hitboxIntersection(player_t* entity, matrix3x4_t* matrix, int iHit
 	if (!studio_model)
 		return false;
 
-	auto studio_set = studio_model->pHitboxSet(entity->m_nHitboxSet());
+	auto studio_set = studio_model->getHitboxSet(entity->m_nHitboxSet());
 
 	if (!studio_set)
 		return false;
 
-	auto hitbox = studio_set->pHitbox(iHitbox);
+	auto hitbox = studio_set->getHitbox(iHitbox);
 	if (!hitbox)
 		return false;
 
@@ -1854,12 +1854,12 @@ bool ragebot::can_hit(player_t* player, matrix3x4_t* bones, int box, const Vecto
 	if (!studio_model)
 		return false;
 
-	auto studio_set = studio_model->pHitboxSet(player->m_nHitboxSet());
+	auto studio_set = studio_model->getHitboxSet(player->m_nHitboxSet());
 
 	if (!studio_set)
 		return false;
 
-	auto hitbox = studio_set->pHitbox(box);
+	auto hitbox = studio_set->getHitbox(box);
 	if (!hitbox)
 		return false;
 
@@ -1915,12 +1915,12 @@ bool ragebot::hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hbox, co
 	if (!studio_model)
 		return false;
 
-	auto studio_set = studio_model->pHitboxSet(e->m_nHitboxSet());
+	auto studio_set = studio_model->getHitboxSet(e->m_nHitboxSet());
 
 	if (!studio_set)
 		return false;
 
-	auto studio_hitbox = studio_set->pHitbox(hbox);
+	auto studio_hitbox = studio_set->getHitbox(hbox);
 
 	if (!studio_hitbox)
 		return false;

@@ -73,7 +73,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 	}
 
 	if (m_gamerules()->m_bIsValveDS())
-		max_choke = m_engine()->IsVoiceRecording() ? 1 : min(max_choke, 8);
+		max_choke = m_engine()->IsVoiceRecording() ? 1 : min(max_choke, cheat.getMaxChokecCMD(true));
 
 	if (misc::get().recharging_double_tap)
 		max_choke = cheat.globals.weapon->get_max_tickbase_shift();
@@ -195,7 +195,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 			max_choke = configs.fakelag.amount;
 
 			if (m_gamerules()->m_bIsValveDS())
-				max_choke = min(max_choke, 8);
+				max_choke = min(max_choke, cheat.getMaxChokecCMD(true));
 
 			if (choked < max_choke)
 				cheat.send_packet = false;

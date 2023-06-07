@@ -5,13 +5,6 @@
 
 #define EPSILON 0.03125f
 
-enum class STAGE
-{
-	SETUP,
-	PREDICT,
-	FINISH
-};
-
 class engineprediction : public singleton<engineprediction>
 {
 	struct Netvars_data
@@ -41,12 +34,10 @@ class engineprediction : public singleton<engineprediction>
 	{
 		void reset()
 		{
-			prediction_stage = STAGE::SETUP;
 			old_curtime = old_frametime = 0.0f;
 			old_is_first_time_predicted = old_in_prediction = false;
 		}
 
-		STAGE prediction_stage = STAGE::SETUP;
 		float old_curtime = 0.0f;
 		float old_frametime = 0.0f;
 		bool old_is_first_time_predicted = false;
@@ -72,9 +63,7 @@ public:
 
 	void store_netvars();
 	void restore_netvars();
-	void setup();
 	void predict(CUserCmd* m_pcmd);
-	//void finish();
 private:
 	static float checkDifference(float predicted, float original) noexcept
 	{

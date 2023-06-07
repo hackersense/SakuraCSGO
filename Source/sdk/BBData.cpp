@@ -54,29 +54,29 @@ bool calculation_skeleton(BoxInfo& info, player_t* e, matrix3x4_t matrix[MAXSTUD
 		return Vector(matrix[bone][0][3], matrix[bone][1][3], matrix[bone][2][3]);
 	};
 
-	auto upper_direction = get_bone_position(7) - get_bone_position(6);
-	auto breast_bone = get_bone_position(6) + upper_direction * 0.5f;
+	//auto upper_direction = get_bone_position(7) - get_bone_position(6);
+	//auto breast_bone = get_bone_position(6) + upper_direction * 0.5f;
 
-	for (auto i = 0; i < studio_model->numbones; i++)
+	for (int i = 0; i < studio_model->numbones; i++)
 	{
-		auto bone = studio_model->pBone(i);
+		auto bone = studio_model->getBone(i);
 
 		if (bone && (bone->flags & BONE_USED_BY_HITBOX) && (bone->parent != -1))
 		{
 			auto child = get_bone_position(i);
 			auto parent = get_bone_position(bone->parent);
 
-			auto delta_child = child - breast_bone;
-			auto delta_parent = parent - breast_bone;
+			//auto delta_child = child - breast_bone;
+			//auto delta_parent = parent - breast_bone;
 
-			if (delta_parent.Length() < 9.0f && delta_child.Length() < 9.0f)
-				parent = breast_bone;
+			//if (delta_parent.Length() < 9.0f && delta_child.Length() < 9.0f)
+			//	parent = breast_bone;
 
-			if (i == 5)
-				child = breast_bone;
+			//if (i == 5)
+			//	child = breast_bone;
 
-			if ((fabs(delta_child.z) < 5.0f && delta_parent.Length() < 5.0f && delta_child.Length() < 5.0f) || i == 6)
-				continue;
+			//if ((fabs(delta_child.z) < 5.0f && delta_parent.Length() < 5.0f && delta_child.Length() < 5.0f) || i == 6)
+			//	continue;
 
 			info.child[i] = child;
 			info.parent[i] = parent;

@@ -347,7 +347,7 @@ void resolver::resolve_yaw()
 			backup_side = ResolverSide::RESOLVER_ORIGINAL;
 	}
 
-	/*
+
 	const auto is_overriding = key_binds::get().get_key_bind_state(key_bind_features::RESOLVER_OVERRIDE);
 	const auto player_desync_delta = player->get_max_desync_delta();
 	const auto low_player_desync_delta = player_desync_delta / 2;
@@ -356,27 +356,28 @@ void resolver::resolve_yaw()
 	const auto max_delta = is_overriding ? player_desync_delta_min : player_desync_delta;
 	const auto low_delta = is_overriding ? low_player_desync_delta_min : low_player_desync_delta;
 	const auto currentYaw = 0;//(animstate->m_flCurrentFeetYaw - animstate->m_flGoalFeetYaw);
+	const auto currentEyeYaw = player->m_angEyeAngles().y;
 
 	switch (player_record->side)
 	{
 	case ResolverSide::RESOLVER_ZERO:
-		animstate->m_flGoalFeetYaw = player->m_angEyeAngles().Normalize2().y;
+		animstate->m_flGoalFeetYaw = currentEyeYaw;
 		break;
 	case ResolverSide::RESOLVER_FIRST:
-		animstate->m_flGoalFeetYaw = player->m_angEyeAngles().Normalize2().y + (max_delta - currentYaw);
+		animstate->m_flGoalFeetYaw = currentEyeYaw + (max_delta - currentYaw);
 		break;
 	case ResolverSide::RESOLVER_SECOND:
-		animstate->m_flGoalFeetYaw = player->m_angEyeAngles().Normalize2().y - (max_delta + currentYaw);
+		animstate->m_flGoalFeetYaw = currentEyeYaw - (max_delta + currentYaw);
 		break;
 	case ResolverSide::RESOLVER_LOW_FIRST:
-		animstate->m_flGoalFeetYaw = player->m_angEyeAngles().Normalize2().y + (low_delta - currentYaw);
+		animstate->m_flGoalFeetYaw = currentEyeYaw + (low_delta - currentYaw);
 		break;
 	case ResolverSide::RESOLVER_LOW_SECOND:
-		animstate->m_flGoalFeetYaw = player->m_angEyeAngles().Normalize2().y - (low_delta + currentYaw);
+		animstate->m_flGoalFeetYaw = currentEyeYaw - (low_delta + currentYaw);
 		break;
 	}
-	*/
-	test(player);
+
+	//test(player);
 
 	auto& info = resolver_info{ player->EntIndex(), true, beforeAnimYaw, player->get_animation_state()->m_flGoalFeetYaw, cheat.globals.missed_shots[player->EntIndex()], player_record->shot };
 
