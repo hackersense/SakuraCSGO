@@ -240,10 +240,10 @@ void C_ConfigManager::setup()
 		setup_item(&configs.player.type[i].flags, 8, std::to_string(i) + crypt_str("Player.esp_flags"));
 	}
 
-	setup_item(&configs.esp.indicators, 10, crypt_str("Esp.rage_indicators"));
-	setup_item(&configs.esp.removals, 10, crypt_str("Esp.world_removals"));
+	setup_item(&configs.esp.indicators, 11, crypt_str("Esp.rage_indicators"));
+	setup_item(&configs.esp.removals, 11, crypt_str("Esp.world_removals"));
 	setup_item(&configs.esp.fix_zoom_sensivity, false, crypt_str("Esp.fix_zoom_sensivity"));
-	setup_item(&configs.esp.grenade_warning, false, crypt_str("Visuals.GrenadeWarning"));
+	setup_item(&configs.esp.grenade_warning, false, crypt_str("Visuals.grenade_warning"));
 	setup_item(&configs.esp.grenade_prediction, false, crypt_str("Esp.grenade_prediction"));
 	setup_item(&configs.esp.grenade_prediction_click_only, false, crypt_str("Esp.grenade_prediction_click_only"));
 	setup_item(&configs.esp.grenade_prediction_color, Color::White, crypt_str("Esp.grenade_prediction_color"));

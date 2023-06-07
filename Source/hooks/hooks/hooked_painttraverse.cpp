@@ -99,6 +99,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 		cheat.globals.bomb_timer_enable = true;
 		cheat.globals.backup_model = false;
 		cheat.globals.should_remove_smoke = false;
+		cheat.globals.should_remove_molotov = false;
 		cheat.globals.should_update_beam_index = true;
 		cheat.globals.should_update_playerresource = true;
 		cheat.globals.should_update_gamerules = true;

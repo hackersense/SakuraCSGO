@@ -61,12 +61,12 @@ typedef struct player_info_s
 
 	std::string getUsername()
 	{
-		return std::string{ name };
+		return std::string(name);
 	}
 
 	std::string getGUID()
 	{
-		return std::string{ guid };
+		return std::string(guid);
 	}
 } player_info_t;
 

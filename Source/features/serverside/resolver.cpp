@@ -164,8 +164,8 @@ void resolver::test(player_t* e)
 	state->m_flFeetCycle = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flCycle;
 	state->m_flFeetYawRate = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight;
 	state->m_flWeight() = e->get_animlayer(ANIMATION_LAYER_LEAN)->m_flWeight;
-	auto delta = e->get_max_desync_delta();
-	auto m_side = 0;
+	float delta = 0.0f;
+	int m_side = 0;
 
 	if (act_stand)
 	{
@@ -187,7 +187,14 @@ void resolver::test(player_t* e)
 			m_side = -1;
 	}
 
-	e->get_animation_state()->m_flGoalFeetYaw = math::normalize_yaw(state->m_flEyeYaw + (delta * m_side));
+	if (m_side == 1)
+		delta = e->get_max_desync_delta();
+	else if (m_side == -1)
+		delta = e->get_min_desync_delta();
+	else
+		delta = state->m_flEyeYaw;
+
+	e->get_animation_state()->m_flGoalFeetYaw = math::normalize_yaw(state->m_flGoalFeetYaw + delta);
 }
 
 void resolver::resolve_yaw()

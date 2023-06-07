@@ -1,7 +1,5 @@
 #pragma once
 
-#include "../misc/vfunc.hpp"
-
 class IKeyValuesSystem {
 public:
 	virtual ~IKeyValuesSystem() = 0;

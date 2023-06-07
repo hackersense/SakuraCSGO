@@ -2,6 +2,7 @@
 #include <fstream>
 #include "..\configs\configs.h"
 #include "..\sdk\ProtobufReader.h"
+#include "..\sdk\ItemSchema.h"
 
 static const char* player_model_index_t[] =
 {
@@ -204,6 +205,54 @@ static constexpr void updateHud() noexcept
 			i = memory->clearHudWeapon(hud_weapons, i);
 
 	hudUpdateRequired = false;
+}
+
+void SkinChanger::setup() noexcept
+{
+	auto items = std::ifstream(crypt_str("csgo/scripts/items/items_game_cdn.txt"));
+	auto gameItems = std::string(std::istreambuf_iterator<char>{ items }, std::istreambuf_iterator<char>{ });
+
+	if (!items.is_open())
+		return;
+
+	items.close();
+
+	for (auto i = 0; i <= memory->itemSystem()->paintKits.lastElement; i++)
+	{
+		auto paintKit = memory->itemSystem()->paintKits.memory[i].value;
+
+		if (paintKit->id == 9001)
+			continue;
+
+		auto itemName = m_localize()->FindSafe(paintKit->itemName.buffer + 1);
+		auto itemNameLength = WideCharToMultiByte(CP_UTF8, 0, itemName, -1, nullptr, 0, nullptr, nullptr);
+
+		if (std::string name(itemNameLength, 0); WideCharToMultiByte(CP_UTF8, 0, itemName, -1, &name[0], itemNameLength, nullptr, nullptr))
+		{
+			if (paintKit->id < 10000)
+			{
+				if (auto pos = gameItems.find('_' + std::string{ paintKit->name.buffer } + '='); pos != std::string::npos && gameItems.substr(pos + paintKit->name.length).find('_' + std::string{ paintKit->name.buffer } + '=') == std::string::npos)
+				{
+					if (auto weaponName = gameItems.rfind(crypt_str("weapon_"), pos); weaponName != std::string::npos)
+					{
+						name.back() = ' ';
+						name += '(' + gameItems.substr(weaponName + 7, pos - weaponName - 7) + ')';
+					}
+				}
+				skinKits.emplace_back(paintKit->id, std::move(name), paintKit->name.buffer);
+			}
+			else
+			{
+				std::string_view gloveName{ paintKit->name.buffer };
+				name.back() = ' ';
+				name += '(' + std::string(gloveName.substr(0, gloveName.find('_'))) + ')';
+				gloveKits.emplace_back(paintKit->id, std::move(name), paintKit->name.buffer);
+			}
+		}
+	}
+
+	std::sort(skinKits.begin(), skinKits.end());
+	std::sort(gloveKits.begin(), gloveKits.end());
 }
 
 void SkinChanger::run(ClientFrameStage_t stage) noexcept

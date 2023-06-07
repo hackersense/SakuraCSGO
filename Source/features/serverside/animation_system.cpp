@@ -5,8 +5,8 @@ std::deque<adjust_data> player_records[65] = { };
 
 void animation_system::init()
 {
-	static auto threadedBoneSetup = m_cvar()->FindVar("cl_threaded_bone_setup");
-	threadedBoneSetup->SetValue(1);
+	//static auto threadedBoneSetup = m_cvar()->FindVar("cl_threaded_bone_setup");
+	//threadedBoneSetup->SetValue(1);
 
 	static auto extrapolate = m_cvar()->FindVar("cl_extrapolate");
 	extrapolate->SetValue(0);

@@ -4,10 +4,9 @@
 #include "../sdk/Memory.h"
 #include "../configs/configs.h"
 
-class attributableitem_t;
-
 namespace SkinChanger 
 {
+	void setup() noexcept;
 	void run(ClientFrameStage_t stage) noexcept;
     void scheduleHudUpdate() noexcept;
     void overrideHudIcon(IGameEvent* event) noexcept;

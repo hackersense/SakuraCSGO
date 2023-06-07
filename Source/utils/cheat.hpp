@@ -103,6 +103,7 @@ public:
 		bool reset_net_channel = false;
 		bool in_createmove = false;
 		bool should_remove_smoke = false;
+		bool should_remove_molotov = false;
 		bool should_update_beam_index = false;
 		bool should_clear_death_notices = false;
 		bool should_update_playerresource = false;

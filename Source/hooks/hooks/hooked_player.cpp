@@ -114,7 +114,7 @@ void __fastcall Hooks::hooked_physicssimulate(player_t* player, void* edx)
 		return;
 	}
 
-	engineprediction::get().restore_netvars();
+	//engineprediction::get().restore_netvars();
 	((PhysicsSimulateFn)original_physicssimulate)(player);
 	engineprediction::get().store_netvars();
 }

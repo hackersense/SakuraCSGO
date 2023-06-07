@@ -263,6 +263,7 @@ inline std::vector<const char*> removals =
 	"Scope",
 	"Zoom",
 	"Smoke",
+	"Molotov",
 	"Flash",
 	"Recoil",
 	"Landing bob",

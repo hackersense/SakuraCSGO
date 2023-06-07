@@ -294,6 +294,4 @@ public:
 	{
 		return CallVFunc<ITexture*>(this, 91, szTextureName, szTextureGroupName, bComplain, nAdditionalCreationFlags);
 	}
-
-	bool& DisableRenderTargetAllocationForever();
 };

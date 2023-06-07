@@ -44,54 +44,6 @@ __forceinline void setup_netvars()
     }
 }
 
-__forceinline void setup_skins()
-{
-    auto items = std::ifstream(crypt_str("csgo/scripts/items/items_game_cdn.txt"));
-    auto gameItems = std::string(std::istreambuf_iterator<char>{ items }, std::istreambuf_iterator<char>{ });
-
-    if (!items.is_open())
-        return;
-
-    items.close();
-
-    for (auto i = 0; i <= memory->itemSystem()->paintKits.lastElement; i++)
-    {
-        auto paintKit = memory->itemSystem()->paintKits.memory[i].value;
-
-        if (paintKit->id == 9001)
-            continue;
-
-        auto itemName = m_localize()->FindSafe(paintKit->itemName.buffer + 1);
-        auto itemNameLength = WideCharToMultiByte(CP_UTF8, 0, itemName, -1, nullptr, 0, nullptr, nullptr);
-
-        if (std::string name(itemNameLength, 0); WideCharToMultiByte(CP_UTF8, 0, itemName, -1, &name[0], itemNameLength, nullptr, nullptr))
-        {
-            if (paintKit->id < 10000)
-            {
-                if (auto pos = gameItems.find('_' + std::string{ paintKit->name.buffer } + '='); pos != std::string::npos && gameItems.substr(pos + paintKit->name.length).find('_' + std::string{ paintKit->name.buffer } + '=') == std::string::npos)
-                {
-                    if (auto weaponName = gameItems.rfind(crypt_str("weapon_"), pos); weaponName != std::string::npos)
-                    {
-                        name.back() = ' ';
-                        name += '(' + gameItems.substr(weaponName + 7, pos - weaponName - 7) + ')';
-                    }
-                }
-                SkinChanger::skinKits.emplace_back(paintKit->id, std::move(name), paintKit->name.buffer);
-            }
-            else
-            {
-                std::string_view gloveName{ paintKit->name.buffer };
-                name.back() = ' ';
-                name += '(' + std::string(gloveName.substr(0, gloveName.find('_'))) + ')';
-                SkinChanger::gloveKits.emplace_back(paintKit->id, std::move(name), paintKit->name.buffer);
-            }
-        }
-    }
-
-    std::sort(SkinChanger::skinKits.begin(), SkinChanger::skinKits.end());
-    std::sort(SkinChanger::gloveKits.begin(), SkinChanger::gloveKits.end());
-}
-
 using GetEyeAngles = Vector * (__thiscall*)(void*);
 using BuildTransformations = Vector * (__thiscall*)(void*, c_studio_hdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
 void* pBuildTransformationsEntity;
@@ -210,7 +162,7 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
 {
     ((Hooks::ParticleCollectionFn)Hooks::original_particlecollection)(thisPointer);
 
-    if (!m_engine()->IsConnected())
+    if (!cheat.available())
         return;
 
     ParticleCollection* rootCollection = thisPointer;
@@ -258,6 +210,10 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
         }
         break;
     case fnv::hash("explosion_smokegrenade_fallback"):
+    case fnv::hash("explosion_smokegrenade_CT"):
+    case fnv::hash("explosion_smokegrenade_T"):
+    case fnv::hash("explosion_smokegrenade"):
+    //case fnv::hash("explosion_smoke_disperse"):
         if (configs.esp.smoke_color_enabled) {
             for (int i = 0; i < thisPointer->activeParticles; i++) {
                 float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
@@ -444,7 +400,7 @@ __forceinline void setup_hooks()
 
     Hooks::original_checkforsequencechange = (DWORD)DetourFunction((PBYTE)memory->checkForSequenceChange, (PBYTE)checkForSequenceChangeHook); // AnimFix L:51
 
-    Hooks::original_particlecollection = (DWORD)DetourFunction((PBYTE)memory->particleCollection, (PBYTE)particleCollectionHook); // AnimFix L:51
+    Hooks::original_particlecollection = (DWORD)DetourFunction((PBYTE)memory->particleCollection, (PBYTE)particleCollectionHook);
 
     Hooks::senddatagram_hook.detour(memory->sendDatagram, Hooks::hooked_senddatagram);
 
@@ -798,7 +754,7 @@ DWORD WINAPI threadMain(PVOID base)
 
     setup_sounds();
 
-    setup_skins();
+    SkinChanger::setup();
 
     setup_netvars();
 

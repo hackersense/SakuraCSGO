@@ -12,7 +12,6 @@
 #include <string>
 #include <string_view>
 
-#include "ItemSchema.h"
 #include "math\Vector.hpp"
 #include "misc\IKeyValuesSystem.hpp"
 #include "SteamAPI.h"
@@ -26,6 +25,7 @@ struct Ray_t;
 struct mstudiobbox_t;
 class matrix3x4_t;
 class CGameTrace;
+class ItemSystem;
 
 struct tesla_info_t {
     Vector m_pos;

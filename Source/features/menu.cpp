@@ -3000,12 +3000,6 @@ void C_MergedMDL::SetupBonesForAttachmentQueries()
 	return ((void(__thiscall*)(void*))(m_SetupBonesForAttachmentQueries))(this);
 }
 
-bool& IMaterialSystem::DisableRenderTargetAllocationForever()
-{
-	static auto m_DisableRenderTargetAllocationForever = util::FindSignature("client.dll", crypt_str("80 B9 ? ? ? ? ? 74 0F")) + 0x2;
-	return *reinterpret_cast<bool*>(reinterpret_cast<std::uintptr_t>(this) + m_DisableRenderTargetAllocationForever);
-}
-
 void C_MergedMDL::SetMergedMDL(const char* szModelPath, CCustomMaterialOwner* pCustomMaterialOwner, void* pProxyData)
 {
 	static auto m_SetMergedMDL = util::FindSignature("client.dll", crypt_str("55 8B EC 57 8B F9 8B 0D ? ? ? ? 85 C9 75"));

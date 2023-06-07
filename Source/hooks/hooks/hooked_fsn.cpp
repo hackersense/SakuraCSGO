@@ -1,6 +1,7 @@
 #include "..\hooks.hpp"
 #include "..\..\features\legitbot\backtrack.h"
 #include "..\..\features\serverside\animation_system.h"
+#include "..\..\features\serverside\engine_prediction.h"
 #include "..\..\features\visuals\night_mode.h"
 #include "..\..\features\misc\misc.h"
 #include "..\..\features\visuals\world_esp.h"
@@ -119,6 +120,35 @@ void remove_smoke()
 	}
 }
 
+void remove_molotov()
+{
+	if (cheat.globals.should_remove_molotov == configs.player.enabled && configs.esp.removals[REMOVALS_MOLOTOV])
+		return;
+
+	cheat.globals.should_remove_molotov = configs.player.enabled && configs.esp.removals[REMOVALS_MOLOTOV];
+
+	static std::vector<const char*> molotov_materials =
+	{
+		"decals/molotovscorch.vmt",
+		"particle/fire_burning_character/fire_env_fire.vmt",
+		"particle/fire_burning_character/fire_env_fire_depthblend.vmt",
+		"particle/particle_flares/particle_flare_001.vmt",
+		"particle/particle_flares/particle_flare_004.vmt",
+		"particle/particle_flares/particle_flare_004b_mod_ob.vmt",
+		"particle/particle_flares/particle_flare_004b_mod_z.vmt",
+		"particle/fire_explosion_1/fire_explosion_1_bright.vmt",
+		"particle/fire_explosion_1/fire_explosion_1b.vmt",
+		"particle/fire_particle_4/fire_particle_4.vmt",
+		"particle/fire_explosion_1/fire_explosion_1_oriented.vmt",
+		"particle/vistasmokev1/vistasmokev1_nearcull_nodepth.vmt"
+	};
+
+	for (const auto material_name : molotov_materials) {
+		const auto material = m_materialsystem2()->FindMaterial(material_name);
+		material->SetMaterialVarFlag(MATERIAL_VAR_NO_DRAW, cheat.globals.should_remove_molotov);
+	}
+}
+
 void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 {
 	cheat.local(reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer())), true);
@@ -213,6 +243,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().force_relay_cluster();
 		backtrack::get().update();
 		remove_smoke();
+		remove_molotov();
 		misc::get().preserve_killfeed();
 		misc::get().ragdolls();
 		misc::get().anti_crasher();
@@ -408,32 +439,29 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 						if (configs.misc.events_to_log[EVENTLOG_HIT])
 							eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to desync"), true);
 					}
+					else if (current_shot->occlusion)
+					{
+						current_shot->shot_info.result = crypt_str("occlusion");
+						if (configs.misc.events_to_log[EVENTLOG_HIT])
+							eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to occlusion"), true);
+					}
+					else if (current_shot->shot_info.hitchance > 100)
+					{
+						current_shot->shot_info.result = crypt_str("prediction");
+						if (configs.misc.events_to_log[EVENTLOG_HIT])
+							eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to prediction error"), true);
+					}
+					else if (current_shot->shot_info.hitchance == 100)
+					{
+						current_shot->shot_info.result = crypt_str("unknown");
+						if (configs.misc.events_to_log[EVENTLOG_HIT])
+							eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to unknown"), true);
+					}
 					else
 					{
-						if (current_shot->occlusion)
-						{
-							current_shot->shot_info.result = crypt_str("occlusion");
-							if (configs.misc.events_to_log[EVENTLOG_HIT])
-								eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to occlusion"), true);
-						}
-						else if (current_shot->shot_info.hitchance > 100)
-						{
-							current_shot->shot_info.result = crypt_str("prediction");
-							if (configs.misc.events_to_log[EVENTLOG_HIT])
-								eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to prediction error"), true);
-						}
-						else if (current_shot->shot_info.hitchance == 100)
-						{
-							current_shot->shot_info.result = crypt_str("unknown");
-							if (configs.misc.events_to_log[EVENTLOG_HIT])
-								eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to unknown"), true);
-						}
-						else
-						{
-							current_shot->shot_info.result = crypt_str("spread");
-							if (configs.misc.events_to_log[EVENTLOG_HIT])
-								eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to spread"), true);
-						}
+						current_shot->shot_info.result = crypt_str("spread");
+						if (configs.misc.events_to_log[EVENTLOG_HIT])
+							eventlogs::get().add(crypt_str("Missed"), crypt_str("Missed shot due to spread"), true);
 					}
 				}
 			}
@@ -460,8 +488,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 	animation_system::get().run(stage);
 	client_hook.callOriginal<void, 37>(stage);
 
-	//if (m_engine()->IsInGame())
-	//	engineprediction::get().restore_netvars();
+	engineprediction::get().restore_netvars();
 
 	if (configs.player.enabled && configs.esp.removals[REMOVALS_RECOIL] && cheat.local()->is_alive() && aim_punch && view_punch)
 	{
