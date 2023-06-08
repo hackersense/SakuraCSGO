@@ -88,10 +88,9 @@ void worldesp::onImGuiRender()
 						imRender->DrawString(screen.x, screen.y, Color(215, 20, 20), HFONT_CENTERED_X | HFONT_CENTERED_Y, skeet_menu.f2, "BOMB");
 				}
 			}
-
 			break;
 		default:
-			c_grenade_prediction::get().run((projectile_t*)e);
+			c_grenade_prediction::get().run(e);
 			grenade_projectiles(e);
 			break;
 		}
@@ -554,8 +553,7 @@ void worldesp::grenade_projectiles(entity_t* entity)
 
 	auto name = std::string(studio_model->szName);
 
-	if (name.find("thrown") != std::string::npos ||
-		client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
+	if (name.find("thrown") != std::string::npos || client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
 	{
 		auto& grenade_origin = entity->GetAbsOrigin();
 		auto grenade_position = ZERO;

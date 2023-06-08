@@ -659,7 +659,7 @@ Vector player_t::get_eye_position()
 
 	if (this != cheat.local())
 	{
-		modify_another_eye_position(get_animation_state(), position);
+		//modify_another_eye_position(get_animation_state(), position);
 
 		return position;
 	}

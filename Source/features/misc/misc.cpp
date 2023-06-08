@@ -3,41 +3,40 @@
 #include "..\ragebot\ragebot.h"
 #include "..\visuals\world_esp.h"
 #include "..\..\sdk\MusicStatus.hpp"
-#include "..\serverside\engine_prediction.h"
 #include "..\..\sdk\ProtobufReader.h"
+#include "..\serverside\engine_prediction.h"
 #include "logs.h"
 
-MStatus musicS = MStatus{ L"", L"", false, false };
+MStatus musicS = MStatus{ L"", L"", false, false, MusicPlayerType::None };
 float lasttime = 0.f;
 
 void StatusCheck()
 {
-	if (m_globals()->m_realtime > lasttime + 5.f)
-	{
+	if (m_globals()->m_realtime > lasttime + 5.f) {
 		const auto spotify = musicStatus.getSpotify();
 		const auto ypm = musicStatus.getYesPlayMusic();
-		bool findSpotify = false;
 		bool findYPM = false;
 
-		if (spotify.find)
 			findSpotify = true;
 
-		if (ypm.find)
-			findYPM = true;
+		std::vector<MStatus> musicStatus = { spotify, ypm };
+		MStatus curMStatus = MStatus{ L"", L"", false, false, MusicPlayerType::None };
 
-		if (findSpotify && findYPM)
-		{
-			if (ypm.playing)
-				musicS = ypm;
-			else
-				musicS = spotify;
+		for (MStatus status : musicStatus) {
+			if (status.find) {
+				if (musicS.musicPlayerType == status.musicPlayerType && !status.playing)
+					musicS = status;
+
+				if (!musicS.playing && status.playing && musicS.musicPlayerType != status.musicPlayerType)
+					curMStatus = status;
+				else if (status.playing && musicS.musicPlayerType == status.musicPlayerType)
+					curMStatus = status;
+				else if (musicS.musicPlayerType == MusicPlayerType::None)
+					curMStatus = status;
+			}
 		}
-		else if (findYPM)
-			musicS = ypm;
-		else if (findSpotify)
-			musicS = spotify;
-		else
-			musicS = MStatus{ L"", L"", false, false };
+
+		musicS = curMStatus;
 
 		lasttime = m_globals()->m_realtime;
 	}
@@ -91,10 +90,7 @@ void misc::watermark()
 				watermarkText.append(crypt_str(" - ")).append(StringUtils::wstringToString(musicS.name.c_str()));
 			}
 			else
-				if (musicS.isSpotify)
-					watermarkText.append(crypt_str(" | ")).append("Spotify");
-				else
-					watermarkText.append(crypt_str(" | ")).append("YesPlayMusic");
+				watermarkText.append(crypt_str(" | ")).append(MusicPlayerTypeStr[static_cast<int>(musicS.musicPlayerType)]);
 	}
 
 	auto box_width = render::get().text_width(fonts[NAME], watermarkText.c_str()) + 10;

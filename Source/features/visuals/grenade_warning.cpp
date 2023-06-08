@@ -41,11 +41,10 @@ const char* index_to_grenade_name_icon(int index)
 
 bool c_grenade_prediction::data_t::draw()
 {
-	if (m_path.size() <= 1u
-		|| m_globals()->m_curtime >= m_expire_time)
+	if (m_path.size() <= 1 || m_globals()->m_curtime >= m_expire_time)
 		return false;
 
-	float distance = cheat.local()->m_vecOrigin().DistTo(m_origin) / 12;
+	float distance = cheat.local()->m_vecOrigin().DistTo(m_origin) / 12.f;
 
 	if (distance > 200.f)
 		return false;
@@ -56,7 +55,7 @@ bool c_grenade_prediction::data_t::draw()
 	auto prev_screen = ZERO;
 	auto prev_on_screen = math::world_to_screen(std::get< Vector >(m_path.front()), prev_screen);
 
-	for (auto i = 1u; i < m_path.size(); ++i) {
+	for (int i = 1; i < m_path.size(); ++i) {
 		auto cur_screen = ZERO, last_cur_screen = ZERO;
 		const auto cur_on_screen = math::world_to_screen(std::get< Vector >(m_path.at(i)), cur_screen);
 
@@ -83,6 +82,7 @@ bool c_grenade_prediction::data_t::draw()
 	{
 		alpha_damage = 255 - 255 * (distance / 15);
 	}
+
 	auto col = configs.esp.grenade_warning_color;
 	Ray_t ray;
 	CTraceFilterWorldAndPropsOnly filter;
@@ -102,7 +102,8 @@ bool c_grenade_prediction::data_t::draw()
 		imRender->two_sided_arc(screen.x, screen.y - g_size.y * 0.5f - 12, 20, percent, Color(col.r(), col.g(), col.b(), 255), 3);
 		imRender->DrawString(screen.x, screen.y - g_size.y * 0.5f - 12, Color::White, HFONT_CENTERED_X | HFONT_CENTERED_Y, c_menu::get().weapon_icon2, index_to_grenade_name_icon(m_index));
 	}
-	else {
+	else
+	{
 
 		static auto g_size = Vector2D(35.0f, 5.0f);
 		imRender->CircleFilled(prev_screen.x, prev_screen.y - g_size.y * 0.5f - 12, 21, Color(25, 25, 25, col.a()), 60);
@@ -110,7 +111,6 @@ bool c_grenade_prediction::data_t::draw()
 		imRender->two_sided_arc(prev_screen.x, prev_screen.y - g_size.y * 0.5f - 12, 20, percent, Color(col.r(), col.g(), col.b(), 255), 3);
 		imRender->DrawString(prev_screen.x, prev_screen.y - g_size.y * 0.5f - 12, Color::White, HFONT_CENTERED_X | HFONT_CENTERED_Y, c_menu::get().weapon_icon2, index_to_grenade_name_icon(m_index));
 	}
-
 
 	auto isOnScreen = [](Vector origin, Vector& screen) -> bool
 	{
@@ -170,59 +170,79 @@ bool c_grenade_prediction::data_t::draw()
 	return true;
 }
 
-void c_grenade_prediction::run(projectile_t* entity)
+void c_grenade_prediction::run(entity_t* ent)
 {
-	auto& predicted_nades = c_grenade_prediction::get().get_list();
+	auto client_class = ent->GetClientClass();
 
-	static auto last_server_tick = m_globals()->m_curtime;
-	if (last_server_tick != m_globals()->m_curtime) {
-		predicted_nades.clear();
-
-		last_server_tick = m_globals()->m_curtime;
-	}
-
-	if (entity->IsDormant() || !configs.esp.grenade_warning)
+	if (!client_class)
 		return;
 
-	const auto client_class = entity->GetClientClass();
-	if (!client_class
-		|| client_class->m_ClassID != CMolotovProjectile && client_class->m_ClassID != CBaseCSGrenadeProjectile)
+	auto model = ent->GetModel();
+
+	if (!model)
 		return;
 
-	if (client_class->m_ClassID == CBaseCSGrenadeProjectile) {
-		const auto model = entity->GetModel();
-		if (!model)
+	auto studio_model = m_modelinfo()->GetStudioModel(model);
+
+	if (!studio_model)
+		return;
+
+	auto name = std::string(studio_model->szName);
+
+	if (name.find("thrown") != std::string::npos || client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
+	{
+		auto entity = reinterpret_cast<projectile_t*>(ent);
+		auto& predicted_nades = c_grenade_prediction::get().get_list();
+
+		static auto last_server_tick = m_globals()->m_curtime;
+		if (last_server_tick != m_globals()->m_curtime)
+		{
+			predicted_nades.clear();
+
+			last_server_tick = m_globals()->m_curtime;
+		}
+
+		if (entity->IsDormant() || !configs.esp.grenade_warning)
 			return;
 
-		const auto studio_model = m_modelinfo()->GetStudioModel(model);
-		if (!studio_model
-			|| std::string_view(studio_model->szName).find("fraggrenade") == std::string::npos)
+		const auto client_class = entity->GetClientClass();
+		if (!client_class || client_class->m_ClassID != CMolotovProjectile && client_class->m_ClassID != CBaseCSGrenadeProjectile)
 			return;
-	}
 
-	const auto handle = entity->GetRefEHandle().ToLong();
+		if (client_class->m_ClassID == CBaseCSGrenadeProjectile) {
+			const auto model = entity->GetModel();
+			if (!model)
+				return;
 
-	if (entity->m_nExplodeEffectTickBegin() || !entity->m_hThrower().IsValid() || (entity->m_hThrower().Get()->m_iTeamNum() == cheat.local()->m_iTeamNum() && entity->m_hThrower().Get() != cheat.local())) {
+			const auto studio_model = m_modelinfo()->GetStudioModel(model);
+			if (!studio_model || std::string_view(studio_model->szName).find("fraggrenade") == std::string::npos)
+				return;
+		}
+
+		const auto handle = entity->GetRefEHandle().ToLong();
+
+		if (entity->m_nExplodeEffectTickBegin() || !entity->m_hThrower().IsValid() || (entity->m_hThrower().Get()->m_iTeamNum() == cheat.local()->m_iTeamNum() && entity->m_hThrower().Get() != cheat.local())) {
+			predicted_nades.erase(handle);
+
+			return;
+		}
+
+		if (predicted_nades.find(handle) == predicted_nades.end()) {
+			predicted_nades.emplace(
+				std::piecewise_construct,
+				std::forward_as_tuple(handle),
+				std::forward_as_tuple(
+					entity->m_hThrower().Get(),
+					client_class->m_ClassID == CMolotovProjectile ? WEAPON_MOLOTOV : WEAPON_HEGRENADE,
+					entity->m_vecOrigin(), reinterpret_cast<player_t*>(entity)->m_vecVelocity(),
+					entity->m_flSpawnTime(), TIME_TO_TICKS(reinterpret_cast<player_t*>(entity)->m_flSimulationTime() - entity->m_flSpawnTime())
+				)
+			);
+		}
+
+		if (predicted_nades.at(handle).draw())
+			return;
+
 		predicted_nades.erase(handle);
-
-		return;
 	}
-
-	if (predicted_nades.find(handle) == predicted_nades.end()) {
-		predicted_nades.emplace(
-			std::piecewise_construct,
-			std::forward_as_tuple(handle),
-			std::forward_as_tuple(
-				entity->m_hThrower().Get(),
-				client_class->m_ClassID == CMolotovProjectile ? WEAPON_MOLOTOV : WEAPON_HEGRENADE,
-				entity->m_vecOrigin(), reinterpret_cast<player_t*>(entity)->m_vecVelocity(),
-				entity->m_flSpawnTime(), TIME_TO_TICKS(reinterpret_cast<player_t*>(entity)->m_flSimulationTime() - entity->m_flSpawnTime())
-			)
-		);
-	}
-
-	if (predicted_nades.at(handle).draw())
-		return;
-
-	predicted_nades.erase(handle);
 }

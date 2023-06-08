@@ -399,7 +399,7 @@ __forceinline void setup_hooks()
 
     Hooks::original_clmove = (DWORD)DetourFunction((PBYTE)memory->clMove, (PBYTE)clMoveHook);
 
-    Hooks::original_checkforsequencechange = (DWORD)DetourFunction((PBYTE)memory->checkForSequenceChange, (PBYTE)checkForSequenceChangeHook); // AnimFix L:51
+    //Hooks::original_checkforsequencechange = (DWORD)DetourFunction((PBYTE)memory->checkForSequenceChange, (PBYTE)checkForSequenceChangeHook); // AnimFix L:51
 
     Hooks::original_particlecollection = (DWORD)DetourFunction((PBYTE)memory->particleCollection, (PBYTE)particleCollectionHook);
 
@@ -409,7 +409,7 @@ __forceinline void setup_hooks()
 
     Hooks::isdepthoffieldenabled_hook.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
 
-    Hooks::tracefilterforheadcollision_hook.detour(memory->traceFilterForHeadCollision, Hooks::hooked_tracefilterforheadcollision);
+    //Hooks::tracefilterforheadcollision_hook.detour(memory->traceFilterForHeadCollision, Hooks::hooked_tracefilterforheadcollision);
 
     //Hooks::clsendmove_hook.detour(memory->clSendMove, clSendMoveHook);
 
@@ -723,11 +723,11 @@ DWORD WINAPI threadMain(PVOID base)
     */
 
     // https://github.moeyy.xyz/https://raw.githubusercontent.com/hackersense/.github/main/123.html
-    //if (StringUtils::clearAllSpace(HTTPUtils::get("https://jsd.cdn.zzko.cn/gh/hackersense/.github@main/123.html")) != "true")
-    //	return EXIT_SUCCESS;
+    if (StringUtils::clearAllSpace(HTTPUtils::get("https://sakion.top/Sakion/test.html")) != "stuff")
+    	return EXIT_SUCCESS;
 
     cheat.remainingTime = -1;
-    cheat.username = "Memoria";
+    cheat.username = "TimeRinne";
     cheat.timeStamp = getTimeStamp();
 
     //Beep(578, 100);

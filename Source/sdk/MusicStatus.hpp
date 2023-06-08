@@ -4,13 +4,30 @@
 #include <TlHelp32.h>
 #include "..\utils\StringUtils.h"
 
+enum class MusicPlayerType
+{
+	None,
+	Spotify,
+	NeteaseCloudMusic,
+	YesPlayMusic,
+	HyPlayer
+};
+static const char* MusicPlayerTypeStr[] =
+{
+	"None",
+	"Spotify",
+	"NeteaseCloudMusic",
+	"YesPlayMusic",
+	"HyPlayer"
+};
+
 struct MStatus
 {
-	std::wstring name;
-	std::wstring artist;
-	bool playing;
-	bool find;
-	bool isSpotify;
+	std::wstring name = L"";
+	std::wstring artist = L"";
+	bool playing = false;
+	bool find = false;
+	MusicPlayerType musicPlayerType = MusicPlayerType::None;
 };
 
 typedef struct EnumHWndsArg
@@ -41,7 +58,7 @@ namespace MSC {
 				}
 				if (!wcsstr(title.c_str(), L" - ") && !wcsstr(title.c_str(), L" \u00b7 ") && !wcsstr(title.c_str(), L"Spotify") && !wcsstr(title.c_str(), L"YesPlayMusic"))
 					continue;
-				//if (title.find(L" - ") == title.npos && title.find(L" ¡¤ ") == title.npos && title.find(L"Spotify") == title.npos && title.find(L"YesPlayMusic") == title.npos)
+				//if (title.find(L" - ") == title.npos && title.find(L" \u00b7 ") == title.npos && title.find(L"Spotify") == title.npos && title.find(L"YesPlayMusic") == title.npos)
 				//	continue;
 				if (lstrlenW(title.c_str()) > 1) {
 					//procID = pid;
@@ -91,20 +108,20 @@ public:
 		{
 			if (MSC::ttl.find(L"Spotify") != MSC::ttl.npos)
 			{
-				return MStatus{ L"", L"", false, true, true };
+				return MStatus{ L"", L"", false, true, MusicPlayerType::Spotify };
 			}
 			else if (MSC::ttl.find(L" - ") != MSC::ttl.npos)
 			{
 				std::wstring name = StringUtils::trim(StringUtils::cutNext(MSC::ttl, L" - "));
 				std::wstring artist = StringUtils::trim(StringUtils::cutPre(MSC::ttl, L" - "));
-				return MStatus{ name, artist, true, true, true };
+				return MStatus{ name, artist, true, true, MusicPlayerType::Spotify };
 
 			}
 			else
-				return MStatus{ L"", L"", false, true, true };
+				return MStatus{ L"", L"", false, true, MusicPlayerType::Spotify };
 		}
 
-		return MStatus{ L"", L"", false, false, true };
+		return MStatus{ L"", L"", false, false, MusicPlayerType::Spotify };
 	}
 
 	MStatus getYesPlayMusic()
@@ -113,19 +130,19 @@ public:
 		{
 			if (!lstrcmpW(MSC::ttl.c_str(), L"YesPlayMusic"))
 			{
-				return MStatus{ L"", L"", false, true, false };
+				return MStatus{ L"", L"", false, true, MusicPlayerType::YesPlayMusic };
 			}
 			else if (MSC::ttl.find(L" - YesPlayMusic") != MSC::ttl.npos)
 			{
 				std::wstring name = StringUtils::trim(StringUtils::cutPre(MSC::ttl, L" \u00b7 "));
 				std::wstring artist = StringUtils::trim(StringUtils::replaceAll(StringUtils::cutNext(MSC::ttl, L" \u00b7 "), L" - YesPlayMusic", L""));
-				return MStatus{ name, artist, true, true, false };
+				return MStatus{ name, artist, true, true, MusicPlayerType::YesPlayMusic };
 			}
 			else
-				return MStatus{ L"", L"", false, true, false };
+				return MStatus{ L"", L"", false, true, MusicPlayerType::YesPlayMusic };
 		}
 
-		return MStatus{ L"", L"", false, false, false };
+		return MStatus{ L"", L"", false, false, MusicPlayerType::YesPlayMusic };
 	}
 private:
 

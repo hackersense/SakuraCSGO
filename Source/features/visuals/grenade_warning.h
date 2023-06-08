@@ -2,7 +2,7 @@
 
 #include "..\..\includes.hpp"
 
-class c_grenade_prediction : public singleton< c_grenade_prediction >
+class c_grenade_prediction : public singleton<c_grenade_prediction>
 {
 private:
 	static void TraceHull(const Vector& src, const Vector& dst, const Vector& mins, const Vector& maxs, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace) {
@@ -314,7 +314,7 @@ private:
 		float											m_detonate_time{}, m_expire_time{};
 		int												m_index{}, m_tick{}, m_next_think_tick{},
 			m_last_update_tick{}, m_bounces_count{};
-		std::vector< std::pair< Vector, bool > >		m_path{};
+		std::vector<std::pair<Vector, bool>>		m_path{};
 	} m_data{};
 
 	std::unordered_map<unsigned long, data_t> m_list{};
@@ -329,5 +329,5 @@ public:
 		return m_list;
 	}
 
-	void run(projectile_t* entity);
+	void run(entity_t* entity);
 };
