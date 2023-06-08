@@ -558,6 +558,12 @@ struct inferno_t : public entity_t
 {
     OFFSET(float, get_spawn_time, 0x20);
 
+    NETVAR(int[100], m_fireXDelta, crypt_str("CInferno"), crypt_str("m_fireXDelta"));
+    NETVAR(int[100], m_fireYDelta, crypt_str("CInferno"), crypt_str("m_fireYDelta"));
+    NETVAR(int[100], m_fireZDelta, crypt_str("CInferno"), crypt_str("m_fireZDelta"));
+    NETVAR(bool[100], m_bFireIsBurning, crypt_str("CInferno"), crypt_str("m_bFireIsBurning"));
+    NETVAR(int, m_fireCount, crypt_str("CInferno"), crypt_str("m_fireCount"));
+
     static float get_expiry_time()
     {
         return 7.03125f;

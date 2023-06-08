@@ -87,7 +87,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		return false;
 	}
 
-	const auto tickAllowed = ((m_gamerules()->m_bIsValveDS() && !configs.misc.anti_untrusted) || (misc::get().hide_shots_enabled && !misc::get().double_tap_enabled)) ? 8 : 16;
+	const auto tickAllowed = ((m_gamerules()->m_bIsValveDS() && !configs.misc.anti_untrusted) || (misc::get().hide_shots_enabled && !misc::get().double_tap_enabled)) ? (m_gamerules()->m_bIsValveDS() ? cheat.getMaxChokecCMD(true) : 8) : cheat.getMaxChokecCMD(false);
 
 	if (cheat.globals.should_recharge)
 	{

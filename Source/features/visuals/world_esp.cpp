@@ -1,4 +1,5 @@
 #include "world_esp.h"
+#include "../menu.h"
 
 void worldesp::paint_traverse()
 {
@@ -28,14 +29,48 @@ void worldesp::paint_traverse()
 		case CEnvTonemapController:
 			world_modulation(e);
 			break;
+		case CPlantedC4:
+			bomb_timer(e);
+			break;
+		default:
+			grenade_projectiles(e);
+
+			if (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)
+				dropped_weapons(e);
+
+			break;
+		}
+	}
+}
+
+void worldesp::onImGuiRender()
+{
+	const auto HighestEntityIndex = m_entitylist()->GetHighestEntityIndex();
+	for (int i = 1; i <= HighestEntityIndex; i++)
+	{
+		auto e = static_cast<entity_t*>(m_entitylist()->GetClientEntity(i));
+
+		if (!e)
+			continue;
+
+		if (e->is_player())
+			continue;
+
+		if (e->IsDormant())
+			continue;
+
+		auto client_class = e->GetClientClass();
+
+		if (!client_class)
+			continue;
+
+		switch (client_class->m_ClassID)
+		{
 		case CInferno:
 			molotov_timer(e);
 			break;
 		case CSmokeGrenadeProjectile:
 			smoke_timer(e);
-			break;
-		case CPlantedC4:
-			bomb_timer(e);
 			break;
 		case CC4:
 			if (configs.player.type[ENEMY].flags[FLAGS_C4] || configs.player.type[TEAM].flags[FLAGS_C4] || configs.player.type[LOCAL].flags[FLAGS_C4] || configs.esp.bomb_timer)
@@ -49,16 +84,9 @@ void worldesp::paint_traverse()
 					auto screen = ZERO;
 
 					if (math::world_to_screen(e->GetAbsOrigin(), screen))
-						render::get().text(fonts[ESP], screen.x, screen.y, Color(215, 20, 20), HFONT_CENTERED_X | HFONT_CENTERED_Y, "BOMB");
+						imRender->DrawString(screen.x, screen.y, Color(215, 20, 20), HFONT_CENTERED_X | HFONT_CENTERED_Y, skeet_menu.f2, "BOMB");
 				}
 			}
-
-			break;
-		default:
-			grenade_projectiles(e);
-
-			if (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)
-				dropped_weapons(e);
 
 			break;
 		}
@@ -420,25 +448,58 @@ void worldesp::molotov_timer(entity_t* entity)
 		return;
 
 	auto inferno = reinterpret_cast<inferno_t*>(entity);
-	auto& origin = inferno->GetAbsOrigin();
-
+	auto origin = inferno->GetAbsOrigin();
+	auto col = configs.esp.molotov_timer_color;
 	Vector screen_origin;
+	auto spawn_time = inferno->get_spawn_time();
+	auto factor = (spawn_time + inferno->get_expiry_time() - m_globals()->m_curtime) / inferno->get_expiry_time();
+
+	auto dpos = origin;
+	Vector mins, maxs;
+	inferno->GetClientRenderable()->GetRenderBounds(mins, maxs);
+
+	static const auto flame_polygon = [] {
+		std::array<Vector, 3> points;
+		for (std::size_t i = 0; i < points.size(); ++i) {
+			points[i] = Vector{ 60.0f * std::cos(DEG2RAD(i * (360.0f / points.size()))),
+								60.0f * std::sin(DEG2RAD(i * (360.0f / points.size()))),
+								0.0f };
+		}
+		return points;
+	}();
+
+	std::vector<Vector> points;
+
+	for (int i = 0; i <= inferno->m_fireCount(); i++)
+		points.push_back(entity->m_vecOrigin() + Vector(inferno->m_fireXDelta()[i], inferno->m_fireYDelta()[i], inferno->m_fireZDelta()[i]));
+
+	std::vector<ImVec2> screen_points;
+
+	for (const auto& pos : points) {
+		for (const auto& point : flame_polygon) {
+			Vector screen;
+
+			if (math::world_to_screen(pos + point, screen))
+				screen_points.push_back(ImVec2(screen.x, screen.y));
+		}
+	}
+	std::vector<ImVec2> hull_points;
+	util::convex_hull(screen_points);
+	hull_points = screen_points;
+	if (!hull_points.empty())
+		imRender->PolyLine(hull_points.data(), hull_points.size(), Color(col.r(), col.g(), col.b(), 255), true, 2.f, Color(col.r(), col.g(), col.b(), 35));
+	else {
+		auto size = Vector(maxs - mins).Length2D() * 0.5;
+		imRender->DrawRing3D(dpos.x, dpos.y, dpos.z, size, 360, Color(col.r(), col.g(), col.b(), 255), Color(col.r(), col.g(), col.b(), 35), 2, factor);
+	}
 
 	if (!math::world_to_screen(origin, screen_origin))
 		return;
 
-	auto spawn_time = inferno->get_spawn_time();
-	auto factor = (spawn_time + inferno_t::get_expiry_time() - m_globals()->m_curtime) / inferno_t::get_expiry_time();
-
 	static auto size = Vector2D(35.0f, 5.0f);
-	render::get().circle_filled(screen_origin.x, screen_origin.y - size.y * 0.5f, 60, 20, Color(15, 15, 15, 187));
-
-	render::get().rect_filled(screen_origin.x - size.x * 0.5f, screen_origin.y - size.y * 0.5f - 1.0f, size.x, size.y, Color(37, 37, 37, configs.esp.molotov_timer_color.a()));
-	render::get().rect_filled(screen_origin.x - size.x * 0.5f + 2.0f, screen_origin.y - size.y * 0.5f, (size.x - 4.0f) * factor, size.y - 2.0f, configs.esp.molotov_timer_color);
-
-	render::get().rect(screen_origin.x - size.x * 0.5f, screen_origin.y - size.y * 0.5f, size.x, size.y, Color(7, 7, 7, configs.esp.molotov_timer_color.a()));
-	render::get().text(fonts[ESP], screen_origin.x, screen_origin.y - size.y * 0.5f + 12.0f, configs.esp.molotov_timer_color, HFONT_CENTERED_X | HFONT_CENTERED_Y, "FIRE");
-	render::get().text(fonts[GRENADES], screen_origin.x + 1.0f, screen_origin.y - size.y * 0.5f - 9.0f, configs.esp.molotov_timer_color, HFONT_CENTERED_X | HFONT_CENTERED_Y, "l");
+	imRender->CircleFilled(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 21, Color(25, 25, 25, col.a()), 60);
+	imRender->two_sided_arc(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 20, 1.f - factor, Color(col.r(), col.g(), col.b()), 3);
+	imRender->DrawString(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, Color(col.r(), col.g(), col.b()), IFONT_CENTERED_X | IFONT_CENTERED_Y | IFONT_OUTLINE, c_menu::get().timersz, "M");
 }
 
 void worldesp::smoke_timer(entity_t* entity)
@@ -450,26 +511,20 @@ void worldesp::smoke_timer(entity_t* entity)
 
 	if (!smoke->m_nSmokeEffectTickBegin() || !smoke->m_bDidSmokeEffect())
 		return;
+	auto spawn_time = TICKS_TO_TIME(smoke->m_nSmokeEffectTickBegin());
+	auto factor = (spawn_time + smoke_t::get_expiry_time() - m_globals()->m_curtime) / smoke_t::get_expiry_time();
+	auto origin = smoke->GetAbsOrigin();
 
-	auto& origin = smoke->GetAbsOrigin();
-
+	auto col = configs.esp.smoke_timer_color;
+	imRender->DrawRing3D(origin.x, origin.y, origin.z, 150, 360, Color(col.r(), col.g(), col.b(), 255), Color(col.r(), col.g(), col.b(), 35), 2, factor, true);
 	Vector screen_origin;
-
 	if (!math::world_to_screen(origin, screen_origin))
 		return;
 
-	auto spawn_time = TICKS_TO_TIME(smoke->m_nSmokeEffectTickBegin());
-	auto factor = (spawn_time + smoke_t::get_expiry_time() - m_globals()->m_curtime) / smoke_t::get_expiry_time();
-
 	static auto size = Vector2D(35.0f, 5.0f);
-	render::get().circle_filled(screen_origin.x, screen_origin.y - size.y * 0.5f, 60, 20, Color(15, 15, 15, 187));
-
-	render::get().rect_filled(screen_origin.x - size.x * 0.5f, screen_origin.y - size.y * 0.5f - 1.0f, size.x, size.y, Color(37, 37, 37, configs.esp.smoke_timer_color.a()));
-	render::get().rect_filled(screen_origin.x - size.x * 0.5f + 2.0f, screen_origin.y - size.y * 0.5f, (size.x - 4.0f) * factor, size.y - 2.0f, configs.esp.smoke_timer_color);
-
-	render::get().rect(screen_origin.x - size.x * 0.5f, screen_origin.y - size.y * 0.5f, size.x, size.y, Color(7, 7, 7, configs.esp.smoke_timer_color.a()));
-	render::get().text(fonts[ESP], screen_origin.x, screen_origin.y - size.y * 0.5f + 12.0f, configs.esp.smoke_timer_color, HFONT_CENTERED_X | HFONT_CENTERED_Y, "SMOKE");
-	render::get().text(fonts[GRENADES], screen_origin.x + 1.0f, screen_origin.y - size.y * 0.5f - 9.0f, configs.esp.smoke_timer_color, HFONT_CENTERED_X | HFONT_CENTERED_Y, "k");
+	imRender->CircleFilled(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 19, Color(25, 25, 25, col.a()), 60);
+	imRender->two_sided_arc(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, 18, 1.f - factor, Color(col.r(), col.g(), col.b()), 2);
+	imRender->DrawString(screen_origin.x, screen_origin.y - size.y * 0.5f - 12, Color(col.r(), col.g(), col.b()), IFONT_CENTERED_X | IFONT_CENTERED_Y | IFONT_OUTLINE, c_menu::get().timersz, "S");
 }
 
 void worldesp::grenade_projectiles(entity_t* entity)

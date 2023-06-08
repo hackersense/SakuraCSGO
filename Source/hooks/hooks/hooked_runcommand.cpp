@@ -35,7 +35,7 @@ void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player,
 		m_pcmd->m_predicted = true;
 		player->set_abs_origin(player->m_vecOrigin());
 
-		if (m_globals()->m_frametime > 0.0f && !m_engine()->IsPaused())
+		if (m_globals()->m_frametime > 0.0f && !m_prediction()->m_bEnginePaused)//!m_engine()->IsPaused())
 			++player->m_nTickBase();
 
 		return;
@@ -111,8 +111,16 @@ void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player,
 bool __stdcall Hooks::hooked_inprediction()
 {
 	static auto maintain_sequence_transitions = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 74 17 8B 87"));
+	static auto setupbones_timing = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 74 0A F3 0F 10 05 ? ? ? ? EB 05"));
+	static auto calcplayerview_return = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 75 0B 8B 0D ? ? ? ? 8B 01 FF 50 4C"));
 
 	if (maintain_sequence_transitions && cheat.globals.setuping_bones && uintptr_t(_ReturnAddress()) == maintain_sequence_transitions)
+		return true;
+
+	if (setupbones_timing && uintptr_t(_ReturnAddress()) == setupbones_timing)
+		return false;
+
+	if (m_engine()->IsInGame() && uintptr_t(_ReturnAddress()) == calcplayerview_return)
 		return true;
 
 	return prediction_hook.callOriginal<bool, 14>();
@@ -184,7 +192,7 @@ bool __fastcall Hooks::hooked_writeusercmddeltatobuffer(void* ecx, void* edx, in
 	CUserCmd fromCmd = *cmd;
 
 	toCmd.m_command_number++;
-	toCmd.m_tickcount += (static_cast<int>(1.0f / m_globals()->m_intervalpertick) * 3);
+	//toCmd.m_tickcount += (static_cast<int>(1.0f / m_globals()->m_intervalpertick) * 3);
 
 	for (int i = 0; i < extraCommands; i++)
 	{

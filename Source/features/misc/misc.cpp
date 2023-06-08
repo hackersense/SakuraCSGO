@@ -890,6 +890,23 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 	}
 }
 
+bool can_shift_shot(int ticks)
+{
+	if (!cheat.local() || !cheat.local()->m_hActiveWeapon())
+		return false;
+
+	auto tickbase = cheat.local()->m_nTickBase();
+	auto curtime = m_globals()->m_intervalpertick * (tickbase - ticks);
+
+	if (curtime < cheat.local()->m_flNextAttack())
+		return false;
+
+	if (curtime < cheat.local()->m_hActiveWeapon()->m_flNextPrimaryAttack())
+		return false;
+
+	return true;
+}
+
 bool misc::double_tap(CUserCmd* m_pcmd)
 {
 	double_tap_enabled = true;
@@ -910,9 +927,10 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 	if (recharging_double_tap)
 	{
 		//auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(1.f);
-		auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(0.75f);
+		//auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(0.75f);
 
-		if (!ragebot::get().should_stop && fabs(cheat.globals.fixed_tickbase - last_double_tap) > recharge_time)
+		//if (!ragebot::get().should_stop && fabs(cheat.globals.fixed_tickbase - last_double_tap) > recharge_time)
+		if (can_shift_shot(max_tickbase_shift) && !ragebot::get().should_stop)
 		{
 			recharging_double_tap = false;
 			last_double_tap = 0;
@@ -1139,7 +1157,10 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 		memcpy(user_cmd, m_pcmd, sizeof(CUserCmd));
 		user_cmd->m_command_number = next_command_number;
 
-		util::copy_command(user_cmd, cheat.globals.next_tickbase_shift, cheat.globals.ticks_allowed > 8, false);
+		if (cheat.globals.ticks_allowed > 8)
+			cheat.globals.need_shift_tickbase = cheat.globals.weapon->get_max_tickbase_shift();
+		else
+			util::copy_command(user_cmd, cheat.globals.next_tickbase_shift, cheat.globals.ticks_allowed > 8, false);
 
 		hide_shots_enabled = false;
 		hide_shots_key = false;

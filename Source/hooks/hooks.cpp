@@ -14,6 +14,7 @@
 #include "..\features\imgs\logo_font.h"
 #include "..\features\imgs\skeet_tab.h"
 #include "..\features\imgs\main_font.h"
+#include "..\features\imgs\timer_font.h"
 #include "..\features\menu.h"
 
 static auto d3d_init = false;
@@ -107,6 +108,7 @@ namespace Hooks
 		c_menu::get().futura = io.Fonts->AddFontFromMemoryTTF(futuramediumc, sizeof(futuramediumc), 17.f, &m_config, ranges);
 		c_menu::get().futura_large = io.Fonts->AddFontFromMemoryTTF(futuramediumc, sizeof(futuramediumc), 25.f, &m_config, ranges);
 		c_menu::get().gotham = io.Fonts->AddFontFromMemoryTTF(GothamPro, sizeof(GothamPro), 13.f, &m_config, ranges);
+		c_menu::get().timersz = io.Fonts->AddFontFromMemoryTTF(timers, sizeof(timers), 20.f, &m_config, ranges);
 
 		// Icon fonts
 		c_menu::get().ico_menu = io.Fonts->AddFontFromMemoryTTF(icomenu, sizeof(icomenu), 20.f, &m_config, io.Fonts->GetGlyphRangesCyrillic());

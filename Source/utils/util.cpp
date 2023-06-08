@@ -15,7 +15,7 @@ namespace util
 		return std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::system_clock::now().time_since_epoch()).count();
 	}
 
-	uint64_t FindSignature(const char* szModule, const char* szSignature)
+	uintptr_t FindSignature(const char* szModule, const char* szSignature)
 	{
 		MODULEINFO modInfo;
 		GetModuleInformation(GetCurrentProcess(), GetModuleHandleA(szModule), &modInfo, sizeof(MODULEINFO));
@@ -373,6 +373,64 @@ namespace util
 
 		cmd->m_forwardmove = new_forwardmove;
 		cmd->m_sidemove = new_sidemove;
+	}
+
+	void convex_hull(std::vector<ImVec2>& points)
+	{
+		if (points.size() <= 3)
+			return;
+
+		std::sort(points.begin(), points.end(), [](ImVec2 left, ImVec2 right)
+			{
+				return left.x < right.x || left.x == right.x && left.y < right.y;
+			}
+		);
+
+		auto orientation = [&](ImVec2 a, ImVec2 b, ImVec2 c) -> float {
+			return a.x * (b.y - c.y) + b.x * (c.y - a.y) + c.x * (a.y - b.y);
+		};
+
+		ImVec2
+			front = points.front(),
+			back = points.back();
+
+		std::vector<ImVec2> up, down;
+
+		up.push_back(front);
+		down.push_back(back);
+
+		for (size_t i = 1; i < points.size(); ++i)
+		{
+			if (i == points.size() - 1 || orientation(front, points[i], back) > 0)
+			{
+				while (up.size() >= 2 && orientation(up[up.size() - 2], up[up.size() - 1], points[i]) < 0)
+				{
+					up.pop_back();
+				}
+				up.push_back(points[i]);
+			}
+
+			if (i == points.size() - 1 || orientation(front, points[i], back) < 0)
+			{
+				while (down.size() >= 2 && orientation(down[down.size() - 2], down[down.size() - 1], points[i]) > 0)
+				{
+					down.pop_back();
+				}
+				down.push_back(points[i]);
+			}
+		}
+
+		points.clear();
+
+		for (auto& u : up)
+		{
+			points.emplace_back(u);
+		}
+
+		for (size_t i = down.size() - 2; i > 0; --i)
+		{
+			points.emplace_back(down[i]);
+		}
 	}
 
 	void color_modulate(float color[3], NEWMaterial* material)

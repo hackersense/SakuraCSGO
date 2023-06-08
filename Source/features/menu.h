@@ -27,6 +27,9 @@ public:
 	ImFont* ico_menu;
 	ImFont* ico_bottom;
 	ImFont* tabs;
+
+	ImFont* timersz;
+
 	float public_alpha;
 	IDirect3DDevice9* device;
 	float color_buffer[4] = { 1.f, 1.f, 1.f, 1.f };

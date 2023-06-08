@@ -66,6 +66,7 @@ set(Headers
     "features/imgs/menu_font.h"
     "features/imgs/skeet_tab.h"
     "features/imgs/weapon_font.h"
+    "features/imgs/timer_font.h"
     "features/legitbot/backtrack.h"
     "features/legitbot/legitbot.h"
     "features/loli.h"

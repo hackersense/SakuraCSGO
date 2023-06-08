@@ -1531,7 +1531,7 @@ void menu::draw()
 				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEGLOW__COLOR"), &configs.esp.grenade_glow_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Fire timer"), &configs.esp.molotov_timer);
+			ImGui::CheckboxSkeet(crypt_str("Molotov timer"), &configs.esp.molotov_timer);
 
 			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOVTIMER__COLOR"), &configs.esp.molotov_timer_color, ImGuiWindowFlags_NoTitleBar);
 

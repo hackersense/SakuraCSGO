@@ -1,6 +1,7 @@
 #include "ImRender.h"
 #include "..\features\visuals\player_esp.h"
 #include "..\features\visuals\other_esp.h"
+#include "..\features\visuals\world_esp.h"
 #include "..\features\visuals\grenade_warning.h"
 #include "..\features\visuals\grenade_prediction.h"
 #include "..\features\misc\misc.h"
@@ -77,6 +78,8 @@ void ImGuiRendering::BeginScene()
 
 	if (configs.esp.grenade_warning)
 		grenade_warning_call();
+
+	worldesp::get().onImGuiRender();
 
 	if (!cheat.local())
 		return;

@@ -58,7 +58,7 @@ enum class GameMode
 
 namespace util
 {
-	uint64_t FindSignature(const char* szModule, const char* szSignature);
+	uintptr_t FindSignature(const char* szModule, const char* szSignature);
 
 	bool visible(const Vector& start, const Vector& end, entity_t* entity, player_t* from);
 	bool is_button_down(int code);
@@ -71,6 +71,7 @@ namespace util
 	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* tr);
 	void movement_fix(Vector& wish_angle, CUserCmd* m_pcmd);
 	unsigned int find_in_datamap(datamap_t* map, const char* name);
+	void convex_hull(std::vector<ImVec2>& points);
 	void color_modulate(float color[3], NEWMaterial* material);
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix);
 	void create_state(c_baseplayeranimationstate* state, player_t* e);

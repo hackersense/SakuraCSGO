@@ -10,6 +10,7 @@ class worldesp : public singleton<worldesp>
 {
 public:
 	void paint_traverse();
+	void onImGuiRender();
 	void skybox_changer();
 	void fog_changer();
 	void world_modulation(entity_t* entity);
