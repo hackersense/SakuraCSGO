@@ -104,6 +104,8 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 		cheat.globals.should_update_playerresource = true;
 		cheat.globals.should_update_gamerules = true;
 		cheat.globals.should_update_radar = true;
+		cheat.globals.need_shift_tickbase = 0;
+		cheat.globals.is_shifting = false;
 		cheat.globals.kills = 0;
 		cheat.shots.clear();
 		otheresp::get().hitmarker.hurt_time = FLT_MIN;
