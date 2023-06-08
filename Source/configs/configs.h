@@ -599,6 +599,9 @@ struct Config
 		bool dynamic_scope_lines;
 		bool grenade_prediction;
 		bool grenade_warning;
+		bool grenade_warning_offscreen;
+		Color grenade_warning_color;
+		Color grenade_warning_tracer_color;
 		bool grenade_prediction_click_only;
 		Color grenade_prediction_color;
 		Color grenade_prediction_tracer_color;

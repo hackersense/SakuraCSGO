@@ -556,8 +556,8 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 	{
 		std::sort(points.begin(), points.end(), compare_points);
 
-		//if (points.size() > 7 && !bounding_box_check(record))
-		//	return;
+		if (points.size() > 7 && !bounding_box_check(record))
+			return;
 	}
 
 	auto body_hitboxes = true;
@@ -579,8 +579,8 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 				continue;
 		}
 
-		//if (!optimized && (currentWeapon.safe_points_conditions[SAFEPOINTS_PREFER] || force_safe_points) && data.point.safe && data.point.safe != point.safe)
-		//	continue;
+		if (!optimized && (currentWeapon.safe_points_conditions[SAFEPOINTS_PREFER] || force_safe_points) && data.point.safe && data.point.safe != point.safe)
+			continue;
 
 		auto fire_data = autowall::get().wall_penetration(shoot_position, point.point, record->player);
 
@@ -598,6 +598,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 
 		auto current_minimum_damage = fire_data.visible ? minimum_visible_damage : minimum_damage;
 
+		/*
 		if (currentWeapon.safe_points_conditions[SAFEPOINTS_PREFER]) {
 			if (point.safe && point.hitbox >= HITBOX_PELVIS && point.hitbox <= HITBOX_UPPER_CHEST && currentWeapon.body_aim_conditions[BODYAIMCOND_PREFER]) {
 				if ((fire_data.damage > best_body_damage && prev_hitbox != point.hitbox) || fire_data.damage > best_body_damage + 20.f) {
@@ -673,6 +674,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 			best_data.hitbox = fire_data.hitbox;
 			prev_hitbox = point.hitbox;
 		}
+		*/
 
 		//body_hitboxes && 
 		if (!optimized && baimHitboxesCheck(point.hitbox))
@@ -729,16 +731,19 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 					should_stop = false;
 			}
 
-			//best_damage = fire_data.damage;
-			//data.point = point;
-			//data.visible = fire_data.visible;
-			//data.damage = best_damage;
-			//data.hitbox = fire_data.hitbox;
+			if (!optimized && force_safe_points && !point.safe)
+				continue;
+
+			best_damage = fire_data.damage;
+			data.point = point;
+			data.visible = fire_data.visible;
+			data.damage = best_damage;
+			data.hitbox = fire_data.hitbox;
 			
-			data.point = best_data.point;
-			data.visible = best_data.visible;
-			data.damage = best_data.damage;
-			data.hitbox = best_data.hitbox;
+			//data.point = best_data.point;
+			//data.visible = best_data.visible;
+			//data.damage = best_data.damage;
+			//data.hitbox = best_data.hitbox;
 
 			//if (force_safe_points && point.safe)
 			//	break;

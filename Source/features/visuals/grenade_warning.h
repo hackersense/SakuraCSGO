@@ -2,161 +2,332 @@
 
 #include "..\..\includes.hpp"
 
-enum class GWType {
-    GW_HE_GRENADE,
-    GW_MOLOTOV
-};
-
-#define GW_HIT != 1.0f
-#define GW_PREDICT_INTERVAL 4
-#define GW_VELOCITY_TO_MOVE_FRACTION 0.015f
-#define GW_GRAVITY 0.0712f
-
-class grenade_warning : public singleton<grenade_warning>
+class c_grenade_prediction : public singleton< c_grenade_prediction >
 {
-public:
-    grenade_warning(player_t* entity, GWType type) {
-        switch (type) {
-        case GWType::GW_HE_GRENADE:
-            predict_he_nade(entity, entity->m_vecOrigin(), entity->m_vecVelocity());
-            distance = cheat.local()->m_vecOrigin().DistTo(end);
-            safe = distance > 350;
-            render_he_projectile();
-            render_trail();
-            break;
-        case GWType::GW_MOLOTOV:
-            predict_molotove_nade(entity, entity->m_vecOrigin(), entity->m_vecVelocity());
-            distance = cheat.local()->m_vecOrigin().DistTo(end);
-            safe = distance > 200;
-            render_inc_projectile();
-            render_trail();
-            break;
-        }
-    }
-
 private:
-    float drawString(ImVec2 pos, Color color, bool center, bool outline, ImFont* pFont, const std::string& text, float size = 17)
-    {
-        ImVec2 textSize = pFont->CalcTextSizeA(size, FLT_MAX, 0.0f, text.c_str());
+	static void TraceHull(const Vector& src, const Vector& dst, const Vector& mins, const Vector& maxs, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace) {
+		static auto trace_filter_simple = util::FindSignature("client.dll", ("55 8B EC 83 E4 F0 83 EC 7C 56 52")) + 0x3D;
 
-        if (center)
-            pos.x -= textSize.x / 2.0f;
+		std::uintptr_t filter[4] = {
+			*reinterpret_cast<std::uintptr_t*>(trace_filter_simple),
+			reinterpret_cast<std::uintptr_t>(entity),
+			collision_group,
+			0
+		};
 
-        if (outline) {
-            ImGui::GetBackgroundDrawList()->AddText(pFont, size, ImVec2(pos.x + 1, pos.y + 1), Color(0, 0, 0, color.a()).toImColor(), text.c_str());
-            ImGui::GetBackgroundDrawList()->AddText(pFont, size, ImVec2(pos.x - 1, pos.y - 1), Color(0, 0, 0, color.a()).toImColor(), text.c_str());
-            ImGui::GetBackgroundDrawList()->AddText(pFont, size, ImVec2(pos.x + 1, pos.y - 1), Color(0, 0, 0, color.a()).toImColor(), text.c_str());
-            ImGui::GetBackgroundDrawList()->AddText(pFont, size, ImVec2(pos.x - 1, pos.y + 1), Color(0, 0, 0, color.a()).toImColor(), text.c_str());
-        }
+		auto ray = Ray_t();
 
-        ImGui::GetBackgroundDrawList()->AddText(pFont, size, pos, color.toImColor(), text.c_str());
+		ray.Init(src, dst, mins, maxs);
 
-        return pos.y + textSize.y;
-    }
+		m_trace()->TraceRay(ray, mask, reinterpret_cast<CTraceFilter*>(&filter), trace);
+	}
 
-    void predict_he_nade(player_t* nade, Vector origin, Vector velocity) {
+	static void TraceLine(const Vector& src, const Vector& dst, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace) {
+		static auto trace_filter_simple = util::FindSignature("client.dll", ("55 8B EC 83 E4 F0 83 EC 7C 56 52")) + 0x3D;
 
-        int log_timer = 0;
-        CGameTrace trace;
-        Vector current = origin;
-        Vector move = velocity * GW_VELOCITY_TO_MOVE_FRACTION;
-        for (unsigned int i = 0; i < 109 - nade->GetBody(); ++i)
-        {
-            move.z -= GW_GRAVITY;
-            check_collision(current, move, trace);
-            if (trace.fraction GW_HIT || log_timer % GW_PREDICT_INTERVAL == 0)
-                path.push_back(current);
-            current += move;
-            log_timer++;
-            if (trace.fraction GW_HIT)
-                break;
-        }
-        end = current;
-    }
+		std::uintptr_t filter[4] = {
+			*reinterpret_cast<std::uintptr_t*>(trace_filter_simple),
+			reinterpret_cast<std::uintptr_t>(entity),
+			collision_group,
+			0
+		};
 
-    void predict_molotove_nade(player_t* nade, Vector origin, Vector velocity) {
-        int log_timer = 0;
-        CGameTrace trace;
-        Vector current = origin;
-        Vector move = velocity * GW_VELOCITY_TO_MOVE_FRACTION;
-        for (int i = 0; i < 130 - nade->GetBody(); ++i)
-        {
-            move.z -= GW_GRAVITY;
-            check_collision(current, move, trace);
-            if (trace.fraction GW_HIT || log_timer % GW_PREDICT_INTERVAL == 0)
-                path.push_back(current);
-            current += move;
-            log_timer++;
-            if (trace.fraction GW_HIT)
-                break;
-        }
-        end = current;
-    }
+		auto ray = Ray_t();
 
-    void check_collision(Vector& source, const Vector& move, CGameTrace& trace)
-    {
-        Vector vecAbsEnd = source;
-        vecAbsEnd += move;
+		ray.Init(src, dst);
 
-        m_trace()->trace_hull(source, vecAbsEnd, 0x200400B, trace);
-    }
+		m_trace()->TraceRay(ray, mask, reinterpret_cast<CTraceFilter*>(&filter), trace);
+	}
 
-    void gradient_line(Vector Start, Vector End, Color inner, Color outer, float thickness) {
-        Vector Last, Cur;
-        math::world_to_screen(Start, Last);
-        math::world_to_screen(End, Cur);
+	struct data_t {
+		data_t() = default;
 
-        if (Cur.x != 0 && Cur.y != 0 && Last.x != 0 && Last.y != 0 && Cur.x <= 1920 && Last.x <= 1920 && Cur.y <= 1080 && Last.y <= 1080) {
-            ImGui::GetBackgroundDrawList()->AddQuadFilled(ImVec2(Last.x, Last.y), ImVec2(Cur.x, Cur.y), ImVec2(Cur.x + thickness, Cur.y + thickness), ImVec2(Last.x + thickness, Last.y + thickness),
-                IM_COL32(255, 0, 0, 255));
+		data_t(player_t* owner, int index, const Vector& origin, const Vector& velocity, float throw_time, int offset) : data_t() {
+			m_owner = owner;
+			m_index = index;
 
-            ImGui::GetBackgroundDrawList()->AddQuadFilled(ImVec2(Last.x, Last.y), ImVec2(Cur.x, Cur.y), ImVec2(Cur.x - thickness, Cur.y - thickness), ImVec2(Last.x - thickness, Last.y - thickness),
-                IM_COL32(255, 0, 0, 255));
+			predict(origin, velocity, throw_time, offset);
+		}
 
-            ImGui::GetBackgroundDrawList()->AddQuadFilled(ImVec2(Last.x, Last.y), ImVec2(Cur.x, Cur.y), ImVec2(Cur.x + thickness, Cur.y - thickness), ImVec2(Last.x + thickness, Last.y - thickness),
-                IM_COL32(255, 0, 0, 255));
+		bool physics_simulate() {
+			if (m_detonated)
+				return true;
 
-            ImGui::GetBackgroundDrawList()->AddQuadFilled(ImVec2(Last.x, Last.y), ImVec2(Cur.x, Cur.y), ImVec2(Cur.x - thickness, Cur.y + thickness), ImVec2(Last.x - thickness, Last.y + thickness),
-                IM_COL32(255, 0, 0, 255));
-        }
-    }
+			static const auto sv_gravity = m_cvar()->FindVar("sv_gravity");
 
-    void draw_beam(Vector S, Vector E, Color color, float W) {
-        gradient_line(S, E, Color(color[0], color[1], color[2], color[3] * 0.33333333), Color(color[0], color[1], color[2], 0), W);
-    }
+			const auto new_velocity_z = m_velocity.z - (sv_gravity->GetFloat() * 0.4f) * m_globals()->m_intervalpertick;
 
-    void render_trail()
-    {
-        Vector last;
-        for (auto& current : path) {
-            if (last.IsZero())
-            {
-                last = current;
-                continue;
-            }
-            draw_beam(last, current, Color(170, 170, 255, 200), 4.3f);
-            last = current;
-        }
-    }
+			const auto move = Vector(
+				m_velocity.x * m_globals()->m_intervalpertick,
+				m_velocity.y * m_globals()->m_intervalpertick,
+				(m_velocity.z + new_velocity_z) / 2.f * m_globals()->m_intervalpertick
+			);
 
-    void rotate_point(Vector2D& point, Vector2D origin, bool clockwise, float angle) {
-        Vector2D delta = point - origin;
-        Vector2D rotated;
+			m_velocity.z = new_velocity_z;
 
-        if (clockwise) {
-            rotated = Vector2D(delta.x * cos(angle) - delta.y * sin(angle), delta.x * sin(angle) + delta.y * cos(angle));
-        }
-        else {
-            rotated = Vector2D(delta.x * sin(angle) - delta.y * cos(angle), delta.x * cos(angle) + delta.y * sin(angle));
-        }
+			auto trace = CGameTrace();
 
-        point = rotated + origin;
-    }
+			physics_push_entity(move, trace);
 
-    void render_he_projectile();
-    void render_inc_projectile();
-    bool safe;
-    float distance;
-    Vector end;
-    std::vector<Vector> path;
+			if (m_detonated)
+				return true;
+
+			if (trace.fraction != 1.f) {
+				update_path(true);
+
+				perform_fly_collision_resolution(trace);
+			}
+
+			return false;
+		}
+
+		void physics_trace_entity(const Vector& src, const Vector& dst, std::uint32_t mask, CGameTrace& trace) {
+			TraceHull(
+				src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
+				mask, m_owner, m_collision_group, &trace
+			);
+
+			if (trace.startsolid
+				&& (trace.contents & CONTENTS_CURRENT_90)) {
+				trace.clear();
+
+				TraceHull(
+					src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
+					mask & ~CONTENTS_CURRENT_90, m_owner, m_collision_group, &trace
+				);
+			}
+
+			if (!trace.DidHit()
+				|| !trace.entity
+				|| !reinterpret_cast<entity_t*>(trace.entity)->is_player())
+				return;
+
+			trace.clear();
+
+			TraceLine(src, dst, mask, m_owner, m_collision_group, &trace);
+		}
+
+		void physics_push_entity(const Vector& push, CGameTrace& trace) {
+			physics_trace_entity(m_origin, m_origin + push,
+				m_collision_group == COLLISION_GROUP_DEBRIS
+				? (MASK_SOLID | CONTENTS_CURRENT_90) & ~CONTENTS_MONSTER
+				: MASK_SOLID | CONTENTS_OPAQUE | CONTENTS_IGNORE_NODRAW_OPAQUE | CONTENTS_CURRENT_90 | CONTENTS_HITBOX,
+				trace
+			);
+
+			if (trace.startsolid) {
+				m_collision_group = Collision_Group_t::COLLISION_GROUP_INTERACTIVE_DEB;
+
+				TraceLine(
+					m_origin - push, m_origin + push,
+					(MASK_SOLID | CONTENTS_CURRENT_90) & ~CONTENTS_MONSTER,
+					m_owner, m_collision_group, &trace
+				);
+			}
+
+			if (trace.fraction)
+				m_origin = trace.endpos;
+
+			if (!trace.entity)
+				return;
+
+			if (reinterpret_cast<entity_t*>(trace.entity)->is_player()
+				|| m_index != WEAPON_TAGRENADE && m_index != WEAPON_MOLOTOV && m_index != WEAPON_INCGRENADE)
+				return;
+
+			static const auto weapon_molotov_maxdetonateslope = m_cvar()->FindVar("weapon_molotov_maxdetonateslope");
+
+			if (m_index != WEAPON_TAGRENADE
+				&& trace.plane.normal.z < std::cos(DEG2RAD(weapon_molotov_maxdetonateslope->GetFloat())))
+				return;
+
+			detonate(true);
+		}
+
+		void perform_fly_collision_resolution(CGameTrace& trace) {
+			auto surface_elasticity = 1.f;
+
+			if (trace.entity) {
+				if (autowall::get().is_breakable_entity(reinterpret_cast<entity_t*>(trace.entity))) {
+				BREAKTROUGH:
+					m_velocity *= 0.4f;
+
+					return;
+				}
+
+				const auto is_player = reinterpret_cast<entity_t*>(trace.entity)->is_player();
+				if (is_player)
+					surface_elasticity = 0.3f;
+
+				if (trace.entity->EntIndex()) {
+					if (is_player
+						&& m_last_hit_entity == trace.entity) {
+						m_collision_group = COLLISION_GROUP_DEBRIS;
+
+						return;
+					}
+
+					m_last_hit_entity = trace.entity;
+				}
+			}
+
+			auto velocity = Vector();
+
+			const auto back_off = m_velocity.Dot(trace.plane.normal) * 2.f;
+
+			for (auto i = 0u; i < 3u; i++) {
+				const auto change = trace.plane.normal[i] * back_off;
+
+				velocity[i] = m_velocity[i] - change;
+
+				if (std::fabs(velocity[i]) >= 1.f)
+					continue;
+
+				velocity[i] = 0.f;
+			}
+
+			velocity *= std::clamp< float >(surface_elasticity * 0.45f, 0.f, 0.9f);
+
+			if (trace.plane.normal.z > 0.7f) {
+				const auto speed_sqr = velocity.LengthSqr();
+				if (speed_sqr > 96000.f) {
+					const auto l = velocity.Normalized().Dot(trace.plane.normal);
+					if (l > 0.5f)
+						velocity *= 1.f - l + 0.5f;
+				}
+
+				if (speed_sqr < 400.f)
+					m_velocity = Vector(0, 0, 0);
+				else
+				{
+					m_velocity = velocity;
+
+					physics_push_entity(velocity * ((1.f - trace.fraction) * m_globals()->m_intervalpertick), trace);
+				}
+			}
+			else
+			{
+				m_velocity = velocity;
+
+				physics_push_entity(velocity * ((1.f - trace.fraction) * m_globals()->m_intervalpertick), trace);
+			}
+
+			if (m_bounces_count > 20)
+				return detonate(false);
+
+			++m_bounces_count;
+		}
+
+		void think() {
+			switch (m_index) {
+			case WEAPON_SMOKEGRENADE:
+				if (m_velocity.LengthSqr() <= 0.01f)
+					detonate(false);
+				break;
+			case WEAPON_DECOY:
+				if (m_velocity.LengthSqr() <= 0.04f)
+					detonate(false);
+				break;
+			case WEAPON_FLASHBANG:
+			case WEAPON_HEGRENADE:
+			case WEAPON_MOLOTOV:
+			case WEAPON_INCGRENADE:
+				if (TICKS_TO_TIME(m_tick) > m_detonate_time)
+					detonate(false);
+				break;
+			}
+
+			m_next_think_tick = m_tick + TIME_TO_TICKS(0.2f);
+		}
+
+		void detonate(bool bounced) {
+			m_detonated = true;
+
+			update_path(bounced);
+		}
+
+		void update_path(bool bounced) {
+			m_last_update_tick = m_tick;
+
+			m_path.emplace_back(m_origin, bounced);
+		}
+
+		void predict(const Vector& origin, const Vector& velocity, float throw_time, int offset) {
+			m_origin = origin;
+			m_velocity = velocity;
+			m_collision_group = COLLISION_GROUP_PROJECTILE;
+
+			const auto tick = TIME_TO_TICKS(1.f / 30.f);
+
+			m_last_update_tick = -tick;
+
+			switch (m_index) {
+			case WEAPON_SMOKEGRENADE:
+				m_next_think_tick = TIME_TO_TICKS(1.5f);
+				break;
+			case WEAPON_DECOY:
+				m_next_think_tick = TIME_TO_TICKS(2.f);
+				break;
+			case WEAPON_FLASHBANG:
+			case WEAPON_HEGRENADE:
+				m_detonate_time = 1.5f;
+				m_next_think_tick = TIME_TO_TICKS(0.02f);
+				break;
+			case WEAPON_MOLOTOV:
+			case WEAPON_INCGRENADE:
+				static const auto molotov_throw_detonate_time = m_cvar()->FindVar("molotov_throw_detonate_time");
+				m_detonate_time = molotov_throw_detonate_time->GetFloat();
+				m_next_think_tick = TIME_TO_TICKS(0.02f);
+				break;
+			}
+
+			for (; m_tick < TIME_TO_TICKS(60.f); ++m_tick) {
+				if (m_next_think_tick <= m_tick)
+					think();
+
+				if (m_tick < offset)
+					continue;
+
+				if (physics_simulate())
+					break;
+
+				if (m_last_update_tick + tick > m_tick)
+					continue;
+
+				update_path(false);
+			}
+
+			if (m_last_update_tick + tick <= m_tick) {
+				update_path(false);
+			}
+
+			m_expire_time = throw_time + TICKS_TO_TIME(m_tick);
+		}
+
+		bool draw();
+
+		bool											m_detonated{};
+		player_t* m_owner{};
+		Vector											m_origin{}, m_velocity{};
+		IClientEntity* m_last_hit_entity{};
+		Collision_Group_t								m_collision_group{};
+		float											m_detonate_time{}, m_expire_time{};
+		int												m_index{}, m_tick{}, m_next_think_tick{},
+			m_last_update_tick{}, m_bounces_count{};
+		std::vector< std::pair< Vector, bool > >		m_path{};
+	} m_data{};
+
+	std::unordered_map<unsigned long, data_t> m_list{};
+public:
+	const data_t& get_local_data()
+	{
+		return m_data;
+	}
+
+	std::unordered_map<unsigned long, data_t>& get_list()
+	{
+		return m_list;
+	}
+
+	void run(projectile_t* entity);
 };

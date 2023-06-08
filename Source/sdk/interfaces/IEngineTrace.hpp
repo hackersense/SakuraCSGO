@@ -577,10 +577,10 @@ public:
         TraceRay(ray, fMask, &filter, pTrace);
     }
 
-    inline void trace_line(const Vector& vecAbsStart, const Vector& vecAbsEnd, unsigned int mask, CGameTrace* ptr)
+    inline void trace_line(const Vector& src, const Vector& end, unsigned int mask, CGameTrace* ptr)
     {
         Ray_t ray;
-        ray.Init(vecAbsStart, vecAbsEnd);
+        ray.Init(src, end);
 
         CTraceFilterWorldAndPropsOnly filter;
 

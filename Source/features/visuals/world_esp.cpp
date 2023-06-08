@@ -1,5 +1,6 @@
 #include "world_esp.h"
 #include "../menu.h"
+#include "grenade_warning.h"
 
 void worldesp::paint_traverse()
 {
@@ -33,7 +34,7 @@ void worldesp::paint_traverse()
 			bomb_timer(e);
 			break;
 		default:
-			grenade_projectiles(e);
+			//grenade_projectiles(e);
 
 			if (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)
 				dropped_weapons(e);
@@ -88,6 +89,10 @@ void worldesp::onImGuiRender()
 				}
 			}
 
+			break;
+		default:
+			c_grenade_prediction::get().run((projectile_t*)e);
+			grenade_projectiles(e);
 			break;
 		}
 	}

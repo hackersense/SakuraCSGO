@@ -109,6 +109,7 @@ namespace Hooks
 		c_menu::get().futura_large = io.Fonts->AddFontFromMemoryTTF(futuramediumc, sizeof(futuramediumc), 25.f, &m_config, ranges);
 		c_menu::get().gotham = io.Fonts->AddFontFromMemoryTTF(GothamPro, sizeof(GothamPro), 13.f, &m_config, ranges);
 		c_menu::get().timersz = io.Fonts->AddFontFromMemoryTTF(timers, sizeof(timers), 20.f, &m_config, ranges);
+		c_menu::get().weapon_icon2 = io.Fonts->AddFontFromMemoryTTF(weapon_font2, sizeof(weapon_font2), 20, &m_config, io.Fonts->GetGlyphRangesDefault());
 
 		// Icon fonts
 		c_menu::get().ico_menu = io.Fonts->AddFontFromMemoryTTF(icomenu, sizeof(icomenu), 20.f, &m_config, io.Fonts->GetGlyphRangesCyrillic());

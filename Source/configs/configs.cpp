@@ -244,6 +244,9 @@ void C_ConfigManager::setup()
 	setup_item(&configs.esp.removals, 11, crypt_str("Esp.world_removals"));
 	setup_item(&configs.esp.fix_zoom_sensivity, false, crypt_str("Esp.fix_zoom_sensivity"));
 	setup_item(&configs.esp.grenade_warning, false, crypt_str("Visuals.grenade_warning"));
+	setup_item(&configs.esp.grenade_warning_offscreen, false, crypt_str("Visuals.grenade_warning_offscreen"));
+	setup_item(&configs.esp.grenade_warning_color, Color::White, crypt_str("Visuals.grenade_warning"));
+	setup_item(&configs.esp.grenade_warning_tracer_color, Color::White, crypt_str("Visuals.grenade_warning"));
 	setup_item(&configs.esp.grenade_prediction, false, crypt_str("Esp.grenade_prediction"));
 	setup_item(&configs.esp.grenade_prediction_click_only, false, crypt_str("Esp.grenade_prediction_click_only"));
 	setup_item(&configs.esp.grenade_prediction_color, Color::White, crypt_str("Esp.grenade_prediction_color"));

@@ -524,6 +524,20 @@ public:
     float get_max_player_speed();
 };
 
+class projectile_t : public entity_t
+{
+public:
+    NETVAR(Vector, m_vInitialVelocity, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_vInitialVelocity"));
+    NETVAR(int, m_flAnimTime, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_flAnimTime"));
+    NETVAR(int, m_nExplodeEffectTickBegin, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_nExplodeEffectTickBegin"));
+    NETVAR(int, m_nBody, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_nBody"));
+    NETVAR(int, m_nForceBone, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_nForceBone"));
+    NETVAR(Vector, m_vecVelocity, crypt_str("CBaseGrenade"), crypt_str("m_vecVelocity"));
+    NETVAR(CHandle<player_t>, m_hThrower, "CBaseGrenade", "m_hThrower");
+    NETVAR(Vector, m_vecOrigin, crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_vecOrigin"));
+    OFFSET(float, m_flSpawnTime, netvars::get().get_offset(crypt_str("CBaseCSGrenadeProjectile"), crypt_str("m_vecExplodeEffectOrigin")) + 0xC);
+};
+
 class viewmodel_t : public entity_t
 {
 public:

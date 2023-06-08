@@ -29,6 +29,7 @@ public:
 	ImFont* tabs;
 
 	ImFont* timersz;
+	ImFont* weapon_icon2;
 
 	float public_alpha;
 	IDirect3DDevice9* device;

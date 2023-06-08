@@ -1495,15 +1495,29 @@ void menu::draw()
 				ImGui::CheckboxSkeet(crypt_str("Fix zoom sensivity"), &configs.esp.fix_zoom_sensivity);
 
 			ImGui::CheckboxSkeet(crypt_str("Grenade warning"), &configs.esp.grenade_warning);
+			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNING__COLOR"), &configs.esp.grenade_warning_color, ImGuiWindowFlags_NoTitleBar);
+
+			if (configs.esp.grenade_warning)
+			{
+				ImGui::CheckboxSkeet(crypt_str("Offscreen warning"), &configs.esp.grenade_warning_offscreen);
+
+				ImGui::Text(crypt_str("GW Traceline color"));
+
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNINGTRACER__COLOR"), &configs.esp.grenade_warning_tracer_color, ImGuiWindowFlags_NoTitleBar);
+			}
+
 			ImGui::CheckboxSkeet(crypt_str("Grenade prediction"), &configs.esp.grenade_prediction);
 
 			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTION__COLOR"), &configs.esp.grenade_prediction_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::Text("GP Traceline Color");
-			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTIONTRACER__COLOR"), &configs.esp.grenade_prediction_tracer_color, ImGuiWindowFlags_NoTitleBar);
-
 			if (configs.esp.grenade_prediction)
+			{
 				ImGui::CheckboxSkeet(crypt_str("Always Prediction"), &configs.esp.grenade_prediction_click_only);
+
+				ImGui::Text(crypt_str("GP Traceline Color"));
+
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTIONTRACER__COLOR"), &configs.esp.grenade_prediction_tracer_color, ImGuiWindowFlags_NoTitleBar);
+			}
 
 			ImGui::CheckboxSkeet(crypt_str("Grenade projectiles"), &configs.esp.projectiles);
 

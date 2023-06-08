@@ -227,7 +227,7 @@ void fakelag::create_move(CUserCmd* m_pcmd)
 		return;
 
 	run(m_pcmd);
-/*
+
 	if (!m_gamerules()->m_bIsValveDS() && m_clientstate()->m_iChokedCommands < 17)
 	{
 		static auto Fn = util::FindSignature(crypt_str("engine.dll"), crypt_str("B8 ? ? ? ? 3B F0 0F 4F F0 89 5D FC")) + 1;
@@ -236,7 +236,6 @@ void fakelag::create_move(CUserCmd* m_pcmd)
 		*reinterpret_cast<uint32_t*>(Fn) = 17;
 		VirtualProtect((void*)Fn, sizeof(uint32_t), old, &old);
 	}
-*/
 }
 
 bool fakelag::fakelag_condition(CUserCmd* m_pcmd)

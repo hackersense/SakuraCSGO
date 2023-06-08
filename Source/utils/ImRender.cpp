@@ -8,6 +8,7 @@
 #include "..\features\menu.h"
 #include "..\features\misc\logs.h"
 
+/*
 void grenade_warning_call()
 {
 	const auto HighestEntityIndex = m_entitylist()->GetHighestEntityIndex();
@@ -50,6 +51,7 @@ void grenade_warning_call()
 		}
 	}
 }
+*/
 
 void ImGuiRendering::BeginScene()
 {
@@ -76,8 +78,8 @@ void ImGuiRendering::BeginScene()
 
 	playeresp::get().render();
 
-	if (configs.esp.grenade_warning)
-		grenade_warning_call();
+	//if (configs.esp.grenade_warning)
+	//	grenade_warning_call();
 
 	worldesp::get().onImGuiRender();
 

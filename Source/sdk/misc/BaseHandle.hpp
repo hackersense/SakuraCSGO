@@ -29,6 +29,7 @@ public:
 	int GetSerialNumber( ) const;
 
 	int ToInt( ) const;
+	unsigned long ToLong( ) const;
 	bool operator !=( const CBaseHandle &other ) const;
 	bool operator ==( const CBaseHandle &other ) const;
 	bool operator ==( const IHandleEntity* e ) const;
@@ -88,6 +89,10 @@ inline int CBaseHandle::GetSerialNumber( ) const {
 
 inline int CBaseHandle::ToInt( ) const {
 	return ( int )m_Index;
+}
+
+inline unsigned long CBaseHandle::ToLong( ) const {
+	return m_Index;
 }
 
 inline bool CBaseHandle::operator !=( const CBaseHandle &other ) const {
