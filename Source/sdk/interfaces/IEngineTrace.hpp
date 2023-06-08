@@ -569,6 +569,14 @@ public:
         TraceRay(ray, mask, &filter, &tr);
     }
 
+    inline void trace_hull_const(const Vector& src, const Vector& end, std::uint32_t mask, CGameTrace& tr)
+    {
+        static CTraceFilterWorldAndPropsOnly filter;
+        Ray_t ray;
+        ray.Init(src, end, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f));
+        TraceRay(ray, mask, &filter, &tr);
+    }
+
     inline void trace_entity(const Ray_t& ray, unsigned int fMask, IClientEntity* pEntity, CGameTrace* pTrace)
     {
         CTraceFilter filter;

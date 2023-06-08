@@ -5,6 +5,7 @@
 class c_grenade_prediction : public singleton<c_grenade_prediction>
 {
 private:
+	/*
 	static void TraceHull(const Vector& src, const Vector& dst, const Vector& mins, const Vector& maxs, int mask, IHandleEntity* entity, int collision_group, CGameTrace* trace) {
 		static auto trace_filter_simple = util::FindSignature("client.dll", ("55 8B EC 83 E4 F0 83 EC 7C 56 52")) + 0x3D;
 
@@ -38,7 +39,7 @@ private:
 
 		m_trace()->TraceRay(ray, mask, reinterpret_cast<CTraceFilter*>(&filter), trace);
 	}
-
+	*/
 	struct data_t {
 		data_t() = default;
 
@@ -82,19 +83,20 @@ private:
 		}
 
 		void physics_trace_entity(const Vector& src, const Vector& dst, std::uint32_t mask, CGameTrace& trace) {
-			TraceHull(
-				src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
-				mask, m_owner, m_collision_group, &trace
-			);
+			m_trace()->trace_hull_const(src, dst, mask, trace);
+			//TraceHull(
+			//	src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
+			//	mask, m_owner, m_collision_group, &trace
+			//);
 
 			if (trace.startsolid
 				&& (trace.contents & CONTENTS_CURRENT_90)) {
 				trace.clear();
-
-				TraceHull(
-					src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
-					mask & ~CONTENTS_CURRENT_90, m_owner, m_collision_group, &trace
-				);
+				m_trace()->trace_hull_const(src, dst, mask & ~CONTENTS_CURRENT_90, trace);
+				//TraceHull(
+				//	src, dst, { -2.f, -2.f, -2.f }, { 2.f, 2.f, 2.f },
+				//	mask & ~CONTENTS_CURRENT_90, m_owner, m_collision_group, &trace
+				//);
 			}
 
 			if (!trace.DidHit()
@@ -104,7 +106,8 @@ private:
 
 			trace.clear();
 
-			TraceLine(src, dst, mask, m_owner, m_collision_group, &trace);
+			m_trace()->trace_hull_const(src, dst, mask, trace);
+			//TraceLine(src, dst, mask, m_owner, m_collision_group, &trace);
 		}
 
 		void physics_push_entity(const Vector& push, CGameTrace& trace) {
@@ -118,11 +121,12 @@ private:
 			if (trace.startsolid) {
 				m_collision_group = Collision_Group_t::COLLISION_GROUP_INTERACTIVE_DEB;
 
-				TraceLine(
-					m_origin - push, m_origin + push,
-					(MASK_SOLID | CONTENTS_CURRENT_90) & ~CONTENTS_MONSTER,
-					m_owner, m_collision_group, &trace
-				);
+				m_trace()->trace_hull_const(m_origin - push, m_origin + push, (MASK_SOLID | CONTENTS_CURRENT_90) & ~CONTENTS_MONSTER, trace);
+				//TraceLine(
+				//	m_origin - push, m_origin + push,
+				//	(MASK_SOLID | CONTENTS_CURRENT_90) & ~CONTENTS_MONSTER,
+				//	m_owner, m_collision_group, &trace
+				//);
 			}
 
 			if (trace.fraction)
@@ -148,10 +152,9 @@ private:
 			auto surface_elasticity = 1.f;
 
 			if (trace.entity) {
-				if (autowall::get().is_breakable_entity(reinterpret_cast<entity_t*>(trace.entity))) {
-				BREAKTROUGH:
+				if (autowall::get().is_breakable_entity(reinterpret_cast<entity_t*>(trace.entity)))
+				{
 					m_velocity *= 0.4f;
-
 					return;
 				}
 
@@ -160,10 +163,8 @@ private:
 					surface_elasticity = 0.3f;
 
 				if (trace.entity->EntIndex()) {
-					if (is_player
-						&& m_last_hit_entity == trace.entity) {
+					if (is_player && m_last_hit_entity == trace.entity) {
 						m_collision_group = COLLISION_GROUP_DEBRIS;
-
 						return;
 					}
 
@@ -171,11 +172,11 @@ private:
 				}
 			}
 
-			auto velocity = Vector();
+			auto velocity = ZERO;
 
 			const auto back_off = m_velocity.Dot(trace.plane.normal) * 2.f;
 
-			for (auto i = 0u; i < 3u; i++) {
+			for (auto i = 0u; i < 3; i++) {
 				const auto change = trace.plane.normal[i] * back_off;
 
 				velocity[i] = m_velocity[i] - change;
@@ -186,7 +187,7 @@ private:
 				velocity[i] = 0.f;
 			}
 
-			velocity *= std::clamp< float >(surface_elasticity * 0.45f, 0.f, 0.9f);
+			velocity *= std::clamp<float>(surface_elasticity * 0.45f, 0.f, 0.9f);
 
 			if (trace.plane.normal.z > 0.7f) {
 				const auto speed_sqr = velocity.LengthSqr();
