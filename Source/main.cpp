@@ -433,7 +433,7 @@ __forceinline void setup_hooks()
     Hooks::clientmode_hook = new ClientHook(m_clientmode());
     Hooks::clientmode_hook->hookAt(17, Hooks::hooked_drawfog);
     Hooks::clientmode_hook->hookAt(18, Hooks::hooked_overrideview);
-    Hooks::clientmode_hook->hookAt(24, createMove);
+    //Hooks::clientmode_hook->hookAt(24, createMove);
     Hooks::clientmode_hook->hookAt(44, Hooks::hooked_postscreeneffects);
 
     Hooks::inputinternal_hook = new ClientHook(m_inputinternal());
@@ -442,9 +442,6 @@ __forceinline void setup_hooks()
 
     Hooks::renderview_hook = new ClientHook(m_renderview());
     Hooks::renderview_hook->hookAt(9, Hooks::hooked_sceneend);
-
-    //Hooks::materialsys_hook = new ClientHook(m_materialsystem());
-    //Hooks::materialsys_hook->hookAt(84, Hooks::hooked_getmaterial);
 
     Hooks::modelrender_hook = new ClientHook(m_modelrender());
     Hooks::modelrender_hook->hookAt(21, Hooks::hooked_dme);

@@ -43,11 +43,15 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	cheat.set_command(cmd);
 	cheat.globals.original = cmd->m_viewangles;
 
+	/*
+	
 	if (Hooks::menu_open && cheat.globals.focused_on_input)
 	{
 		cmd->m_buttons = 0;
 		cmd->m_forwardmove = cmd->m_sidemove = cmd->m_upmove = 0.0f;
 	}
+
+	*/
 
 	misc::get().force_crosshair();
 
@@ -57,19 +61,19 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
 		cmd->m_buttons &= ~IN_JUMP;
 
-		//if (cmd->m_sidemove > 5.0f)
-		//	cmd->m_sidemove = 450.0f;
-		//else if (cmd->m_sidemove < -5.0f)
-		//	cmd->m_sidemove = -450.0f;
+		if (cmd->m_sidemove > 5.0f)
+			cmd->m_sidemove = 450.0f;
+		else if (cmd->m_sidemove < -5.0f)
+			cmd->m_sidemove = -450.0f;
 
-		//if (cmd->m_forwardmove > 5.0f)
-		//	cmd->m_forwardmove = 450.0f;
-		//else if (cmd->m_forwardmove < -5.0f)
-		//	cmd->m_forwardmove = -450.0f;
+		if (cmd->m_forwardmove > 5.0f)
+			cmd->m_forwardmove = 450.0f;
+		else if (cmd->m_forwardmove < -5.0f)
+			cmd->m_forwardmove = -450.0f;
 
-		const auto speed = util::get_speed_move(cmd);
-		cmd->m_forwardmove = speed.x;
-		cmd->m_sidemove = speed.y;
+		//const auto speed = util::get_speed_move(cmd);
+		//cmd->m_forwardmove = speed.x;
+		//cmd->m_sidemove = speed.y;
 
 		//if (configs.misc.anti_untrusted)
 		//{
@@ -92,6 +96,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		cmd->m_tickcount = INT_MAX;
 		cmd->m_forwardmove = cmd->m_sidemove = cmd->m_upmove = 0.0f;
 		cmd->m_buttons &= ~(IN_ATTACK | IN_ATTACK2);
+		cmd->m_buttons &= ~IN_JUMP;
 
 		if (cheat.globals.ticks_allowed >= tickAllowed)
 		{
@@ -112,13 +117,17 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	util::server_time(cmd);
 
+	/*
+
 	if (Hooks::menu_open)
 	{
 		cmd->m_buttons &= ~IN_ATTACK;
 		cmd->m_buttons &= ~IN_ATTACK2;
 	}
 
-	if (configs.ragebot.enabled && (cheat.globals.weapon->is_pistol() || cheat.globals.weapon->is_sniper() || cheat.globals.weapon->is_rifle() || cheat.globals.weapon->is_shotgun() || cheat.globals.weapon->is_smg() || cheat.globals.weapon->is_knife()) && !cheat.globals.weapon->can_fire(true) && !antiaim::get().freeze_check)
+	*/
+
+	if (configs.ragebot.enabled && (cheat.globals.weapon->is_pistol() || cheat.globals.weapon->is_sniper() || cheat.globals.weapon->is_rifle() || cheat.globals.weapon->is_shotgun() || cheat.globals.weapon->is_smg() || cheat.globals.weapon->is_knife()) && !cheat.globals.weapon->can_fire(true)) //  && !antiaim::get().freeze_check
 	{
 		if (cmd->m_buttons & IN_ATTACK)
 			cmd->m_buttons &= ~IN_ATTACK;
@@ -127,7 +136,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 			cmd->m_buttons &= ~IN_ATTACK2;
 	}
 
-	if (configs.legitbot.enabled && configs.legitbot.autopistol && cheat.globals.weapon->is_pistol() && !cheat.globals.weapon->can_fire(true) && !antiaim::get().freeze_check)
+	if (configs.legitbot.enabled && configs.legitbot.autopistol && cheat.globals.weapon->is_pistol() && !cheat.globals.weapon->can_fire(true)) //  && !antiaim::get().freeze_check
 	{
 		if (cmd->m_buttons & IN_ATTACK)
 			cmd->m_buttons &= ~IN_ATTACK;
@@ -136,6 +145,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 			cmd->m_buttons &= ~IN_ATTACK2;
 	}
 
+	/*
 	if (cmd->m_buttons & IN_FORWARD && cmd->m_buttons & IN_BACK)
 	{
 		cmd->m_buttons &= ~IN_FORWARD;
@@ -147,6 +157,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		cmd->m_buttons &= ~IN_MOVELEFT;
 		cmd->m_buttons &= ~IN_MOVERIGHT;
 	}
+	*/
 
 	cheat.send_packet = true;
 	cheat.globals.tickbase_shift = 0;
@@ -162,7 +173,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	static auto previousViewAngles{ cmd->m_viewangles };
 	auto currentViewAngles{ cmd->m_viewangles };
-	auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
+	//auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
 
 	walkbot::get().move(cmd);
 
@@ -307,7 +318,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		fakelag::get().started_peeking = false;
 	}
 
-	if (!cheat.globals.fakeducking && (misc::get().hide_shots_disable || misc::get().double_tap_disable))
+	if (!cheat.globals.fakeducking && misc::get().hide_shots_disable) // || misc::get().double_tap_disable
 	{
 		cheat.globals.force_send_packet = true;
 		cheat.globals.should_choke_packet = true;
@@ -361,8 +372,8 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	//engineprediction::get().finish();
 
-	if (cheat.local()->is_alive())
-		memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
+	//if (cheat.local()->is_alive())
+	//	memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
 
 	if (cheat.globals.loaded_script)
 		for (auto& current : c_lua::get().hooks.getHooks(crypt_str("on_restoreprediction")))
@@ -541,7 +552,7 @@ void __stdcall Hooks::CHLCreateMove(int sequenceNumber, float inputSampleTime, b
 {
 	client_hook.callOriginal<void, 22>(sequenceNumber, inputSampleTime, active);
 
-	cheat.globals.in_createmove = false;
+	//cheat.globals.in_createmove = false;
 
 	CUserCmd* cmd = m_input()->GetUserCmd(sequenceNumber);
 	CVerifiedUserCmd* verified = m_input()->GetVerifiedUserCmd(sequenceNumber);

@@ -896,7 +896,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 
 	static auto recharge_double_tap = false;
 	static auto last_double_tap = 0;
-	const auto max_tickbase_shift = cheat.globals.weapon->get_max_tickbase_shift_default();
+	const auto max_tickbase_shift = cheat.globals.weapon->get_max_tickbase_shift();
 
 	if (recharge_double_tap)
 	{

@@ -1503,7 +1503,7 @@ void ragebot::fire(CUserCmd* cmd)
 
 	log << crypt_str("Fired shot at ") + player_info.getUsername() + crypt_str(" | ");
 	log << crypt_str("hitbox : ") + get_hitbox_name(final_target.data.hitbox) + crypt_str(" | ");
-	log << crypt_str("hitchance : ") + (final_hitchance > 100 ? crypt_str("100") : std::to_string(final_hitchance)) + crypt_str(" | ");
+	log << crypt_str("hitchance : ") + (final_hitchance > 100 ? crypt_str("Prediction") : std::to_string(final_hitchance)) + crypt_str(" | ");
 	log << crypt_str("damage : ") + std::to_string(final_target.data.damage) + crypt_str(" | ");
 	log << crypt_str("safety : ") + std::string(final_target.data.point.safe ? "true" : "false") + crypt_str(" | ");
 	if (!player_info.fakeplayer)
