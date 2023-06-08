@@ -261,14 +261,15 @@ void misc::auto_crouch(CUserCmd* cmd)
 		return;
 	}
 
-	if (m_clientstate()->m_iChokedCommands <= (cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS()) / 2))
+	cheat.globals.fakeducking = true;
+	
+	if (m_clientstate()->m_iChokedCommands <= 6)
 		cmd->m_buttons &= ~IN_DUCK;
 	else
 		cmd->m_buttons |= IN_DUCK;
 
-	cheat.send_packet = m_clientstate()->m_iChokedCommands >= cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
+	cheat.send_packet = m_clientstate()->m_iChokedCommands >= 14;
 
-	cheat.globals.fakeducking = true;
 	/*
 	if (m_clientstate()->m_iChokedCommands <= 6)
 		cmd->m_buttons &= ~IN_DUCK;
@@ -913,7 +914,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 
 	static auto recharge_double_tap = false;
 	static auto last_double_tap = 0;
-	const auto max_tickbase_shift = cheat.globals.weapon->get_max_tickbase_shift();
+	const auto max_tickbase_shift = cheat.globals.weapon->get_max_tickbase_shift_default();
 
 	if (recharge_double_tap)
 	{
@@ -926,11 +927,11 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 
 	if (recharging_double_tap)
 	{
-		//auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(1.f);
+		auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(1.f);
 		//auto recharge_time = cheat.globals.weapon->can_double_tap() ? TIME_TO_TICKS(0.5f) : TIME_TO_TICKS(0.75f);
 
-		//if (!ragebot::get().should_stop && fabs(cheat.globals.fixed_tickbase - last_double_tap) > recharge_time)
-		if (can_shift_shot(max_tickbase_shift) && !ragebot::get().should_stop)
+		//if (can_shift_shot(max_tickbase_shift) && !ragebot::get().should_stop)
+		if (!ragebot::get().should_stop && fabs(cheat.globals.fixed_tickbase - last_double_tap) > recharge_time)
 		{
 			recharging_double_tap = false;
 			last_double_tap = 0;
@@ -1157,9 +1158,9 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 		memcpy(user_cmd, m_pcmd, sizeof(CUserCmd));
 		user_cmd->m_command_number = next_command_number;
 
-		if (cheat.globals.ticks_allowed > 8)
-			cheat.globals.need_shift_tickbase = cheat.globals.weapon->get_max_tickbase_shift();
-		else
+		//if (cheat.globals.ticks_allowed > 8)
+		//cheat.globals.need_shift_tickbase = cheat.globals.weapon->get_max_tickbase_shift();
+		//else
 			util::copy_command(user_cmd, cheat.globals.next_tickbase_shift, cheat.globals.ticks_allowed > 8, false);
 
 		hide_shots_enabled = false;

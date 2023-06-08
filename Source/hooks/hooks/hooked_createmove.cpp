@@ -87,7 +87,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		return false;
 	}
 
-	const auto tickAllowed = ((m_gamerules()->m_bIsValveDS() && !configs.misc.anti_untrusted) || (misc::get().hide_shots_enabled && !misc::get().double_tap_enabled)) ? (m_gamerules()->m_bIsValveDS() ? cheat.getMaxChokecCMD(true) : 8) : cheat.getMaxChokecCMD(false);
+	const auto tickAllowed = ((m_gamerules()->m_bIsValveDS() && !configs.misc.anti_untrusted) || (misc::get().hide_shots_enabled && !misc::get().double_tap_enabled)) ? (m_gamerules()->m_bIsValveDS() ? 6 : 8) : 16;
 
 	if (cheat.globals.should_recharge)
 	{
@@ -254,7 +254,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	antiaim::get().desync_angle = 0.0f;
 	antiaim::get().create_move(cmd);
 
-	if (m_clientstate()->m_iChokedCommands >= cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS()))
+	if (m_clientstate()->m_iChokedCommands >= (m_gamerules()->m_bIsValveDS() ? 6 : 16))
 	{
 		cheat.send_packet = true;
 		fakelag::get().started_peeking = false;
@@ -318,7 +318,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		fakelag::get().started_peeking = false;
 	}
 
-	if (!cheat.globals.fakeducking && misc::get().hide_shots_disable) // || misc::get().double_tap_disable
+	if (!cheat.globals.fakeducking && (misc::get().hide_shots_disable || misc::get().double_tap_disable))
 	{
 		cheat.globals.force_send_packet = true;
 		cheat.globals.should_choke_packet = true;

@@ -196,11 +196,6 @@ public:
 		return atoll(StringUtils::clearAllSpace(StringUtils::replaceAll(getVersion(), ".", "")).c_str());
 	}
 
-	int getMaxChokecCMD(bool isValveDS)
-	{
-		return (isValveDS ? 6 : 16);
-	}
-
 	player_t* local(player_t* e = nullptr, bool init = false);
 
 	duk_context* context_default = duk_create_heap_default();

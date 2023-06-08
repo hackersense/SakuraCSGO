@@ -337,13 +337,13 @@ bool weapon_t::can_double_tap()
 
 int weapon_t::get_max_tickbase_shift()
 {
-	return cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
+	return m_gamerules()->m_bIsValveDS() ? 6 : 16;
 }
 
 int weapon_t::get_max_tickbase_shift_default()
 {
 	if (!can_double_tap())
-		return cheat.getMaxChokecCMD(m_gamerules()->m_bIsValveDS());
+		return get_max_tickbase_shift();
 
 	int max_tickbase_shift = 0;
 
@@ -396,7 +396,7 @@ int weapon_t::get_max_tickbase_shift_default()
 	}
 
 	if (m_gamerules()->m_bIsValveDS())
-		max_tickbase_shift = max(max_tickbase_shift, cheat.getMaxChokecCMD(true));
+		max_tickbase_shift = max(max_tickbase_shift, 6);
 
 	return max_tickbase_shift;
 }

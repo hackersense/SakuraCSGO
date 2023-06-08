@@ -192,6 +192,7 @@ bool __fastcall Hooks::hooked_writeusercmddeltatobuffer(void* ecx, void* edx, in
 	CUserCmd fromCmd = *cmd;
 
 	toCmd.m_command_number++;
+	toCmd.m_tickcount += 200;
 	//toCmd.m_tickcount += (static_cast<int>(1.0f / m_globals()->m_intervalpertick) * 3);
 
 	for (int i = 0; i < extraCommands; i++)
