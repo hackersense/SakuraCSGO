@@ -15,10 +15,6 @@ void StatusCheck()
 	if (m_globals()->m_realtime > lasttime + 5.f) {
 		const auto spotify = musicStatus.getSpotify();
 		const auto ypm = musicStatus.getYesPlayMusic();
-		bool findYPM = false;
-
-			findSpotify = true;
-
 		std::vector<MStatus> musicStatus = { spotify, ypm };
 		MStatus curMStatus = MStatus{ L"", L"", false, false, MusicPlayerType::None };
 
