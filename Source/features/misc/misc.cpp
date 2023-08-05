@@ -1488,7 +1488,7 @@ void misc::chat_revealer(IGameEvent& event, IGameEvent* events)
 	if (!entity)
 		return;
 
-	std::string output = "\x0C\u2022Osiris\u2022\x01 ";
+	std::string output = "\x0C\u2022Sakura\u2022\x01 ";
 
 	auto team = entity->m_iTeamNum();
 	bool isAlive = entity->is_alive();
