@@ -258,6 +258,7 @@ namespace Hooks
 	MinHook performscreenoverlay_hook;
 	MinHook isdepthoffieldenabled_hook;
 	MinHook tracefilterforheadcollision_hook;
+	MinHook dispatchsound_hook;
 
 	C_HookedEvents hooked_events;
 }

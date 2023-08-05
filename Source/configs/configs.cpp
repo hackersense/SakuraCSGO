@@ -388,6 +388,7 @@ void C_ConfigManager::setup()
 	setup_item(&configs.misc.log_color, Color::White, crypt_str("Misc.log_color"));
 	setup_item(&configs.misc.inventory_access, false, crypt_str("Misc.inventory_access"));
 	setup_item(&configs.misc.reveal_votes, false, crypt_str("Misc.reveal_votes"));
+	setup_item(&configs.misc.chat_revealer, false, crypt_str("Misc.chat_revealer"));
 	setup_item(&configs.misc.rank_reveal, false, crypt_str("Misc.rank_reveal"));
 	setup_item(&configs.misc.clan_tag, false, crypt_str("Misc.clan_tag"));
 	setup_item(&configs.misc.radar_hack, false, crypt_str("Misc.radar_hack"));

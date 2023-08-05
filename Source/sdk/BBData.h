@@ -37,7 +37,7 @@ struct BoxInfo
 namespace BBData
 {
 	void update();
-	BoxInfo getBox(int index);
+	BoxInfo& getBox(int index);
 	void reset(int index);
 
 	inline float viewMatrix[4][4] = {};

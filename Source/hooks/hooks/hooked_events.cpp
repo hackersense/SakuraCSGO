@@ -473,6 +473,8 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 			}
 		}
 	}
+	else if (!strcmp(event_name, crypt_str("player_say")))
+		misc::get().chat_revealer(*event, event);
 
 	if ((configs.esp.bullet_tracer || configs.esp.enemy_bullet_tracer) && configs.player.enabled)
 		bullettracers::get().events(event);
@@ -509,6 +511,7 @@ void C_HookedEvents::Initialize()
 	AddListener(crypt_str("bomb_beginplant"));
 	AddListener(crypt_str("cs_win_panel_match"));
 	AddListener(crypt_str("player_team"));
+	AddListener(crypt_str("player_say"));
 	AddListener(crypt_str("round_mvp"));
 }
 

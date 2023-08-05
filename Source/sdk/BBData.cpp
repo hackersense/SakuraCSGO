@@ -204,7 +204,7 @@ void BBData::update()
 	}
 }
 
-BoxInfo BBData::getBox(int index)
+BoxInfo& BBData::getBox(int index)
 {
 	if (index < 65 && index > 0)
 		return player_info[index];

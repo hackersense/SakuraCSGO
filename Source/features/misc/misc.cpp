@@ -1015,7 +1015,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 		//user_cmd->m_sidemove = speed.y;
 
 		//if ((max_tickbase_shift < 16 && !double_tap_disable) || configs.ragebot.disable_teleport)
-			cheat.globals.need_shift_tickbase = cheat.globals.weapon->get_max_tickbase_shift();
+		cheat.globals.need_shift_tickbase = max_tickbase_shift;// cheat.globals.weapon->get_max_tickbase_shift();
 		//else
 		//{
 		//	auto next_command_number = m_pcmd->m_command_number + 1;
@@ -1474,6 +1474,44 @@ void misc::vote_revealer_call(const void*& data, int& size, ECstrike15UserMessag
 		m_clientmode()->getHudChat()->printf(0, " \x0C\u2022Sakura\u2022\x01 vote\x06 PASS");
 	else if (type == ECstrike15UserMessages::CS_UM_VoteFailed)
 		m_clientmode()->getHudChat()->printf(0, " \x0C\u2022Sakura\u2022\x01 vote\x07 FAILED");
+}
+
+void misc::chat_revealer(IGameEvent& event, IGameEvent* events)
+{
+	if (!configs.misc.chat_revealer)
+		return;
+
+	if (!cheat.local())
+		return;
+
+	const auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(m_engine()->GetPlayerForUserID(events->GetInt("userid"))));
+	if (!entity)
+		return;
+
+	std::string output = "\x0C\u2022Osiris\u2022\x01 ";
+
+	auto team = entity->m_iTeamNum();
+	bool isAlive = entity->is_alive();
+	bool dormant = entity->IsDormant();
+	if (dormant) {
+		if (const auto pr = m_playerresource())
+			isAlive = pr->getICSPlayerResource()->is_alive(entity->EntIndex());
+	}
+
+	const char* text = event.GetString("text");
+	const char* lastLocation = entity->m_szLastPlaceName();
+	const std::string name = entity->get_player_info()->getUsername();
+
+	if (team == cheat.local()->m_iTeamNum())
+		return;
+
+	if (!isAlive)
+		output += "*DEAD* ";
+
+	team == 3 ? output += "(Counter-Terrorist) " : output += "(Terrorist) ";
+
+	output = output + name + " @ " + lastLocation + " : " + text;
+	m_clientmode()->getHudChat()->printf(0, output.c_str());
 }
 
 void misc::get_keys()

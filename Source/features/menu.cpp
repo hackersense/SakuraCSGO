@@ -1651,6 +1651,8 @@ void menu::draw()
 
 			ImGui::CheckboxSkeet(crypt_str("Reveal votes"), &configs.misc.reveal_votes);
 
+			ImGui::CheckboxSkeet(crypt_str("Chat revealer"), &configs.misc.chat_revealer);
+
 			ImGui::CheckboxSkeet(crypt_str("Rank reveal"), &configs.misc.rank_reveal);
 
 			ImGui::CheckboxSkeet(crypt_str("Inventory unlocker"), &configs.misc.inventory_access);

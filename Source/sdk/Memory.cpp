@@ -69,6 +69,7 @@ Memory::Memory() noexcept
     physicsSimulate = findPattern(crypt_str("client"), "\x56\x8B\xF1\x8B?????\x83\xF9\xFF\x74\x23");
     getForeignFallbackFontName = findPattern(crypt_str("vguimatsurface"), "\x80\x3D?????\x74\x06\xB8");
     processInterpolatedList = findPattern(crypt_str("client"), "\x53\x0F\xB7\x1D????\x56");
+    dispatchSound = findPattern(crypt_str("engine"), "\x55\x8B\xEC\x81\xEC????\x56\x8B\xF1\x8D\x4D\x98\xE8");
     //standardBlendingRules = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6");
     standardBlendingRules = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF0\xB8\xF8\x10");
     doExtraBoneProcessing = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x8B\xF1\x57\x89\x74\x24\x1C\x80");

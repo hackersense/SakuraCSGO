@@ -80,6 +80,7 @@ namespace Hooks
 	extern MinHook performscreenoverlay_hook;
 	extern MinHook isdepthoffieldenabled_hook;
 	extern MinHook tracefilterforheadcollision_hook;
+	extern MinHook dispatchsound_hook;
 
 	extern C_HookedEvents hooked_events;
 
@@ -93,7 +94,7 @@ namespace Hooks
 	using CalcViewmodelBobFn = void(__thiscall*)(player_t*, Vector&);
 	using CheckForSequenceChangeFn = void(__thiscall*)(void*, void*, int, bool, bool);
 	using ParticleCollectionFn = void(__thiscall*)(ParticleCollection* thisPointer);
-	using ProcessInterpolatedListFn = int(*)(void);
+	using ProcessInterpolatedListFn = int(__fastcall*)(void);
 	using CLMoveFn = void(__cdecl*)(float, bool);
 
 	extern DWORD original_getforeignfallbackfontname;

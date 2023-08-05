@@ -23,6 +23,7 @@
 #include "features\serverside\local_animations.h"
 #include "features\imgs\skeet_tab.h"
 #include "hooks\libs\MinHook.h"
+#include "sdk\BBData.h"
 #include "DiscordRpc.h"
 
 __forceinline void setup_netvars()
@@ -252,6 +253,31 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
     //}
 }
 
+/*
+static int __stdcall dispatchSoundHook(const SoundInfo2_t& sound) noexcept
+{
+    if (sound.vOrigin == ZERO)
+        return ((Hooks::DispatchSoundFn)Hooks::original_dispatchSound)(sound);
+
+    if (sound.nEntityIndex < 1 || sound.nEntityIndex > m_globals()->m_maxclients || sound.nEntityIndex == m_engine()->GetLocalPlayer())
+        return ((Hooks::DispatchSoundFn)Hooks::original_dispatchSound)(sound);
+
+    player_t* player = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(sound.nEntityIndex));
+    if (!player)
+        return ((Hooks::DispatchSoundFn)Hooks::original_dispatchSound)(sound);
+
+    if (player->IsDormant())
+    {
+        Vector pos = sound.vOrigin;
+        BBData::getBox(sound.nEntityIndex).absOrigin = BBData::getBox(sound.nEntityIndex).renderOrigin = pos;
+
+        // Update player data with new pos here
+    }
+
+    return ((Hooks::DispatchSoundFn)Hooks::original_dispatchSound)(sound);
+}
+*/
+
 #pragma warning(disable : 4409)
 __declspec(naked) void __stdcall createMoveProxy(int sequenceNumber, float inputSampleTime, bool active) noexcept
 {
@@ -398,6 +424,8 @@ __forceinline void setup_hooks()
     Hooks::original_calcviewmodelbob = (DWORD)DetourFunction((PBYTE)memory->calculateViewModelBob, (PBYTE)Hooks::hooked_calcviewmodelbob);
 
     Hooks::original_clmove = (DWORD)DetourFunction((PBYTE)memory->clMove, (PBYTE)clMoveHook);
+    
+    //Hooks::original_dispatchSound = (DWORD)DetourFunction((PBYTE)memory->dispatchSound, (PBYTE)dispatchSoundHook);
 
     //Hooks::original_checkforsequencechange = (DWORD)DetourFunction((PBYTE)memory->checkForSequenceChange, (PBYTE)checkForSequenceChangeHook); // AnimFix L:51
 

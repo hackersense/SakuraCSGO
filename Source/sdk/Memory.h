@@ -85,6 +85,7 @@ public:
     std::uintptr_t physicsSimulate;
     std::uintptr_t getForeignFallbackFontName;
     std::uintptr_t processInterpolatedList;
+    std::uintptr_t dispatchSound;
     std::uintptr_t standardBlendingRules;
     std::uintptr_t doExtraBoneProcessing;
     std::uintptr_t shouldSkipAnimationFrame;

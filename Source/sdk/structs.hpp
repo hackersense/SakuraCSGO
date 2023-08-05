@@ -403,6 +403,7 @@ public:
     NETVAR(CHandle<viewmodel_t>, m_hViewModel, crypt_str("CBasePlayer"), crypt_str("m_hViewModel[0]"));
     NETVAR(Vector, m_vecBaseVelocity, crypt_str("CBasePlayer"), crypt_str("m_vecBaseVelocity"));
     NETVAR(Vector, m_vecVelocity, crypt_str("CBasePlayer"), crypt_str("m_vecVelocity[0]"));
+    NETVAR(char[18], m_szLastPlaceName, crypt_str("CBasePlayer"), crypt_str("m_szLastPlaceName"));
     NETVAR(Vector, m_vecMins, crypt_str("CBaseEntity"), crypt_str("m_vecMins"));
     NETVAR(Vector, m_vecMaxs, crypt_str("CBaseEntity"), crypt_str("m_vecMaxs"));
     NETVAR(float, m_flVelocityModifier, crypt_str("CCSPlayer"), crypt_str("m_flVelocityModifier"));

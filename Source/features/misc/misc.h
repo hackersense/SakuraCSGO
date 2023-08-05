@@ -56,6 +56,8 @@ public:
 	void vote_revealer(IGameEvent& event);
 	void vote_revealer_call(const void*& data, int& size, ECstrike15UserMessages& type);
 
+	void chat_revealer(IGameEvent& event, IGameEvent* events);
+
 	void get_keys();
 	void keybinds();
 

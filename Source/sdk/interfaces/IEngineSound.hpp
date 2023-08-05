@@ -4,6 +4,7 @@
 #include "../misc/UtlVector.hpp"
 
 typedef void* FileNameHandle_t;
+enum soundlevel_t;
 
 struct SoundInfo_t
 {
@@ -16,6 +17,30 @@ struct SoundInfo_t
 	int			m_nFlags;
 	int			m_nSoundIndex;
 };
+
+/*
+struct SoundInfo2_t
+{
+	int				nSequenceNumber;
+	int				nEntityIndex;
+	int				nChannel;
+	const char*		pszName;		// UNDONE: Make this a FilenameHandle_t to avoid bugs with arrays of these
+	Vector			vOrigin;
+	Vector			vDirection;
+	float			fVolume;
+	soundlevel_t	Soundlevel;
+	bool			bLooping;
+	int				nPitch;
+	int				nSpecialDSP;
+	Vector			vListenerOrigin;
+	int				nFlags;
+	int 			nSoundNum;
+	float			fDelay;
+	bool			bIsSentence;
+	bool			bIsAmbient;
+	int				nSpeakerEntity;
+};
+*/
 
 struct SoundParams_t
 {
@@ -30,9 +55,9 @@ struct SoundParams_t
 	int					m_nSoundLevel;
 	int					m_nFlags;
 	int					m_nPitch;
-	const Vector&		m_pOrigin;
-	const Vector&		m_pDirection;
-	CUtlVector<Vector>* m_pOrigins;
+	const Vector&		m_vOrigin;
+	const Vector&		m_vDirection;
+	CUtlVector<Vector>* m_vOrigins;
 	bool				m_bUpdatePosition;
 	float				m_flSoundTime;
 	int					m_nSpeakerEntity;

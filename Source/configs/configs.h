@@ -745,6 +745,7 @@ struct Config
 		Color log_color;
 		bool inventory_access;
 		bool reveal_votes;
+		bool chat_revealer;
 		bool rank_reveal;
 		bool clan_tag;
 		bool radar_hack;
