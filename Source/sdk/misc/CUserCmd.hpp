@@ -63,6 +63,8 @@ public:
 		CRC32_ProcessBuffer(&crc, &m_random_seed, sizeof(m_random_seed));
 		CRC32_ProcessBuffer(&crc, &m_mousedx, sizeof(m_mousedx));
 		CRC32_ProcessBuffer(&crc, &m_mousedy, sizeof(m_mousedy));
+		CRC32_ProcessBuffer(&crc, &m_viewanglesBackup, sizeof(m_viewanglesBackup));
+		CRC32_ProcessBuffer(&crc, &m_buttonsBackup, sizeof(m_buttonsBackup));
 
 		CRC32_Final(&crc);
 
@@ -84,7 +86,9 @@ public:
 	short		m_mousedx;			// 0x44 mouse accum in x from create move
 	short		m_mousedy;			// 0x46 mouse accum in y from create move
 	bool		m_predicted;		// 0x48 Client only, tracks whether we've predicted this command at least once
-	std::byte	pad[0x18];			// 0x4C Current sizeof( usercmd ) =  100  = 0x64
+	Vector		m_viewanglesBackup;
+	int			m_buttonsBackup;
+	std::byte	pad[8];				// 0x4C Current sizeof( usercmd ) =  100  = 0x64
 };
 
 class CVerifiedUserCmd 

@@ -173,7 +173,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	static auto previousViewAngles{ cmd->m_viewangles };
 	auto currentViewAngles{ cmd->m_viewangles };
-	//auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
+	auto currentPredictedTick{ m_prediction()->split->m_iCommandsPredicted - 1 };
 
 	walkbot::get().move(cmd);
 
@@ -372,9 +372,6 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	//engineprediction::get().finish();
 
-	//if (cheat.local()->is_alive())
-	//	memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
-
 	if (cheat.globals.loaded_script)
 		for (auto& current : c_lua::get().hooks.getHooks(crypt_str("on_restoreprediction")))
 			current.func(cmd);
@@ -390,6 +387,15 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
 
 	util::movement_fix(currentViewAngles, cmd);
+
+	cmd->m_viewanglesBackup.x = cmd->m_viewangles.x;
+	cmd->m_viewanglesBackup.y = cmd->m_viewangles.y;
+	cmd->m_viewanglesBackup.z = cmd->m_viewangles.z;
+
+	cmd->m_buttonsBackup = cmd->m_buttons;
+
+	if (cheat.local()->is_alive())
+		memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
 
 	if (cheat.globals.loaded_script)
 		for (auto& current : c_lua::get().hooks.getHooks(crypt_str("on_createmove")))
