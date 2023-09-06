@@ -134,19 +134,7 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
         entity->m_flCollisionChangeTime() = 0.0f;
     }
 
-    const CUtlVector<int> backupFlags = hdr->boneFlags;
-
-    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
-    {
-        if (configs.visuals.disable_jiggle_bones)
-            hdr->boneFlags.m_pElements[i] &= ~0x04;
-        else
-            hdr->boneFlags.m_pElements[i] |= 0x04;
-    }
-
     Hooks::buildtransformations_hook.callOriginal<void>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
-
-    hdr->boneFlags = backupFlags;
 }
 
 static void* __stdcall allocKeyValuesMemory(int size) noexcept
