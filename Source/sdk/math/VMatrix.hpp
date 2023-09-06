@@ -10,7 +10,7 @@ public:
 	float x, y, z, w;
 };
 
-struct cplane_t {
+struct CPlane {
 	Vector normal;
 	float dist;
 	uint8_t type;   // for fast side tests

@@ -748,21 +748,22 @@ bool player_t::is_alive()
 	if (!this)
 		return false;
 
-	if (m_iTeamNum() != 2 && m_iTeamNum() != 3)
+	if (m_iTeamNum() != TeamID::TT && m_iTeamNum() != TeamID::CT)
 		return false;
 
 	if (m_lifeState() != LIFE_ALIVE)
 		return false;
 
-	return true;
+	//return true;
+	return VirtualMethod::call<bool, 156>(this);
 }
 
-player_info_t* player_t::get_player_info()
+PlayerInfo* player_t::get_player_info()
 {
 	if (!this)
 		return nullptr;
 
-	if (player_info_t playerInfo; m_engine()->GetPlayerInfo(EntIndex(), &playerInfo))
+	if (PlayerInfo playerInfo; m_engine()->GetPlayerInfo(EntIndex(), &playerInfo))
 		return &playerInfo;
 
 	return nullptr;
@@ -927,12 +928,12 @@ float player_t::get_sequence_cycle_rate(int sequence)
 		return 1.0f / 0.1f;
 }
 
-float player_t::get_sequence_cycle_rate(studiohdr_t* studiohdr, int sequence)
+float player_t::get_sequence_cycle_rate(StudioHdr* studiohdr, int sequence)
 {
 	if (!this)
 		return 0.0f;
 
-	using Fn = float(__thiscall*)(void*, studiohdr_t*, int);
+	using Fn = float(__thiscall*)(void*, StudioHdr*, int);
 	return call_virtual<Fn>(this, 222)(this, studiohdr, sequence);
 }
 
@@ -1157,7 +1158,7 @@ int player_t::sequence_activity(int sequence)
 	if (!hdr)
 		return 0;
 
-	static auto sequence_activity = reinterpret_cast<int(__fastcall*)(void*, studiohdr_t*, int)>(util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 53 8B 5D 08 56 8B F1 83")));
+	static auto sequence_activity = reinterpret_cast<int(__fastcall*)(void*, StudioHdr*, int)>(util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 53 8B 5D 08 56 8B F1 83")));
 	return sequence_activity(this, hdr, sequence);
 }
 
@@ -1178,10 +1179,10 @@ c_baseplayeranimationstate* player_t::get_animation_state()
 	return *reinterpret_cast<c_baseplayeranimationstate**>(reinterpret_cast<void*>(uintptr_t(this) + (m_bIsScoped - 0x14)));
 }
 
-c_studio_hdr* player_t::m_pStudioHdr()
+CStudioHdr* player_t::getStudioHdr()
 {
 	static auto studio_hdr = util::FindSignature(crypt_str("client.dll"), crypt_str("8B B7 ?? ?? ?? ?? 89 74 24 20"));
-	return *reinterpret_cast<c_studio_hdr**>(uintptr_t(this) + *reinterpret_cast<uintptr_t*>(studio_hdr + 0x2) + 0x4);
+	return *reinterpret_cast<CStudioHdr**>(uintptr_t(this) + *reinterpret_cast<uintptr_t*>(studio_hdr + 0x2) + 0x4);
 }
 
 bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, float currentTime)

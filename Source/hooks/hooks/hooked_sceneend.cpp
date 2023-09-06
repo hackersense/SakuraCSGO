@@ -9,7 +9,7 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
 	if (!cheat.local())
 		return original_fn(ecx);
 
-	if (!configs.player.type[ENEMY].ragdoll_chams && !configs.player.type[TEAM].ragdoll_chams)
+	if (!configs.esp.type[ENEMY].ragdoll_chams && !configs.esp.type[TEAM].ragdoll_chams)
 		return original_fn(ecx);
 
 	const auto HighestEntityIndex = m_entitylist()->GetHighestEntityIndex();
@@ -36,7 +36,7 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
 		if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
 			type = TEAM;
 		
-		if (!configs.player.type[type].ragdoll_chams)
+		if (!configs.esp.type[type].ragdoll_chams)
 			continue;
 
 		static NEWMaterial* chams_materials[] =
@@ -52,17 +52,17 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
 			m_materialsystem2()->FindMaterial((cheat.cheatnamelower + crypt_str("_glow")).c_str(), nullptr)
 		};
 
-		auto material = chams_materials[configs.player.type[type].ragdoll_chams_material];
+		auto material = chams_materials[configs.esp.type[type].ragdoll_chams_material];
 
 		if (material && !material->IsErrorMaterial())
 		{
-			auto alpha = (float)configs.player.type[type].ragdoll_chams_color.a() / 255.0f;
+			auto alpha = (float)configs.esp.type[type].ragdoll_chams_color.a() / 255.0f;
 
 			float ragdoll_color[3] =
 			{
-				configs.player.type[type].ragdoll_chams_color[0] / 255.0f,
-				configs.player.type[type].ragdoll_chams_color[1] / 255.0f,
-				configs.player.type[type].ragdoll_chams_color[2] / 255.0f
+				configs.esp.type[type].ragdoll_chams_color[0] / 255.0f,
+				configs.esp.type[type].ragdoll_chams_color[1] / 255.0f,
+				configs.esp.type[type].ragdoll_chams_color[2] / 255.0f
 			};
 
 			m_renderview()->SetBlend(alpha);

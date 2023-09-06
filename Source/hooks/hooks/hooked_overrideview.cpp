@@ -24,13 +24,13 @@ void __stdcall Hooks::hooked_overrideview(CViewSetup* viewsetup)
 
 		auto weapon = cheat.local()->m_hActiveWeapon().Get();
 
-		if (configs.player.enabled)
+		if (configs.esp.enabled)
 		{
 			auto currentWeapon = cheat.local()->is_alive() ? weapon : ((cheat.local()->m_iObserverMode() == OBS_MODE_IN_EYE || cheat.local()->m_iObserverMode() == OBS_MODE_CHASE) ? cheat.local()->m_hObserverTarget().Get()->m_hActiveWeapon().Get() : nullptr);
-			if (currentWeapon && configs.esp.removals[REMOVALS_ZOOM] && (!cheat.local()->is_alive() && currentWeapon ? cheat.local()->m_hObserverTarget().Get()->m_bIsScoped() : cheat.local()->m_bIsScoped()) && currentWeapon->m_zoomLevel() > 0)
-				viewsetup->fov = (90.0f + (float)configs.esp.fov);
+			if (currentWeapon && configs.visuals.removals[REMOVALS_ZOOM] && (!cheat.local()->is_alive() && currentWeapon ? cheat.local()->m_hObserverTarget().Get()->m_bIsScoped() : cheat.local()->m_bIsScoped()) && currentWeapon->m_zoomLevel() > 0)
+				viewsetup->fov = (90.0f + (float)configs.visuals.fov);
 			else
-				viewsetup->fov += configs.esp.fov;
+				viewsetup->fov += configs.visuals.fov;
 		}
 
 		if (weapon)
@@ -40,7 +40,7 @@ void __stdcall Hooks::hooked_overrideview(CViewSetup* viewsetup)
 			if (viewmodel)
 			{
 				auto eyeAng = viewsetup->angles;
-				eyeAng.z -= (float)configs.esp.viewmodel_roll;
+				eyeAng.z -= (float)configs.visuals.viewmodel_roll;
 				viewmodel->set_abs_angles(eyeAng);
 			}
 		}

@@ -106,7 +106,7 @@ class CGameTrace;
 class ICollideable;
 class ITraceListData;
 class CPhysCollide;
-struct cplane_t;
+struct CPlane;
 struct virtualmeshlist_t;
 
 #define DAMAGE_NO			0
@@ -470,34 +470,30 @@ public:
     bool IsDispSurfaceProp1(void) { return ((dispFlags & DISPSURF_FLAG_SURFPROP1) != 0); }
     bool IsDispSurfaceProp2(void) { return ((dispFlags & DISPSURF_FLAG_SURFPROP2) != 0); }
 
-public:
-
     // these members are aligned!!
-    Vector         startpos;            // start position
-    Vector         endpos;              // final position
-    cplane_t       plane;               // surface normal at impact
+    Vector          startpos;            // start position
+    Vector          endpos;              // final position
+    CPlane          plane;               // surface normal at impact
 
-    float          fraction;            // time completed, 1.0 = didn't hit anything
+    float           fraction;            // time completed, 1.0 = didn't hit anything
 
-    int            contents;            // contents on other side of surface hit
-    unsigned short dispFlags;           // displacement flags for marking surfaces with data
+    int             contents;            // contents on other side of surface hit
+    unsigned short  dispFlags;           // displacement flags for marking surfaces with data
 
-    bool           allsolid;            // if true, plane is not valid
-    bool           startsolid;          // if true, the initial point was in a solid area
+    bool            allsolid;            // if true, plane is not valid
+    bool            startsolid;          // if true, the initial point was in a solid area
 
     CBaseTrace() {}
-
 };
 
 class CGameTrace : public CBaseTrace
 {
 public:
-
     void clear()
     {
         startpos = 0;
         endpos = 0;
-        plane = cplane_t();
+        plane = CPlane();
         fraction = 0;
         contents = 0;
         dispFlags = 0;
@@ -517,7 +513,6 @@ public:
     inline int get_entity_index() const { return entity ? entity->EntIndex() : -1; }
     inline bool did_hit_world() const { return get_entity_index() == 0; }
     inline bool did_hit_non_world_entity() const { return entity && !did_hit_world(); }
-public:
 
     float               fractionleftsolid;  // time we left a solid, only valid if we started in solid
     csurface_t          surface;            // surface hit (impact surface)
@@ -529,7 +524,6 @@ public:
 
     CGameTrace() {}
 
-private:
     // No copy constructors allowed
     CGameTrace(const CGameTrace& other) :
         fractionleftsolid(other.fractionleftsolid),
@@ -554,44 +548,47 @@ private:
 class IEngineTrace
 {
 public:
-    virtual int   GetPointContents(const Vector& vecAbsPosition, int contentsMask = MASK_ALL, IHandleEntity** ppEntity = nullptr) = 0;
-    virtual int   GetPointContents_WorldOnly(const Vector& vecAbsPosition, int contentsMask = MASK_ALL) = 0;
-    virtual int   GetPointContents_Collideable(ICollideable* pCollide, const Vector& vecAbsPosition) = 0;
-    virtual void  ClipRayToEntity(const Ray_t& ray, unsigned int fMask, IHandleEntity* e, CGameTrace* pTrace) = 0;
-    virtual void  ClipRayToCollideable(const Ray_t& ray, unsigned int fMask, ICollideable* pCollide, CGameTrace* pTrace) = 0;
-    virtual void  TraceRay(const Ray_t& ray, unsigned int fMask, ITraceFilter* pTraceFilter, CGameTrace* pTrace) = 0;
+    virtual int   GetPointContents(const Vector& absPosition, int contentsMask = MASK_ALL, IHandleEntity** entity = nullptr) = 0;
+    virtual int   GetPointContents_WorldOnly(const Vector& absPosition, int contentsMask = MASK_ALL) = 0;
+    virtual int   GetPointContents_Collideable(ICollideable* collide, const Vector& absPosition) = 0;
+    virtual void  ClipRayToEntity(const Ray_t& ray, unsigned int mask, IHandleEntity* entity, CGameTrace* trace) = 0;
+    virtual void  ClipRayToCollideable(const Ray_t& ray, unsigned int mask, ICollideable* collide, CGameTrace* trace) = 0;
+    virtual void  TraceRay(const Ray_t& ray, unsigned int mask, ITraceFilter* traceFilter, CGameTrace* trace) = 0;
 
-    inline void trace_hull(Vector& src, Vector& end, std::uint32_t mask, CGameTrace& tr)
+    inline void trace_hull(Vector& src, Vector& end, std::uint32_t mask, CGameTrace& trace)
     {
         static CTraceFilterWorldAndPropsOnly filter;
         Ray_t ray;
         ray.Init(src, end, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f));
-        TraceRay(ray, mask, &filter, &tr);
+        TraceRay(ray, mask, &filter, &trace);
     }
 
-    inline void trace_hull_const(const Vector& src, const Vector& end, std::uint32_t mask, CGameTrace& tr)
+    inline void trace_hull_const(const Vector& src, const Vector& end, std::uint32_t mask, CGameTrace& trace)
     {
         static CTraceFilterWorldAndPropsOnly filter;
         Ray_t ray;
         ray.Init(src, end, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f));
-        TraceRay(ray, mask, &filter, &tr);
+        TraceRay(ray, mask, &filter, &trace);
     }
 
-    inline void trace_entity(const Ray_t& ray, unsigned int fMask, IClientEntity* pEntity, CGameTrace* pTrace)
+    inline void trace_entity(const Vector& src, const Vector& end, unsigned int mask, IClientEntity* entity, CGameTrace* trace)
     {
+        Ray_t ray;
+        ray.Init(src, end);
+
         CTraceFilter filter;
-        filter.pSkip = pEntity;
+        filter.pSkip = entity;
 
-        TraceRay(ray, fMask, &filter, pTrace);
+        TraceRay(ray, mask, &filter, trace);
     }
 
-    inline void trace_line(const Vector& src, const Vector& end, unsigned int mask, CGameTrace* ptr)
+    inline void trace_line(const Vector& src, const Vector& end, unsigned int mask, CGameTrace* trace)
     {
         Ray_t ray;
         ray.Init(src, end);
 
         CTraceFilterWorldAndPropsOnly filter;
 
-        TraceRay(ray, mask, &filter, ptr);
+        TraceRay(ray, mask, &filter, trace);
     }
 };

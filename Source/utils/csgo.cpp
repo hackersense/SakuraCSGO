@@ -7,6 +7,7 @@ C_CSGO g_csgo;
 #undef m_clientmode
 #undef m_clientstate
 #undef m_cvar
+#undef m_cvar2
 #undef m_debugoverlay
 #undef m_device
 #undef m_engine
@@ -75,7 +76,7 @@ static T* get_interface(const char* module_name, const char* interface_name, boo
 		}
 	}
 	if (iface == nullptr && cheat.isDebugMode)
-		MessageBoxA(nullptr, ("Failed to find " + std::string{ interface_name } + " interface!").c_str(), cheat.cheatname.c_str(), MB_OK | MB_ICONERROR);
+		MessageBoxA(nullptr, ("Failed to find " + std::string(interface_name) + " interface!").c_str(), cheat.cheatname.c_str(), MB_OK | MB_ICONERROR);
 	return iface;
 }
 
@@ -83,13 +84,13 @@ template<typename T>
 static T* getInterface(const char* module_name, const char* interfaceName)
 {
 	if (const auto createInterface = reinterpret_cast<std::add_pointer_t<void* __cdecl(const char* name, int* returnCode)>>(
-		GetProcAddress(GetModuleHandleA(module_name), "CreateInterface")
+		GetProcAddress(GetModuleHandleA(module_name), crypt_str("CreateInterface"))
 		)) {
 		if (void* foundInterface = createInterface(interfaceName, nullptr))
 			return reinterpret_cast<T*>(foundInterface);
 	}
 	if (cheat.isDebugMode)
-		MessageBoxA(nullptr, ("Failed to find " + std::string{ interfaceName } + " interface!").c_str(), cheat.cheatname.c_str(), MB_OK | MB_ICONERROR);
+		MessageBoxA(nullptr, ("Failed to find " + std::string(interfaceName) + " interface!").c_str(), cheat.cheatname.c_str(), MB_OK | MB_ICONERROR);
 }
 
 IDirect3DDevice9* C_CSGO::m_device() {
@@ -132,6 +133,13 @@ ICvar* C_CSGO::m_cvar() {
 		p_cvar = get_interface<ICvar>(crypt_str("vstdlib.dll"), crypt_str("VEngineCvar"));
 
 	return p_cvar;
+}
+
+NEWCvar* C_CSGO::m_cvar2() {
+	if (!p_cvar2)
+		p_cvar2 = get_interface<NEWCvar>(crypt_str("vstdlib.dll"), crypt_str("VEngineCvar"));
+
+	return p_cvar2;
 }
 
 IEngineTrace* C_CSGO::m_trace() {
@@ -218,9 +226,9 @@ IPanel* C_CSGO::m_panel() {
 	return p_panel;
 }
 
-IVModelInfoClient* C_CSGO::m_modelinfo() {
+IVModelInfo* C_CSGO::m_modelinfo() {
 	if (!p_modelinfo)
-		p_modelinfo = get_interface<IVModelInfoClient>(crypt_str("engine.dll"), crypt_str("VModelInfoClient"));
+		p_modelinfo = get_interface<IVModelInfo>(crypt_str("engine.dll"), crypt_str("VModelInfoClient"));
 
 	return p_modelinfo;
 }
@@ -276,7 +284,7 @@ IViewRenderBeams* C_CSGO::m_viewrenderbeams() {
 
 IMemAlloc* C_CSGO::m_memalloc() {
 	if (!p_memalloc)
-		p_memalloc = *reinterpret_cast<IMemAlloc**>(GetProcAddress(GetModuleHandleA(crypt_str("tier0.dll")), crypt_str("g_pMemAlloc")));
+		p_memalloc = *reinterpret_cast<IMemAlloc**>(GetProcAddress(GetModuleHandleW(crypt_str(L"tier0.dll")), crypt_str("g_pMemAlloc")));
 
 	return p_memalloc;
 }

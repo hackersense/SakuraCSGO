@@ -136,7 +136,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 	if (!HudZoomPanel && !strcmp(crypt_str("HudZoom"), m_panel()->GetName(panel)))
 		HudZoomPanel = panel;
 
-	if (HudZoomPanel == panel && configs.player.enabled && configs.esp.removals[REMOVALS_SCOPE])
+	if (HudZoomPanel == panel && configs.esp.enabled && configs.visuals.removals[REMOVALS_SCOPE])
 		return;
 
 	panel_hook.callOriginal<void, 41>(panel, force_repaint, allow_force);
@@ -188,7 +188,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 
 			cheat.globals.bomb_carrier = -1;
 
-			if (configs.player.enabled)
+			if (configs.esp.enabled)
 				worldesp::get().paint_traverse();
 
 			walkbot::get().update(false);
@@ -196,7 +196,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 			
 			auto weapon = cheat.local()->m_hActiveWeapon().Get();
 
-			if (configs.player.enabled && configs.esp.removals[REMOVALS_SCOPE] && cheat.globals.scoped && weapon->is_sniper())
+			if (configs.esp.enabled && configs.visuals.removals[REMOVALS_SCOPE] && cheat.globals.scoped && weapon->is_sniper())
 			{
 				static int w, h;
 				m_engine()->GetScreenSize(w, h);
@@ -214,17 +214,17 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 
 					if (configs.legitbot.weapon[cheat.globals.current_weapon].fov)
 					{
-						float radius = tanf(DEG2RAD(configs.legitbot.weapon[cheat.globals.current_weapon].fov) / 2) / tanf(DEG2RAD(90 + configs.esp.fov) / 2) * x;
+						float radius = tanf(DEG2RAD(configs.legitbot.weapon[cheat.globals.current_weapon].fov) / 2) / tanf(DEG2RAD(90 + configs.visuals.fov) / 2) * x;
 						render::get().circle_filled(x / 2, y / 2, 60, radius, Color(235, 235, 235, c_menu::get().public_alpha * 0.68));
 						render::get().circle(x / 2, y / 2, 60, radius, Color(235, 235, 235, c_menu::get().public_alpha * 0.8));
 					}
 				}
 			}
 
-			if (configs.player.enabled)
+			if (configs.esp.enabled)
 				otheresp::get().hitmarker_paint();
 
-			if (configs.player.enabled && configs.esp.damage_marker)
+			if (configs.esp.enabled && configs.visuals.damage_marker)
 				otheresp::get().damage_marker_paint();
 			
 			otheresp::get().penetration_reticle();

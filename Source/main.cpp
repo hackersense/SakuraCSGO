@@ -23,6 +23,7 @@
 #include "features\serverside\local_animations.h"
 #include "features\imgs\skeet_tab.h"
 #include "hooks\libs\MinHook.h"
+#include "sdk\interfaces\CLMsgMove.h"
 #include "sdk\BBData.h"
 #include "DiscordRpc.h"
 
@@ -45,42 +46,107 @@ __forceinline void setup_netvars()
     }
 }
 
+int buildTransformsIndex;
+Vector correctAngle;
+
 using GetEyeAngles = Vector * (__thiscall*)(void*);
-using BuildTransformations = Vector * (__thiscall*)(void*, c_studio_hdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
-void* pBuildTransformationsEntity;
-Vector vecBuildTransformationsAngles;
+using BuildTransformations = Vector * (__thiscall*)(void*, CStudioHdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
 
 static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
 {
-    static auto oGetEyeAngles = Hooks::player_hook->getOriginal<GetEyeAngles>(170);
+    static auto original = Hooks::player_hook->getOriginal<GetEyeAngles>(170);
+
+    const auto entity = reinterpret_cast<player_t*>(ecx);
+    if (!cheat.local() || entity != cheat.local())
+        return original(ecx);
 
     if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
-        return oGetEyeAngles(ecx);
+        return original(ecx);
 
-    if (!ecx || pBuildTransformationsEntity != ecx)
-        return oGetEyeAngles(ecx);
+    if (buildTransformsIndex == -1 || buildTransformsIndex != entity->EntIndex())
+        return original(ecx);
 
-    pBuildTransformationsEntity = nullptr;
+    buildTransformsIndex = -1;
 
-    return &vecBuildTransformationsAngles;
+    return &correctAngle;
 }
 
-static void __fastcall buildTransformations(void* ecx, void* edx, c_studio_hdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed) noexcept
+static void __fastcall buildTransformations(void* ecx, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed) noexcept
 {
-    static auto oBuildTransformations = Hooks::player_hook->getOriginal<BuildTransformations>(190);
+    static auto original = Hooks::player_hook->getOriginal<BuildTransformations>(190);
 
-    if (ecx && reinterpret_cast<player_t*>(ecx)->EntIndex() == cheat.local()->EntIndex() && cheat.local()->is_alive()) {
-        pBuildTransformationsEntity = ecx;
+    const auto entity = reinterpret_cast<player_t*>(ecx);
+    if (entity && entity->is_alive() && cheat.local() && cheat.local() == entity && entity->get_animation_state())
+    {
+        buildTransformsIndex = entity->EntIndex();
+        correctAngle = Vector(entity->get_animation_state()->m_flEyePitch, entity->get_animation_state()->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
+        entity->m_flCollisionChangeTime() = 0.0f;
         //const auto animstate = reinterpret_cast<player_t*>(ecx)->get_animation_state();
         //vecBuildTransformationsAngles = Vector(animstate->m_flEyePitch, animstate->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
-        auto& renderAngles = cheat.local()->GetRenderAngles();
-        vecBuildTransformationsAngles = Vector(renderAngles.x, renderAngles.y, local_animations::get().local_data.fake_angles.z);
-        cheat.local()->m_flCollisionChangeTime() = 0.0f;
+        //auto& renderAngles = cheat.local()->GetRenderAngles();
+        //vecBuildTransformationsAngles = Vector(renderAngles.x, renderAngles.y, local_animations::get().local_data.fake_angles.z);
+        //cheat.local()->m_flCollisionChangeTime() = 0.0f;
     }
 
-    oBuildTransformations(ecx, hdr, pos, q, cameraTransform, bonemask, computed);
+    /*
+    const CUtlVector<int> backupFlags = hdr->boneFlags;
 
-    pBuildTransformationsEntity = nullptr;
+    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
+    {
+        if (configs.visuals.disable_jiggle_bones)
+            hdr->boneFlags.m_pElements[i] &= ~0x04;
+        else
+            hdr->boneFlags.m_pElements[i] |= 0x04;
+    }
+    */
+
+    original(ecx, hdr, pos, q, cameraTransform, bonemask, computed);
+
+    //hdr->boneFlags = backupFlags;
+}
+
+static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
+{
+    static auto original = Hooks::eyeangles_hook.getOriginal<Vector*>();
+
+    const auto entity = reinterpret_cast<player_t*>(thisPointer);
+    if (!cheat.local() || entity != cheat.local())
+        return original(thisPointer);
+
+    if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
+        return original(thisPointer);
+
+    if (buildTransformsIndex == -1 || buildTransformsIndex != entity->EntIndex())
+        return original(thisPointer);
+
+    buildTransformsIndex = -1;
+
+    return &correctAngle;
+}
+
+static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CStudioHdr* hdr, void* pos, void* q, matrix3x4_t* cameraTransform, int boneMask, void* boneComputed) noexcept
+{
+    const auto entity = reinterpret_cast<player_t*>(thisPointer);
+    if (entity && entity->is_alive() && cheat.local() && cheat.local() == entity && entity->get_animation_state())
+    {
+        buildTransformsIndex = entity->EntIndex();
+        correctAngle = Vector(entity->get_animation_state()->m_flEyePitch, entity->get_animation_state()->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
+        entity->m_flCollisionChangeTime() = 0.0f;
+    }
+
+    const CUtlVector<int> backupFlags = hdr->boneFlags;
+
+    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
+    {
+        if (configs.visuals.disable_jiggle_bones)
+            hdr->boneFlags.m_pElements[i] &= ~0x04;
+        else
+            hdr->boneFlags.m_pElements[i] |= 0x04;
+    }
+
+    Hooks::buildtransformations_hook.callOriginal<void>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
+
+    hdr->boneFlags = backupFlags;
 }
 
 static void* __stdcall allocKeyValuesMemory(int size) noexcept
@@ -197,14 +263,14 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
         case fnv::hash("molotov_smoke_screen"):
             break;
         default:
-            if (configs.esp.molotov_color_enabled) {
+            if (configs.visuals.molotov_color_enabled) {
                 for (int i = 0; i < thisPointer->activeParticles; i++) {
                     float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
-                    color[0] = configs.esp.molotov_color.get_red() / 255.f;
-                    color[4] = configs.esp.molotov_color.get_green() / 255.f;
-                    color[8] = configs.esp.molotov_color.get_blue() / 255.f;
+                    color[0] = configs.visuals.molotov_color.get_red() / 255.f;
+                    color[4] = configs.visuals.molotov_color.get_green() / 255.f;
+                    color[8] = configs.visuals.molotov_color.get_blue() / 255.f;
                     float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
-                    *alpha = configs.esp.molotov_color.get_alpha() / 255.f;
+                    *alpha = configs.visuals.molotov_color.get_alpha() / 255.f;
                 }
             }
             break;
@@ -215,14 +281,14 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
     case fnv::hash("explosion_smokegrenade_T"):
     case fnv::hash("explosion_smokegrenade"):
     //case fnv::hash("explosion_smoke_disperse"):
-        if (configs.esp.smoke_color_enabled) {
+        if (configs.visuals.smoke_color_enabled) {
             for (int i = 0; i < thisPointer->activeParticles; i++) {
                 float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
-                color[0] = configs.esp.smoke_color.get_red() / 255.f;
-                color[4] = configs.esp.smoke_color.get_green() / 255.f;
-                color[8] = configs.esp.smoke_color.get_blue() / 255.f;
+                color[0] = configs.visuals.smoke_color.get_red() / 255.f;
+                color[4] = configs.visuals.smoke_color.get_green() / 255.f;
+                color[8] = configs.visuals.smoke_color.get_blue() / 255.f;
                 float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
-                *alpha = configs.esp.smoke_color.get_alpha() / 255.f;
+                *alpha = configs.visuals.smoke_color.get_alpha() / 255.f;
             }
         }
     }
@@ -251,6 +317,41 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
     //	cheat.globals.is_shifting = false;
     //	cheat.globals.need_shift_tickbase = 0;
     //}
+}
+
+static void __cdecl clSendMoveHook() noexcept
+{
+    int nextCommandNr = m_clientstate()->m_nLastOutgoingCommand + m_clientstate()->m_iChokedCommands + 1;
+    int chokedCommands = m_clientstate()->m_iChokedCommands;
+
+    byte data[4000 /* MAX_CMD_BUFFER */];
+    CLMsgMove moveMsg;
+
+    moveMsg.dataOut.startWriting(data, sizeof(data));
+
+    const int backupCommands = 2;
+    const int newCommands = max(chokedCommands + 1, 0);
+
+    moveMsg.setNumBackupCommands(backupCommands);
+    moveMsg.setNumNewCommands(newCommands);
+
+    const int numCmds = newCommands + backupCommands;
+    int from = -1;
+    bool ok = true;
+
+    for (int to = nextCommandNr - numCmds + 1; to <= nextCommandNr; ++to) {
+
+        bool isnewcmd = to >= (nextCommandNr - newCommands + 1);
+
+        ok = ok && m_client()->WriteUserCMDDeltaToBuffer(0, &moveMsg.dataOut, from, to, isnewcmd);
+        from = to;
+    }
+
+    if (ok) {
+        moveMsg.setData(moveMsg.dataOut.getData(), moveMsg.dataOut.getNumBytesWritten());
+
+        m_clientstate()->m_pNetChannel->SendNetMsg(reinterpret_cast<void*>(&moveMsg));
+    }
 }
 
 /*
@@ -296,46 +397,6 @@ __declspec(naked) void __stdcall createMoveProxy(int sequenceNumber, float input
         POP		EBP
         RETN	0xC
     }
-}
-
-using CreateMove_t = bool(__thiscall*)(IClientMode*, float, CUserCmd*);
-
-static bool __stdcall createMove(float inputSampleTime, CUserCmd* m_pcmd) noexcept
-{
-    static auto original_fn = Hooks::clientmode_hook->getOriginal<CreateMove_t>(24);
-
-    //cheat.globals.in_createmove = false;
-
-    auto original_result = original_fn(m_clientmode(), inputSampleTime, m_pcmd);
-
-    if (!m_pcmd || !m_pcmd->m_command_number)
-        return original_result;
-
-    if (!cheat.available())
-        return original_result;
-
-    /*
-    misc::get().rank_reveal(m_pcmd);
-    misc::get().clan_tag();
-    backtrack::get().updateIncomingSequences();
-
-    static auto sky = m_cvar()->FindVar(crypt_str("r_3dsky"));
-    static auto shadows = m_cvar()->FindVar(crypt_str("cl_csm_enabled"));
-    sky->SetValue(~configs.esp.removals[REMOVALS_3DSKY]);
-    shadows->SetValue(~configs.esp.removals[REMOVALS_SHADOWS]);
-    */
-    if (!cheat.local()->is_alive())
-        return original_result;
-    /*
-    cheat.globals.weapon = cheat.local()->m_hActiveWeapon().Get();
-
-    if (!cheat.globals.weapon)
-        return original_result;
-        */
-    //if (cheat.globals.should_recharge || cheat.globals.is_shifting)
-    //	return false;
-
-    return false;
 }
 
 __forceinline void discord_main() noexcept
@@ -399,9 +460,9 @@ __forceinline void setup_hooks()
 
     MH_Initialize();
 
-    Hooks::player_hook = new ClientHook(reinterpret_cast<DWORD**>(util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 83 EC 18 56 57 8B F9 89 7C")) + 0x47));
-    Hooks::player_hook->hookAt(170, getEyeAngles);
-    Hooks::player_hook->hookAt(190, buildTransformations);
+    //Hooks::player_hook = new ClientHook(reinterpret_cast<DWORD**>(util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 83 EC 18 56 57 8B F9 89 7C")) + 0x47));
+    //Hooks::player_hook->hookAt(170, getEyeAngles);
+    //Hooks::player_hook->hookAt(190, buildTransformations);
 
     Hooks::original_modifyeyeposition = (DWORD)DetourFunction((PBYTE)memory->modifyEyePosition, (PBYTE)Hooks::hooked_modifyeyeposition);
 
@@ -437,7 +498,7 @@ __forceinline void setup_hooks()
 
     Hooks::isdepthoffieldenabled_hook.detour(memory->isDepthOfFieldEnabled, isDepthOfFieldEnabledHook);
 
-    //Hooks::tracefilterforheadcollision_hook.detour(memory->traceFilterForHeadCollision, Hooks::hooked_tracefilterforheadcollision);
+    Hooks::tracefilterforheadcollision_hook.detour(memory->traceFilterForHeadCollision, Hooks::hooked_tracefilterforheadcollision);
 
     //Hooks::clsendmove_hook.detour(memory->clSendMove, clSendMoveHook);
 
@@ -446,6 +507,8 @@ __forceinline void setup_hooks()
 
     //static auto disableallowsecuredservers = (PBYTE)(util::FindSignature(crypt_str("engine.dll"), crypt_str("80 3D ? ? ? ? ? 74 26 8B 0D ? ? ? ?")));
     //(DWORD)DetourFunction(disableallowsecuredservers, (PBYTE)true);
+    Hooks::buildtransformations_hook.detour(memory->buildTransformations, buildTransformationsHook);
+    Hooks::eyeangles_hook.detour(memory->eyeAngles, eyeAnglesHook);
 
     Hooks::client_hook.init(m_client());
     Hooks::client_hook.hookAt(22, createMoveProxy);
@@ -531,7 +594,7 @@ __forceinline void setup_hooks()
     Hooks::steam_hook = new ClientHook(reinterpret_cast<PDWORD*>(memory->steamGameCoordinator));
     Hooks::steam_hook->hookAt(2, retrieveMessage);
 
-    WindowInfo::window = FindWindowA(crypt_str("Valve001"), nullptr);
+    WindowInfo::window = FindWindowW(crypt_str(L"Valve001"), nullptr);
 
     if (!WindowInfo::window)
         WindowInfo::window = WindowUtils::GetMainWindow();
@@ -595,7 +658,7 @@ typedef BOOL(WINAPI* MiniDumpWriteDumpT)(HANDLE, DWORD, HANDLE, MINIDUMP_TYPE,
     PMINIDUMP_EXCEPTION_INFORMATION, PMINIDUMP_USER_STREAM_INFORMATION, PMINIDUMP_CALLBACK_INFORMATION);
 
 int CreateDump(PEXCEPTION_POINTERS pointers) {
-    HMODULE dbg_help = LoadLibrary("DbgHelp.dll");
+    HMODULE dbg_help = LoadLibraryW(L"DbgHelp.dll");
     if (dbg_help == nullptr) {
         return EXCEPTION_CONTINUE_EXECUTION;
     }
@@ -619,7 +682,7 @@ int CreateDump(PEXCEPTION_POINTERS pointers) {
         std::setw(2) << std::setfill('0') << local_time.wMinute <<
         std::setw(2) << std::setfill('0') << local_time.wSecond << ".dmp";
 
-    HANDLE dump_file = CreateFile(ss.str().c_str(), GENERIC_READ | GENERIC_WRITE,
+    HANDLE dump_file = CreateFileA(ss.str().c_str(), GENERIC_READ | GENERIC_WRITE,
         FILE_SHARE_WRITE | FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
     if (INVALID_HANDLE_VALUE == dump_file) {
         FreeLibrary(dbg_help);
@@ -643,14 +706,23 @@ int CreateDump(PEXCEPTION_POINTERS pointers) {
 
 LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS pointers) {
     if (IsDebuggerPresent())
+    {
+        exit(EXIT_SUCCESS);
         return EXCEPTION_CONTINUE_SEARCH;
+    }
 
     //MessageBoxA(nullptr, "Cheat Crash! Exception Code: " + pointers->ExceptionRecord->ExceptionCode, "Sakura - Crash", MB_ICONERROR);
 
     return CreateDump(pointers);
 }
 
+#define USE_THREAD 
+
+#ifdef USE_THREAD
 DWORD WINAPI threadMain(PVOID base)
+#else
+void threadMain()
+#endif
 {
     /*
     #ifndef _DEBUG
@@ -750,9 +822,14 @@ DWORD WINAPI threadMain(PVOID base)
     #endif
     */
 
-    // https://github.moeyy.xyz/https://raw.githubusercontent.com/hackersense/.github/main/123.html
+    /*
     if (StringUtils::clearAllSpace(HTTPUtils::get("https://sakion.top/Sakion/test.html")) != "stuff")
-    	return EXIT_SUCCESS;
+#ifdef USE_THREAD
+        return EXIT_SUCCESS;
+#else
+        return;
+#endif
+    */
 
     cheat.remainingTime = -1;
     cheat.username = "TimeRinne";
@@ -768,7 +845,7 @@ DWORD WINAPI threadMain(PVOID base)
 
     SetUnhandledExceptionFilter(ExceptionFilter);
 
-    while (!GetModuleHandleA(crypt_str("serverbrowser.dll")))
+    while (!GetModuleHandleW(crypt_str(L"serverbrowser.dll")))
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     //if (!exists("C:\\Windows\\SysWOW64\\lua51.dll"))
@@ -792,7 +869,7 @@ DWORD WINAPI threadMain(PVOID base)
 
     key_binds::get().initialize_key_binds();
 
-    discord_main();
+    //discord_main();
 
     setup_hooks();
 
@@ -800,14 +877,16 @@ DWORD WINAPI threadMain(PVOID base)
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-    configs.player.enabled = true;
+    configs.esp.enabled = true;
 
     //static auto InitSafeModuleFn = reinterpret_cast<void(__fastcall*)(void*, void*)>(util::FindSignature("client.dll", "56 8B 71 3C B8"));
     //if (InitSafeModuleFn)
     //	InitSafeModuleFn((PVOID)WindowInfo::handle, nullptr);
 
+#ifdef USE_THREAD
     FreeLibraryAndExitThread(HMODULE(base), 0);
     return EXIT_SUCCESS;
+#endif
 }
 
 BOOL WINAPI DllMain(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
@@ -826,7 +905,11 @@ BOOL WINAPI DllMain(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
 
         WindowInfo::handle = moduleHandle;
 
+#ifdef USE_THREAD
         CreateThread(nullptr, 0, threadMain, moduleHandle, 0, nullptr);
+#else
+        threadMain();
+#endif
     }
 
     return TRUE;

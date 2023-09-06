@@ -69,16 +69,16 @@ void weather()
 
 void remove_smoke()
 {
-	if (configs.player.enabled && configs.esp.removals[REMOVALS_SMOKE])
+	if (configs.esp.enabled && configs.visuals.removals[REMOVALS_SMOKE])
 	{
 		static auto smoke_count = *reinterpret_cast<uint32_t**>(util::FindSignature(crypt_str("client.dll"), crypt_str("A3 ? ? ? ? 57 8B CB")) + 0x1);
 		*(int*)smoke_count = 0;
 	}
 
-	if (cheat.globals.should_remove_smoke == configs.player.enabled && configs.esp.removals[REMOVALS_SMOKE])
+	if (cheat.globals.should_remove_smoke == configs.esp.enabled && configs.visuals.removals[REMOVALS_SMOKE])
 		return;
 
-	cheat.globals.should_remove_smoke = configs.player.enabled && configs.esp.removals[REMOVALS_SMOKE];
+	cheat.globals.should_remove_smoke = configs.esp.enabled && configs.visuals.removals[REMOVALS_SMOKE];
 
 	static std::vector<const char*> smoke_materials =
 	{
@@ -122,10 +122,10 @@ void remove_smoke()
 
 void remove_molotov()
 {
-	if (cheat.globals.should_remove_molotov == configs.player.enabled && configs.esp.removals[REMOVALS_MOLOTOV])
+	if (cheat.globals.should_remove_molotov == configs.esp.enabled && configs.visuals.removals[REMOVALS_MOLOTOV])
 		return;
 
-	cheat.globals.should_remove_molotov = configs.player.enabled && configs.esp.removals[REMOVALS_MOLOTOV];
+	cheat.globals.should_remove_molotov = configs.esp.enabled && configs.visuals.removals[REMOVALS_MOLOTOV];
 
 	static std::vector<const char*> molotov_materials =
 	{
@@ -227,13 +227,13 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	if (stage == FRAME_RENDER_START)
 	{
-		if (configs.esp.client_bullet_impacts)
+		if (configs.visuals.client_bullet_impacts)
 		{
 			static auto last_count = 0;
 			auto& client_impact_list = *reinterpret_cast<CUtlVector<client_hit_verify_t>*>(uintptr_t(cheat.local()) + 0x11C50);
 
 			for (auto i = client_impact_list.Count(); i > last_count; --i)
-				m_debugoverlay()->AddBoxOverlay(client_impact_list[i - 1].position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.esp.client_bullet_impacts_color.r(), configs.esp.client_bullet_impacts_color.g(), configs.esp.client_bullet_impacts_color.b(), configs.esp.client_bullet_impacts_color.a(), 4.0f);
+				m_debugoverlay()->AddBoxOverlay(client_impact_list[i - 1].position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.visuals.client_bullet_impacts_color.r(), configs.visuals.client_bullet_impacts_color.g(), configs.visuals.client_bullet_impacts_color.b(), configs.visuals.client_bullet_impacts_color.a(), 4.0f);
 
 			if (client_impact_list.Count() != last_count)
 				last_count = client_impact_list.Count();
@@ -250,13 +250,13 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().anti_exploit();
 		misc::get().color_console();
 
-		if (configs.esp.removals[REMOVALS_FLASH] && cheat.local()->m_flFlashDuration() && configs.player.enabled)
+		if (configs.visuals.removals[REMOVALS_FLASH] && cheat.local()->m_flFlashDuration() && configs.esp.enabled)
 			cheat.local()->m_flFlashDuration() = 0.0f;
 
-		if (*reinterpret_cast<bool*>(m_postprocessing()) != (configs.player.enabled && configs.esp.removals[REMOVALS_POSTPROCESSING] && (!configs.esp.world_modulation || !configs.esp.exposure)))
-			*reinterpret_cast<bool*>(m_postprocessing()) = configs.player.enabled && configs.esp.removals[REMOVALS_POSTPROCESSING] && (!configs.esp.world_modulation || !configs.esp.exposure);
+		if (*reinterpret_cast<bool*>(m_postprocessing()) != (configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure)))
+			*reinterpret_cast<bool*>(m_postprocessing()) = configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure);
 
-		if (configs.esp.removals[REMOVALS_RECOIL] && configs.player.enabled)
+		if (configs.visuals.removals[REMOVALS_RECOIL] && configs.esp.enabled)
 		{
 			aim_punch = &cheat.local()->m_aimPunchAngle();
 			view_punch = &cheat.local()->m_viewPunchAngle();
@@ -274,7 +274,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		{
 			cheat.globals.in_thirdperson = key_binds::get().get_key_bind_state(key_bind_features::THIRD_PERSON);
 
-			if (configs.player.enabled && configs.esp.removals[REMOVALS_SCOPE])
+			if (configs.esp.enabled && configs.visuals.removals[REMOVALS_SCOPE])
 			{
 				auto weapon = cheat.local()->m_hActiveWeapon().Get();
 
@@ -296,9 +296,9 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 	{
 		static auto rain = false;
 
-		if (rain != configs.esp.rain || cheat.globals.should_update_weather)
+		if (rain != configs.visuals.rain || cheat.globals.should_update_weather)
 		{
-			rain = configs.esp.rain;
+			rain = configs.visuals.rain;
 
 			if (cheat.globals.m_networkable)
 			{
@@ -337,7 +337,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 				continue;
 			}
 
-			player_info_t player_info;
+			PlayerInfo player_info;
 			m_engine()->GetPlayerInfo(i, &player_info);
 
 			configs.player_list.players.emplace_back(Player_list_data(i, player_info.name));
@@ -355,7 +355,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 		if (cheat.globals.change_materials)
 		{
-			if (configs.esp.nightmode && configs.player.enabled)
+			if (configs.visuals.nightmode && configs.esp.enabled)
 				nightmode::get().apply();
 			else
 				nightmode::get().remove();
@@ -375,16 +375,16 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 		static auto zoom_sensitivity_ratio_mouse = m_cvar()->FindVar(crypt_str("zoom_sensitivity_ratio_mouse"));
 
-		if (configs.player.enabled && configs.esp.removals[REMOVALS_ZOOM] && configs.esp.fix_zoom_sensivity && zoom_sensitivity_ratio_mouse->GetFloat() == 1.0f)
+		if (configs.esp.enabled && configs.visuals.removals[REMOVALS_ZOOM] && configs.visuals.fix_zoom_sensivity && zoom_sensitivity_ratio_mouse->GetFloat() == 1.0f)
 			zoom_sensitivity_ratio_mouse->SetValue(0);
-		else if ((!configs.player.enabled || !configs.esp.removals[REMOVALS_ZOOM] || !configs.esp.fix_zoom_sensivity) && !zoom_sensitivity_ratio_mouse->GetFloat())
+		else if ((!configs.esp.enabled || !configs.visuals.removals[REMOVALS_ZOOM] || !configs.visuals.fix_zoom_sensivity) && !zoom_sensitivity_ratio_mouse->GetFloat())
 			zoom_sensitivity_ratio_mouse->SetValue(1);
 
 		static auto r_modelAmbientMin = m_cvar()->FindVar(crypt_str("r_modelAmbientMin"));
 
-		if (configs.esp.world_modulation && configs.esp.ambient && r_modelAmbientMin->GetFloat() != configs.esp.ambient * 0.05f)
-			r_modelAmbientMin->SetValue(configs.esp.ambient * 0.05f);
-		else if ((!configs.esp.world_modulation || !configs.esp.ambient) && r_modelAmbientMin->GetFloat())
+		if (configs.visuals.world_modulation && configs.visuals.ambient && r_modelAmbientMin->GetFloat() != configs.visuals.ambient * 0.05f)
+			r_modelAmbientMin->SetValue(configs.visuals.ambient * 0.05f);
+		else if ((!configs.visuals.world_modulation || !configs.visuals.ambient) && r_modelAmbientMin->GetFloat())
 			r_modelAmbientMin->SetValue(0);
 	}
 
@@ -490,7 +490,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	engineprediction::get().restore_netvars();
 
-	if (configs.player.enabled && configs.esp.removals[REMOVALS_RECOIL] && cheat.local()->is_alive() && aim_punch && view_punch)
+	if (configs.esp.enabled && configs.visuals.removals[REMOVALS_RECOIL] && cheat.local()->is_alive() && aim_punch && view_punch)
 	{
 		*aim_punch = backup_aim_punch;
 		*view_punch = backup_view_punch;

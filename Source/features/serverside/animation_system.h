@@ -133,7 +133,7 @@ public:
 		immune = player->m_bGunGameImmunity() || player->m_fFlags() & FL_FROZEN;
 		dormant = player->IsDormant();
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 		m_engine()->GetPlayerInfo(index, &player_info);
 
 		username = player_info.getUsername();

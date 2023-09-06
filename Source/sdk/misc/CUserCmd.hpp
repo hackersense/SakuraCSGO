@@ -31,6 +31,7 @@
 #define IN_GRENADE2		(1 << 24) // grenade 2
 #define IN_LOOKSPIN		(1 << 25)
 
+/*
 class CUserCmd 
 {
 public:
@@ -43,7 +44,9 @@ public:
 	{
 
 	};
-
+*/
+struct CUserCmd
+{
 	CRC32_t GetChecksum(void) const 
 	{
 		CRC32_t crc;
@@ -63,14 +66,13 @@ public:
 		CRC32_ProcessBuffer(&crc, &m_random_seed, sizeof(m_random_seed));
 		CRC32_ProcessBuffer(&crc, &m_mousedx, sizeof(m_mousedx));
 		CRC32_ProcessBuffer(&crc, &m_mousedy, sizeof(m_mousedy));
-		CRC32_ProcessBuffer(&crc, &m_viewanglesBackup, sizeof(m_viewanglesBackup));
-		CRC32_ProcessBuffer(&crc, &m_buttonsBackup, sizeof(m_buttonsBackup));
 
 		CRC32_Final(&crc);
 
 		return crc;
 	}
 
+	void*		vmt;
 	int			m_command_number;	// 0x04 For matching server and client commands for debugging
 	int			m_tickcount;		// 0x08 the tick the client created this command
 	Vector		m_viewangles;		// 0x0C Player instantaneous view angles.

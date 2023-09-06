@@ -29,7 +29,7 @@ public:
 	float   m_flConstraintRadius;
 	float   m_flConstraintWidth;
 	float   m_flConstraintSpeedFactor;
-	float   m_flUnknown[5];
+	std::byte pad[20];
 	Vector  m_vecAbsOrigin;
 };
 
@@ -51,12 +51,24 @@ public:
 	virtual player_t*			GetMovingPlayer(void) const = 0;
 	virtual void				UnblockPusher(player_t* pPlayer, player_t* pPusher) = 0;
 	virtual void				SetupMovementBounds(CMoveData* pMove) = 0;
-};
 
-class CGameMovement
-	: public IGameMovement {
-public:
-	virtual ~CGameMovement(void) { }
+	std::byte pad[4];
+	player_t* player;
+	CMoveData* moveData;
+	int oldWaterLevel;
+	float waterEntryTime;
+	int onLadder;
+	Vector vecForward;
+	Vector vecRight;
+	Vector vecUp;
+	int cachedGetPointContents[64][3];
+	Vector cachedGetPointContentsPoint[64][3];
+	int speedCropped;
+	bool processingMovement;
+	bool inStuckTest;
+	float stuckCheckTime[64 + 1][2];
+	void* traceListData;
+	int traceCount;
 };
 
 class IPrediction
@@ -88,39 +100,10 @@ public:
 
 	Split split[1];
 
-	void Update(int start_frame, bool valid_frame, int inc_ack, int out_cmd)
-	{
-		typedef void(__thiscall* oUpdate)(void*, int, bool, int, int);
-		return call_virtual<oUpdate>(this, 3)(this, start_frame, valid_frame, inc_ack, out_cmd);
-	}
-
-	void SetLocalViewAngles(Vector& angles)
-	{
-		typedef void(__thiscall* Fn)(void*, Vector&);
-		return call_virtual<Fn>(this, 13)(this, angles);
-	}
-
-	void CheckMovingGround(entity_t* player, double frametime)
-	{
-		typedef void(__thiscall* oCheckMovingGround)(void*, entity_t*, double);
-		return call_virtual<oCheckMovingGround>(this, 18)(this, player, frametime);
-	}
-
-	void RunCommand(player_t* player, CUserCmd* cmd, IMoveHelper* moveHelper)
-	{
-		typedef void(__thiscall* oRunCommand)(void*, player_t*, CUserCmd*, IMoveHelper*);
-		return call_virtual<oRunCommand>(this, 19)(this, player, cmd, moveHelper);
-	}
-
-	void SetupMove(player_t* player, CUserCmd* cmd, IMoveHelper* moveHelper, CMoveData* moveData)
-	{
-		typedef void(__thiscall* oSetupMove)(void*, player_t*, CUserCmd*, IMoveHelper*, CMoveData*);
-		return call_virtual<oSetupMove>(this, 20)(this, player, cmd, moveHelper, moveData);
-	}
-
-	void FinishMove(player_t* player, CUserCmd* cmd, CMoveData* moveData)
-	{
-		typedef void(__thiscall* oFinishMove)(void*, player_t*, CUserCmd*, CMoveData*);
-		return call_virtual<oFinishMove>(this, 21)(this, player, cmd, moveData);
-	}
+	VIRTUAL_METHOD(void, Update, 3, (int startFrame, bool validFrame, int incAck, int outCmd), (this, startFrame, validFrame, incAck, outCmd))
+	VIRTUAL_METHOD(void, SetLocalViewAngles, 13, (Vector& angles), (this, angles))
+	VIRTUAL_METHOD(void, CheckMovingGround, 18, (entity_t* localPlayer, double frameTime), (this, localPlayer, frameTime))
+	VIRTUAL_METHOD(void, RunCommand, 19, (player_t* localPlayer, CUserCmd* cmd, IMoveHelper* moveHelper), (this, localPlayer, cmd, moveHelper))
+	VIRTUAL_METHOD(void, SetupMove, 20, (player_t* localPlayer, CUserCmd* cmd, IMoveHelper* moveHelper, CMoveData* moveData), (this, localPlayer, cmd, moveHelper, moveData))
+	VIRTUAL_METHOD(void, FinishMove, 21, (player_t* localPlayer, CUserCmd* cmd, CMoveData* moveData), (this, localPlayer, cmd, moveData))
 };

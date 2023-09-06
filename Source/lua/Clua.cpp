@@ -566,9 +566,9 @@ namespace ns_engine
 		return m_surface()->MouseInRegion(x, y, width, height);
 	}
 
-	player_info_t get_player_info(int i)
+	PlayerInfo get_player_info(int i)
 	{
-		player_info_t player_info;
+		PlayerInfo player_info;
 		m_engine()->GetPlayerInfo(i, &player_info);
 
 		return player_info;
@@ -1422,10 +1422,10 @@ void c_lua::initialize()
 		(std::string)crypt_str("normalize"), &QAngle::Normalize
 	);
 
-	lua.new_usertype<player_info_t>(crypt_str("player_info"),
-		(std::string)crypt_str("bot"), &player_info_t::fakeplayer,
-		(std::string)crypt_str("name"), &player_info_t::getUsername,
-		(std::string)crypt_str("steam_id"), &player_info_t::getGUID
+	lua.new_usertype<PlayerInfo>(crypt_str("player_info"),
+		(std::string)crypt_str("bot"), &PlayerInfo::fakeplayer,
+		(std::string)crypt_str("name"), &PlayerInfo::getUsername,
+		(std::string)crypt_str("steam_id"), &PlayerInfo::getGUID
 	);
 
 	lua.new_usertype<IGameEvent>(crypt_str("game_event"),

@@ -26,7 +26,7 @@ int __fastcall Hooks::hooked_listleavesinbox(void* ecx, void* edx, Vector& mins,
 	if (!cheat.local())
 		return original_fn(ecx, mins, maxs, list, list_max);
 
-	if (!configs.player.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] && !configs.player.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] && !configs.player.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] && !configs.player.fake_chams_enabled && !configs.player.backtrack_chams)
+	if (!configs.esp.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] && !configs.esp.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] && !configs.esp.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] && !configs.esp.fake_chams_enabled && !configs.esp.backtrack_chams)
 		return original_fn(ecx, mins, maxs, list, list_max);
 
 	if (std::uintptr_t(_ReturnAddress()) != memory->insertIntoTree)

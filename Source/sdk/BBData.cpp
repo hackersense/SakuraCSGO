@@ -57,7 +57,7 @@ bool calculation_skeleton(BoxInfo& info, player_t* e, matrix3x4_t matrix[MAXSTUD
 	//auto upper_direction = get_bone_position(7) - get_bone_position(6);
 	//auto breast_bone = get_bone_position(6) + upper_direction * 0.5f;
 
-	for (int i = 0; i < studio_model->numbones; i++)
+	for (int i = 0; i < studio_model->numBones; i++)
 	{
 		auto bone = studio_model->getBone(i);
 

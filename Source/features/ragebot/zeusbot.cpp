@@ -258,7 +258,7 @@ void zeusbot::fire(CUserCmd* cmd)
 		}
 	};
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(final_target.record->index, &player_info);
 
 	std::stringstream log;

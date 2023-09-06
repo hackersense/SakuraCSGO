@@ -18,11 +18,8 @@ bool can_penetrate(weapon_t* weapon)
 	Vector direction;
 	math::angle_vectors(view_angles, direction);
 
-	CTraceFilter filter;
-	filter.pSkip = cheat.local();
-
 	CGameTrace trace;
-	util::trace_line(cheat.globals.eye_pos, (cheat.globals.eye_pos + direction * weapon_info->flRange), MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &trace);
+	m_trace()->trace_entity(cheat.globals.eye_pos, (cheat.globals.eye_pos + direction * weapon_info->flRange), MASK_SHOT_HULL | CONTENTS_HITBOX, cheat.local(), &trace);
 
 	if (trace.fraction == 1.0f)
 		return false;
@@ -40,10 +37,10 @@ bool can_penetrate(weapon_t* weapon)
 
 void otheresp::penetration_reticle()
 {
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return;
 
-	if (!configs.esp.penetration_reticle)
+	if (!configs.visuals.penetration_reticle)
 		return;
 
 	if (!cheat.local()->is_alive())
@@ -76,7 +73,7 @@ void otheresp::indicators()
 	if (!weapon)
 		return;
 
-	if (configs.esp.indicators[INDICATOR_FAKE] && (antiaim::get().type == ANTIAIM_LEGIT || configs.antiaim.type[antiaim::get().type].desync))
+	if (configs.visuals.indicators[INDICATOR_FAKE] && (antiaim::get().type == ANTIAIM_LEGIT || configs.antiaim.type[antiaim::get().type].desync))
 	{
 		auto color = Color(130, 20, 20);
 		auto animstate = cheat.local()->get_animation_state();
@@ -92,7 +89,7 @@ void otheresp::indicators()
 		m_indicators.push_back(m_indicator("FAKE", color));
 	}
 
-	if (configs.esp.indicators[INDICATOR_DESYNC_SIDE] && (antiaim::get().type == ANTIAIM_LEGIT && configs.antiaim.desync == 1 || antiaim::get().type != ANTIAIM_LEGIT && configs.antiaim.type[antiaim::get().type].desync == 1) && !antiaim::get().condition(cheat.get_command()))
+	if (configs.visuals.indicators[INDICATOR_DESYNC_SIDE] && (antiaim::get().type == ANTIAIM_LEGIT && configs.antiaim.desync == 1 || antiaim::get().type != ANTIAIM_LEGIT && configs.antiaim.type[antiaim::get().type].desync == 1) && !antiaim::get().condition(cheat.get_command()))
 	{
 		auto side = antiaim::get().desync_angle > 0.0f ? "RIGHT" : "LEFT";
 
@@ -104,13 +101,13 @@ void otheresp::indicators()
 
 	auto choke_indicator = false;
 
-	if (configs.esp.indicators[INDICATOR_CHOKE] && !fakelag::get().condition && !misc::get().double_tap_enabled && !misc::get().hide_shots_enabled)
+	if (configs.visuals.indicators[INDICATOR_CHOKE] && !fakelag::get().condition && !misc::get().double_tap_enabled && !misc::get().hide_shots_enabled)
 	{
 		m_indicators.push_back(m_indicator("CHOKE: " + std::to_string(fakelag::get().max_choke), Color(130, 170, 20)));
 		choke_indicator = true;
 	}
 
-	if (configs.esp.indicators[INDICATOR_LC] && cheat.local() && cheat.local()->is_alive() && cheat.local()->m_vecVelocity().Length2D() > 251) {
+	if (configs.visuals.indicators[INDICATOR_LC] && cheat.local() && cheat.local()->is_alive() && cheat.local()->m_vecVelocity().Length2D() > 251) {
 		static auto is_breaking_lagcomp = false;
 		if (!m_clientstate()->m_iChokedCommands)
 		{
@@ -127,10 +124,10 @@ void otheresp::indicators()
 	
 	static auto cl_lagcompensation = m_cvar()->FindVar(crypt_str("cl_lagcompensation"));
 
-	if (configs.esp.indicators[INDICATOR_ANTI_EXPLOIT] && !cl_lagcompensation->GetBool())
+	if (configs.visuals.indicators[INDICATOR_ANTI_EXPLOIT] && !cl_lagcompensation->GetBool())
 		m_indicators.push_back(m_indicator("AX", m_engine()->IsInGame() ? Color(130, 170, 20) : Color(130, 20, 20)));
 
-	if (configs.esp.indicators[INDICATOR_DAMAGE] && cheat.globals.current_weapon > -1 && key_binds::get().get_key_bind_state(key_bind_features::DAMAGE_OVERRIDE) && !weapon->is_non_aim())
+	if (configs.visuals.indicators[INDICATOR_DAMAGE] && cheat.globals.current_weapon > -1 && key_binds::get().get_key_bind_state(key_bind_features::DAMAGE_OVERRIDE) && !weapon->is_non_aim())
 	{
 		auto& currentWeapon = configs.ragebot.weapon[cheat.globals.current_weapon].enabled ? configs.ragebot.weapon[cheat.globals.current_weapon] : configs.ragebot.weapon[0];
 		if (currentWeapon.minimum_override_damage > 100)
@@ -139,22 +136,22 @@ void otheresp::indicators()
 			m_indicators.push_back(m_indicator("DAMAGE: " + std::to_string(currentWeapon.minimum_override_damage), Color(130, 170, 20)));
 	}
 
-	if (configs.esp.indicators[INDICATOR_SAFE_POINTS] && key_binds::get().get_key_bind_state(key_bind_features::SAFE_POINT) && !weapon->is_non_aim())
+	if (configs.visuals.indicators[INDICATOR_SAFE_POINTS] && key_binds::get().get_key_bind_state(key_bind_features::SAFE_POINT) && !weapon->is_non_aim())
 		m_indicators.push_back(m_indicator("SAFE POINTS", Color(130, 170, 20)));
 
-	if (configs.esp.indicators[INDICATOR_BODY_AIM] && key_binds::get().get_key_bind_state(key_bind_features::BODY_AIM) && !weapon->is_non_aim())
+	if (configs.visuals.indicators[INDICATOR_BODY_AIM] && key_binds::get().get_key_bind_state(key_bind_features::BODY_AIM) && !weapon->is_non_aim())
 		m_indicators.push_back(m_indicator("BODY AIM", Color(130, 170, 20)));
 
-	if (configs.esp.indicators[INDICATOR_RESOLVER_OVERRIDE] && key_binds::get().get_key_bind_state(key_bind_features::RESOLVER_OVERRIDE) && configs.ragebot.resolver[RESOLVER_YAW] && configs.ragebot.resolver_override.key > KEY_NONE && configs.ragebot.resolver_override.key < KEY_MAX)
+	if (configs.visuals.indicators[INDICATOR_RESOLVER_OVERRIDE] && key_binds::get().get_key_bind_state(key_bind_features::RESOLVER_OVERRIDE) && configs.ragebot.resolver[RESOLVER_YAW] && configs.ragebot.resolver_override.key > KEY_NONE && configs.ragebot.resolver_override.key < KEY_MAX)
 		m_indicators.push_back(m_indicator("RESOLVER OVERRIDE", Color(130, 170, 20)));
 
 	if (choke_indicator)
 		return;
 
-	if (configs.esp.indicators[INDICATOR_DT] && configs.ragebot.double_tap && configs.ragebot.double_tap_key.key > KEY_NONE && configs.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
+	if (configs.visuals.indicators[INDICATOR_DT] && configs.ragebot.double_tap && configs.ragebot.double_tap_key.key > KEY_NONE && configs.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
 		m_indicators.push_back(m_indicator("DT", !cheat.local()->m_bGunGameImmunity() && !(cheat.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !weapon->is_grenade() && weapon->m_iItemDefinitionIndex() != WEAPON_TASER && weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && weapon->can_fire(false) ? Color::White : Color(130, 20, 20)));
 
-	if (configs.esp.indicators[INDICATOR_HS] && configs.ragebot.hide_shots && configs.ragebot.hide_shots_key.key > KEY_NONE && configs.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
+	if (configs.visuals.indicators[INDICATOR_HS] && configs.ragebot.hide_shots && configs.ragebot.hide_shots_key.key > KEY_NONE && configs.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
 		m_indicators.push_back(m_indicator("HS", !cheat.local()->m_bGunGameImmunity() && !(cheat.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled ? Color(130, 170, 20) : Color(130, 20, 20)));
 	}
 
@@ -179,7 +176,7 @@ void otheresp::draw_indicators()
 
 void otheresp::hitmarker_paint()
 {
-	if (!configs.esp.hitmarker[0] && !configs.esp.hitmarker[1])
+	if (!configs.visuals.hitmarker[0] && !configs.visuals.hitmarker[1])
 	{
 		hitmarker.hurt_time = FLT_MIN;
 		hitmarker.point = ZERO;
@@ -195,7 +192,7 @@ void otheresp::hitmarker_paint()
 
 	if (hitmarker.hurt_time + 0.7f > m_globals()->m_curtime)
 	{
-		if (configs.esp.hitmarker[0])
+		if (configs.visuals.hitmarker[0])
 		{
 			static int width, height;
 			m_engine()->GetScreenSize(width, height);
@@ -211,7 +208,7 @@ void otheresp::hitmarker_paint()
 			render::get().line(width / 2 - 5 - offset, height / 2 - 5 - offset, width / 2 - 12 - offset, height / 2 - 12 - offset, hitmarker.hurt_color);
 		}
 
-		if (configs.esp.hitmarker[1])
+		if (configs.visuals.hitmarker[1])
 		{
 			Vector world;
 
@@ -252,10 +249,10 @@ void otheresp::damage_marker_paint()
 
 void otheresp::spread_crosshair()
 {
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return;
 
-	if (!configs.esp.show_spread)
+	if (!configs.visuals.show_spread)
 		return;
 
 	if (!cheat.local()->is_alive())
@@ -269,7 +266,7 @@ void otheresp::spread_crosshair()
 	int w, h;
 	m_engine()->GetScreenSize(w, h);
 
-	imRender->CircleFilled((float)w * 0.5f, (float)h * 0.5f, cheat.globals.inaccuracy * 500.0f, Color(configs.esp.show_spread_color.r(), configs.esp.show_spread_color.g(), configs.esp.show_spread_color.b(), configs.esp.show_spread_color.a()), 50);
+	imRender->CircleFilled((float)w * 0.5f, (float)h * 0.5f, cheat.globals.inaccuracy * 500.0f, Color(configs.visuals.show_spread_color.r(), configs.visuals.show_spread_color.g(), configs.visuals.show_spread_color.b(), configs.visuals.show_spread_color.a()), 50);
 }
 
 void otheresp::automatic_peek_indicator()

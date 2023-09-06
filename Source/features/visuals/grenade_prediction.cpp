@@ -222,7 +222,7 @@ enum ACT
 
 void tick(int buttons)
 {
-	bool in_attack = (buttons & IN_ATTACK || !configs.esp.grenade_prediction_click_only);
+	bool in_attack = (buttons & IN_ATTACK || !configs.visuals.grenade_prediction_click_only);
 	bool in_attack2 = buttons & IN_ATTACK2;
 
 	grenade_act = (in_attack && in_attack2) ? ACT_LOB :
@@ -284,7 +284,7 @@ void grenade_prediction::run(CUserCmd* cmd)
 	screenPoints.clear();
 	endPoints.clear();
 
-	if (!configs.esp.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
+	if (!configs.visuals.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
 	{
 		renderMutex.unlock();
 		return;
@@ -293,7 +293,7 @@ void grenade_prediction::run(CUserCmd* cmd)
 	tick(cmd->m_buttons);
 
 	auto activeWeapon = cheat.globals.weapon;
-	if (!activeWeapon || !activeWeapon->is_normal_grenade() || (!activeWeapon->m_bPinPulled() && !configs.esp.grenade_prediction_click_only))
+	if (!activeWeapon || !activeWeapon->is_normal_grenade() || (!activeWeapon->m_bPinPulled() && !configs.visuals.grenade_prediction_click_only))
 	{
 		renderMutex.unlock();
 		return;
@@ -364,7 +364,7 @@ void grenade_prediction::run(CUserCmd* cmd)
 
 void grenade_prediction::draw()
 {
-	if (!configs.esp.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
+	if (!configs.visuals.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
 		return;
 
 	if (renderMutex.try_lock())
@@ -377,19 +377,19 @@ void grenade_prediction::draw()
 	if (!endPoints.empty())
 		for (auto& point : endPoints)
 		{
-			imRender->DrawLine(point.first.x, point.first.y, point.second.x, point.second.y, configs.esp.grenade_prediction_color);
-			imRender->DrawLine(point.first.x - 0.5, point.first.y - 0.5, point.second.x - 0.5, point.second.y - 0.5, configs.esp.grenade_prediction_color);
-			imRender->DrawLine(point.first.x - 1, point.first.y - 1, point.second.x - 1, point.second.y - 1, configs.esp.grenade_prediction_color);
-			imRender->DrawLine(point.first.x - 1.5, point.first.y - 1.5, point.second.x - 1.5, point.second.y - 1.5, configs.esp.grenade_prediction_color);
-			imRender->DrawLine(point.first.x - 2, point.first.y - 2, point.second.x - 2, point.second.y - 2, configs.esp.grenade_prediction_color);
+			imRender->DrawLine(point.first.x, point.first.y, point.second.x, point.second.y, configs.visuals.grenade_prediction_color);
+			imRender->DrawLine(point.first.x - 0.5, point.first.y - 0.5, point.second.x - 0.5, point.second.y - 0.5, configs.visuals.grenade_prediction_color);
+			imRender->DrawLine(point.first.x - 1, point.first.y - 1, point.second.x - 1, point.second.y - 1, configs.visuals.grenade_prediction_color);
+			imRender->DrawLine(point.first.x - 1.5, point.first.y - 1.5, point.second.x - 1.5, point.second.y - 1.5, configs.visuals.grenade_prediction_color);
+			imRender->DrawLine(point.first.x - 2, point.first.y - 2, point.second.x - 2, point.second.y - 2, configs.visuals.grenade_prediction_color);
 		}
 
 	// draw nade path
 	if (!savedPoints.empty())
 		for (auto& point : savedPoints)
 		{
-			imRender->DrawLine(point.first.x, point.first.y, point.second.x, point.second.y, configs.esp.grenade_prediction_tracer_color);
-			imRender->DrawLine(point.first.x - 0.5, point.first.y - 0.5, point.second.x - 0.5, point.second.y - 0.5, configs.esp.grenade_prediction_tracer_color);
-			imRender->DrawLine(point.first.x - 1, point.first.y - 1, point.second.x - 1, point.second.y - 1, configs.esp.grenade_prediction_tracer_color);
+			imRender->DrawLine(point.first.x, point.first.y, point.second.x, point.second.y, configs.visuals.grenade_prediction_tracer_color);
+			imRender->DrawLine(point.first.x - 0.5, point.first.y - 0.5, point.second.x - 0.5, point.second.y - 0.5, configs.visuals.grenade_prediction_tracer_color);
+			imRender->DrawLine(point.first.x - 1, point.first.y - 1, point.second.x - 1, point.second.y - 1, configs.visuals.grenade_prediction_tracer_color);
 		}
 }

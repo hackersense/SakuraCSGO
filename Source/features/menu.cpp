@@ -1157,77 +1157,77 @@ void menu::draw()
 		ImGui::BeginChildSkeet("PLAYER ESP", child_size);
 		{
 			ImGui::SingleSelectSkeet(crypt_str("Chose"), &player, { "Enemy", "Team", "Local" });
-			ImGui::CheckboxSkeet(crypt_str("Bounding box"), &configs.player.type[player].box);
-			ImGui::ColorEdit4Fixed(crypt_str("##BOUNDINGBOX__COLOR"), &configs.player.type[player].box_color, ImGuiWindowFlags_NoTitleBar);
-			ImGui::CheckboxSkeet(crypt_str("Name"), &configs.player.type[player].name);
-			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERNAME__COLOR"), &configs.player.type[player].name_color, ImGuiWindowFlags_NoTitleBar);
-			ImGui::CheckboxSkeet(crypt_str("Health bar"), &configs.player.type[player].health);
-			ImGui::CheckboxSkeet(crypt_str("Health color"), &configs.player.type[player].custom_health_color);
-			ImGui::ColorEdit4Fixed(crypt_str("##HEALTHBAR__COLOR"), &configs.player.type[player].health_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Bounding box"), &configs.esp.type[player].box);
+			ImGui::ColorEdit4Fixed(crypt_str("##BOUNDINGBOX__COLOR"), &configs.esp.type[player].box_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Name"), &configs.esp.type[player].name);
+			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERNAME__COLOR"), &configs.esp.type[player].name_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Health bar"), &configs.esp.type[player].health);
+			ImGui::CheckboxSkeet(crypt_str("Health color"), &configs.esp.type[player].custom_health_color);
+			ImGui::ColorEdit4Fixed(crypt_str("##HEALTHBAR__COLOR"), &configs.esp.type[player].health_color, ImGuiWindowFlags_NoTitleBar);
 
-			draw_multicomboSkeet(crypt_str("Flags"), configs.player.type[player].flags, flags);
-			draw_multicomboSkeet(crypt_str("Weapon"), configs.player.type[player].weapon, weaponplayer);
+			draw_multicomboSkeet(crypt_str("Flags"), configs.esp.type[player].flags, flags);
+			draw_multicomboSkeet(crypt_str("Weapon"), configs.esp.type[player].weapon, weaponplayer);
 
-			if (configs.player.type[player].weapon[WEAPON_ICON] || configs.player.type[player].weapon[WEAPON_TEXT])
+			if (configs.esp.type[player].weapon[WEAPON_ICON] || configs.esp.type[player].weapon[WEAPON_TEXT])
 			{
 				ImGui::Text(crypt_str("Color"));
-				ImGui::ColorEdit4Fixed(crypt_str("##WEAPON__COLOR"), &configs.player.type[player].weapon_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WEAPON__COLOR"), &configs.esp.type[player].weapon_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Skeleton"), &configs.player.type[player].skeleton);
+			ImGui::CheckboxSkeet(crypt_str("Skeleton"), &configs.esp.type[player].skeleton);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##SKELETON__COLOR"), &configs.player.type[player].skeleton_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##SKELETON__COLOR"), &configs.esp.type[player].skeleton_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Ammo bar"), &configs.player.type[player].ammo);
+			ImGui::CheckboxSkeet(crypt_str("Ammo bar"), &configs.esp.type[player].ammo);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##AMMOBAR__COLOR"), &configs.player.type[player].ammobar_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##AMMOBAR__COLOR"), &configs.esp.type[player].ammobar_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Footsteps"), &configs.player.type[player].footsteps);
+			ImGui::CheckboxSkeet(crypt_str("Footsteps"), &configs.esp.type[player].footsteps);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##FOOTSTEPS__COLOR"), &configs.player.type[player].footsteps_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##FOOTSTEPS__COLOR"), &configs.esp.type[player].footsteps_color, ImGuiWindowFlags_NoTitleBar);
 
-			if (configs.player.type[player].footsteps)
+			if (configs.esp.type[player].footsteps)
 			{
-				ImGui::SliderIntSkeet(crypt_str("Thickness"), &configs.player.type[player].thickness, 1, 10, "%.0f");
-				ImGui::SliderIntSkeet(crypt_str("Radius"), &configs.player.type[player].radius, 50, 500, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Thickness"), &configs.esp.type[player].thickness, 1, 10, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Radius"), &configs.esp.type[player].radius, 50, 500, "%.0f");
 			}
 
 			if (player == ENEMY || player == TEAM)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Snap lines"), &configs.player.type[player].snap_lines);
+				ImGui::CheckboxSkeet(crypt_str("Snap lines"), &configs.esp.type[player].snap_lines);
 
-				ImGui::ColorEdit4Fixed(crypt_str("##SNAPLINE__COLOR"), &configs.player.type[player].snap_lines_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##SNAPLINE__COLOR"), &configs.esp.type[player].snap_lines_color, ImGuiWindowFlags_NoTitleBar);
 
 				if (player == ENEMY)
 				{
 					//if (configs.ragebot.enabled)
 					//{
-					//	ImGui::CheckboxSkeet(crypt_str("Multi points"), &configs.player.show_multi_points);
-					//	ImGui::ColorEdit4Fixed(crypt_str("##MULTIPOINTS__COLOR"), &configs.player.show_multi_points_color, ImGuiWindowFlags_NoTitleBar);
+					//	ImGui::CheckboxSkeet(crypt_str("Multi points"), &configs.esp.show_multi_points);
+					//	ImGui::ColorEdit4Fixed(crypt_str("##MULTIPOINTS__COLOR"), &configs.esp.show_multi_points_color, ImGuiWindowFlags_NoTitleBar);
 					//}
 
-					ImGui::CheckboxSkeet(crypt_str("Lag hitboxes"), &configs.player.lag_hitbox);
+					ImGui::CheckboxSkeet(crypt_str("Lag hitboxes"), &configs.esp.lag_hitbox);
 
-					ImGui::ColorEdit4Fixed(crypt_str("##LAGHITBOXES__COLOR"), &configs.player.lag_hitbox_color, ImGuiWindowFlags_NoTitleBar);
+					ImGui::ColorEdit4Fixed(crypt_str("##LAGHITBOXES__COLOR"), &configs.esp.lag_hitbox_color, ImGuiWindowFlags_NoTitleBar);
 				}
 			}
 			else
 			{
-				ImGui::SingleSelectSkeet(crypt_str("Player model T"), &configs.player.player_model_t, player_model_t);
+				ImGui::SingleSelectSkeet(crypt_str("Player model T"), &configs.esp.player_model_t, player_model_t);
 
-				ImGui::SingleSelectSkeet(crypt_str("Player model CT"), &configs.player.player_model_ct, player_model_ct);
+				ImGui::SingleSelectSkeet(crypt_str("Player model CT"), &configs.esp.player_model_ct, player_model_ct);
 			}
 
 			if (player == ENEMY)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Offscreen arrows"), &configs.player.arrows);
+				ImGui::CheckboxSkeet(crypt_str("Offscreen arrows"), &configs.esp.arrows);
 
-				ImGui::ColorEdit4Fixed(crypt_str("##OOFSCREENARROWS__COLOR"), &configs.player.arrows_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##OOFSCREENARROWS__COLOR"), &configs.esp.arrows_color, ImGuiWindowFlags_NoTitleBar);
 
-				if (configs.player.arrows)
+				if (configs.esp.arrows)
 				{
-					ImGui::SliderIntSkeet(crypt_str("Arrows distance"), &configs.player.distance, 1, 100, "%.0f");
-					ImGui::SliderIntSkeet(crypt_str("Arrows size"), &configs.player.size, 1, 100, "%.0f");
+					ImGui::SliderIntSkeet(crypt_str("Arrows distance"), &configs.esp.distance, 1, 100, "%.0f");
+					ImGui::SliderIntSkeet(crypt_str("Arrows size"), &configs.esp.size, 1, 100, "%.0f");
 				}
 			}
 		}
@@ -1238,76 +1238,76 @@ void menu::draw()
 		ImGui::BeginChildSkeet("COLORED MODELS", child_size);
 		{
 			if (player == LOCAL)
-				ImGui::SingleSelectSkeet(crypt_str("Type"), &configs.player.local_chams_type, local_chams_type);
+				ImGui::SingleSelectSkeet(crypt_str("Type"), &configs.esp.local_chams_type, local_chams_type);
 
-			if (player != LOCAL || !configs.player.local_chams_type)
-				draw_multicomboSkeet(crypt_str("Chams"), configs.player.type[player].chams, configs.player.type[player].chams[PLAYER_CHAMS_VISIBLE] ? chamsvisact : chamsvis);
+			if (player != LOCAL || !configs.esp.local_chams_type)
+				draw_multicomboSkeet(crypt_str("Chams"), configs.esp.type[player].chams, configs.esp.type[player].chams[PLAYER_CHAMS_VISIBLE] ? chamsvisact : chamsvis);
 
-			if (configs.player.type[player].chams[PLAYER_CHAMS_VISIBLE] || player == LOCAL && configs.player.local_chams_type)
+			if (configs.esp.type[player].chams[PLAYER_CHAMS_VISIBLE] || player == LOCAL && configs.esp.local_chams_type)
 			{
-				if (player == LOCAL && configs.player.local_chams_type)
+				if (player == LOCAL && configs.esp.local_chams_type)
 				{
-					ImGui::CheckboxSkeet(crypt_str("Enable desync chams"), &configs.player.fake_chams_enabled);
-					ImGui::CheckboxSkeet(crypt_str("Visualize lag"), &configs.player.visualize_lag);
-					ImGui::CheckboxSkeet(crypt_str("Layered"), &configs.player.layered);
+					ImGui::CheckboxSkeet(crypt_str("Enable desync chams"), &configs.esp.fake_chams_enabled);
+					ImGui::CheckboxSkeet(crypt_str("Visualize lag"), &configs.esp.visualize_lag);
+					ImGui::CheckboxSkeet(crypt_str("Layered"), &configs.esp.layered);
 
-					ImGui::SingleSelectSkeet(crypt_str("Player chams material"), &configs.player.fake_chams_type, chamstype);
+					ImGui::SingleSelectSkeet(crypt_str("Player chams material"), &configs.esp.fake_chams_type, chamstype);
 
 					ImGui::Text(crypt_str("Color"));
 
-					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERFAKECHAMS__COLOR"), &configs.player.fake_chams_color, ImGuiWindowFlags_NoTitleBar);
+					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERFAKECHAMS__COLOR"), &configs.esp.fake_chams_color, ImGuiWindowFlags_NoTitleBar);
 
-					if (configs.player.fake_chams_type != 6)
+					if (configs.esp.fake_chams_type != 6)
 					{
-						ImGui::CheckboxSkeet(crypt_str("Double material "), &configs.player.fake_double_material);
+						ImGui::CheckboxSkeet(crypt_str("Double material "), &configs.esp.fake_double_material);
 
-						ImGui::ColorEdit4Fixed(crypt_str("##LOCALDOUBLEMATERIAL__COLOR"), &configs.player.fake_double_material_color, ImGuiWindowFlags_NoTitleBar);
+						ImGui::ColorEdit4Fixed(crypt_str("##LOCALDOUBLEMATERIAL__COLOR"), &configs.esp.fake_double_material_color, ImGuiWindowFlags_NoTitleBar);
 					}
 
-					ImGui::CheckboxSkeet(crypt_str("Animated material "), &configs.player.fake_animated_material);
+					ImGui::CheckboxSkeet(crypt_str("Animated material "), &configs.esp.fake_animated_material);
 
-					ImGui::ColorEdit4Fixed(crypt_str("##LOCALANIMATEDMATERIAL__COLOR"), &configs.player.fake_animated_material_color, ImGuiWindowFlags_NoTitleBar);
+					ImGui::ColorEdit4Fixed(crypt_str("##LOCALANIMATEDMATERIAL__COLOR"), &configs.esp.fake_animated_material_color, ImGuiWindowFlags_NoTitleBar);
 				}
 				else
 				{
-					ImGui::SingleSelectSkeet(crypt_str("Player chams material"), &configs.player.type[player].chams_type, chamstype);
+					ImGui::SingleSelectSkeet(crypt_str("Player chams material"), &configs.esp.type[player].chams_type, chamstype);
 
-					if (configs.player.type[player].chams[PLAYER_CHAMS_VISIBLE])
+					if (configs.esp.type[player].chams[PLAYER_CHAMS_VISIBLE])
 					{
 						ImGui::Text(crypt_str("Visible"));
 
-						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERCHAMSVISIBLE__COLOR"), &configs.player.type[player].chams_color, ImGuiWindowFlags_NoTitleBar);
+						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERCHAMSVISIBLE__COLOR"), &configs.esp.type[player].chams_color, ImGuiWindowFlags_NoTitleBar);
 					}
 
-					if (configs.player.type[player].chams[PLAYER_CHAMS_VISIBLE] && configs.player.type[player].chams[PLAYER_CHAMS_INVISIBLE])
+					if (configs.esp.type[player].chams[PLAYER_CHAMS_VISIBLE] && configs.esp.type[player].chams[PLAYER_CHAMS_INVISIBLE])
 					{
 						ImGui::Text(crypt_str("Invisible"));
 
-						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERCHAMSINVISIBLE__COLOR"), &configs.player.type[player].xqz_color, ImGuiWindowFlags_NoTitleBar);
+						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERCHAMSINVISIBLE__COLOR"), &configs.esp.type[player].xqz_color, ImGuiWindowFlags_NoTitleBar);
 					}
 
-					if (configs.player.type[player].chams_type != 6)
+					if (configs.esp.type[player].chams_type != 6)
 					{
-						ImGui::CheckboxSkeet(crypt_str("Double material"), &configs.player.type[player].double_material);
+						ImGui::CheckboxSkeet(crypt_str("Double material"), &configs.esp.type[player].double_material);
 
-						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXDOUBLEMATERIAL__COLOR"), &configs.player.type[player].double_material_color, ImGuiWindowFlags_NoTitleBar);
+						ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXDOUBLEMATERIAL__COLOR"), &configs.esp.type[player].double_material_color, ImGuiWindowFlags_NoTitleBar);
 					}
 
-					ImGui::CheckboxSkeet(crypt_str("Animated material"), &configs.player.type[player].animated_material);
+					ImGui::CheckboxSkeet(crypt_str("Animated material"), &configs.esp.type[player].animated_material);
 
-					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXANIMATEDMATERIAL__COLOR"), &configs.player.type[player].animated_material_color, ImGuiWindowFlags_NoTitleBar);
+					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXANIMATEDMATERIAL__COLOR"), &configs.esp.type[player].animated_material_color, ImGuiWindowFlags_NoTitleBar);
 
 					if (player == ENEMY)
 					{
-						ImGui::CheckboxSkeet(crypt_str("Backtrack chams"), &configs.player.backtrack_chams);
+						ImGui::CheckboxSkeet(crypt_str("Backtrack chams"), &configs.esp.backtrack_chams);
 
-						if (configs.player.backtrack_chams)
+						if (configs.esp.backtrack_chams)
 						{
-							ImGui::SingleSelectSkeet(crypt_str("Backtrack chams material"), &configs.player.backtrack_chams_material, chamstype);
+							ImGui::SingleSelectSkeet(crypt_str("Backtrack chams material"), &configs.esp.backtrack_chams_material, chamstype);
 
 							ImGui::Text(crypt_str("Color"));
 
-							ImGui::ColorEdit4Fixed(crypt_str("##PLAYERBACKTRACK__COLOR"), &configs.player.backtrack_chams_color, ImGuiWindowFlags_NoTitleBar);
+							ImGui::ColorEdit4Fixed(crypt_str("##PLAYERBACKTRACK__COLOR"), &configs.esp.backtrack_chams_color, ImGuiWindowFlags_NoTitleBar);
 						}
 					}
 				}
@@ -1315,69 +1315,69 @@ void menu::draw()
 
 			if (player == ENEMY || player == TEAM)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Ragdoll chams"), &configs.player.type[player].ragdoll_chams);
+				ImGui::CheckboxSkeet(crypt_str("Ragdoll chams"), &configs.esp.type[player].ragdoll_chams);
 
-				if (configs.player.type[player].ragdoll_chams)
+				if (configs.esp.type[player].ragdoll_chams)
 				{
-					ImGui::SingleSelectSkeet(crypt_str("Ragdoll chams material"), &configs.player.type[player].ragdoll_chams_material, chamstype);
+					ImGui::SingleSelectSkeet(crypt_str("Ragdoll chams material"), &configs.esp.type[player].ragdoll_chams_material, chamstype);
 
 					ImGui::Text(crypt_str("Color"));
 
-					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERRAGDOLL__COLOR"), &configs.player.type[player].ragdoll_chams_color, ImGuiWindowFlags_NoTitleBar);
+					ImGui::ColorEdit4Fixed(crypt_str("##PLAYERRAGDOLL__COLOR"), &configs.esp.type[player].ragdoll_chams_color, ImGuiWindowFlags_NoTitleBar);
 				}
 			}
-			else if (!configs.player.local_chams_type)
+			else if (!configs.esp.local_chams_type)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Transparency in scope"), &configs.player.transparency_in_scope);
+				ImGui::CheckboxSkeet(crypt_str("Transparency in scope"), &configs.esp.transparency_in_scope);
 
-				if (configs.player.transparency_in_scope)
-					ImGui::SliderFloatSkeet(crypt_str("Alpha"), &configs.player.transparency_in_scope_amount, 0.0f, 1.0f, "%.0f");
+				if (configs.esp.transparency_in_scope)
+					ImGui::SliderFloatSkeet(crypt_str("Alpha"), &configs.esp.transparency_in_scope_amount, 0.0f, 1.0f, "%.0f");
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Glow"), &configs.player.type[player].glow);
+			ImGui::CheckboxSkeet(crypt_str("Glow"), &configs.esp.type[player].glow);
 
-			if (configs.player.type[player].glow)
+			if (configs.esp.type[player].glow)
 			{
-				ImGui::SingleSelectSkeet(crypt_str("Glow type"), &configs.player.type[player].glow_type, glowtype);
+				ImGui::SingleSelectSkeet(crypt_str("Glow type"), &configs.esp.type[player].glow_type, glowtype);
 				ImGui::Text(crypt_str("Color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERGLOW__COLOR"), &configs.player.type[player].glow_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERGLOW__COLOR"), &configs.esp.type[player].glow_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Arms chams"), &configs.esp.arms_chams);
+			ImGui::CheckboxSkeet(crypt_str("Arms chams"), &configs.visuals.arms_chams);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERARMS__COLOR"), &configs.esp.arms_chams_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERARMS__COLOR"), &configs.visuals.arms_chams_color, ImGuiWindowFlags_NoTitleBar);
 
 
-			ImGui::SingleSelectSkeet(crypt_str("Arms chams material"), &configs.esp.arms_chams_type, chamstype);
+			ImGui::SingleSelectSkeet(crypt_str("Arms chams material"), &configs.visuals.arms_chams_type, chamstype);
 
-			if (configs.esp.arms_chams_type != 6)
+			if (configs.visuals.arms_chams_type != 6)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Arms double material"), &configs.esp.arms_double_material);
+				ImGui::CheckboxSkeet(crypt_str("Arms double material"), &configs.visuals.arms_double_material);
 
-				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERARMSDOUBLEMATERIAL__COLOR"), &configs.esp.arms_double_material_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERARMSDOUBLEMATERIAL__COLOR"), &configs.visuals.arms_double_material_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Arms animated material"), &configs.esp.arms_animated_material);
+			ImGui::CheckboxSkeet(crypt_str("Arms animated material"), &configs.visuals.arms_animated_material);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERAMRSANIMATEDMATERIAL__COLOR"), &configs.esp.arms_animated_material_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERAMRSANIMATEDMATERIAL__COLOR"), &configs.visuals.arms_animated_material_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Weapon chams"), &configs.esp.weapon_chams);
+			ImGui::CheckboxSkeet(crypt_str("Weapon chams"), &configs.visuals.weapon_chams);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERWEAPONCHAMS__COLOR"), &configs.esp.weapon_chams_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERWEAPONCHAMS__COLOR"), &configs.visuals.weapon_chams_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::SingleSelectSkeet(crypt_str("Weapon chams material"), &configs.esp.weapon_chams_type, chamstype);
+			ImGui::SingleSelectSkeet(crypt_str("Weapon chams material"), &configs.visuals.weapon_chams_type, chamstype);
 
-			if (configs.esp.weapon_chams_type != 6)
+			if (configs.visuals.weapon_chams_type != 6)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Weapon double material"), &configs.esp.weapon_double_material);
+				ImGui::CheckboxSkeet(crypt_str("Weapon double material"), &configs.visuals.weapon_double_material);
 
-				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXARMSDOUBLEMATERIAL__COLOR"), &configs.esp.weapon_double_material_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXARMSDOUBLEMATERIAL__COLOR"), &configs.visuals.weapon_double_material_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Weapon animated material"), &configs.esp.weapon_animated_material);
+			ImGui::CheckboxSkeet(crypt_str("Weapon animated material"), &configs.visuals.weapon_animated_material);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXAMRSANIMATEDMATERIAL__COLOR"), &configs.esp.weapon_animated_material_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##PLAYERXAMRSANIMATEDMATERIAL__COLOR"), &configs.visuals.weapon_animated_material_color, ImGuiWindowFlags_NoTitleBar);
 		}
 		ImGui::EndChildSkeet();
 
@@ -1385,101 +1385,103 @@ void menu::draw()
 
 		ImGui::BeginChildSkeet("OTHER", child_size);
 		{
-			ImGui::CheckboxSkeet(crypt_str("Force crosshair"), &configs.esp.force_crosshair);
+			ImGui::CheckboxSkeet(crypt_str("Force crosshair"), &configs.visuals.force_crosshair);
 			ImGui::CheckboxSkeet(crypt_str("Deagle spinner"), &configs.skins.deagleSpinner);
-			ImGui::SliderIntSkeet(crypt_str("Viewmodel field of view"), &configs.esp.viewmodel_fov, 0, 89, "%.0f");
-			ImGui::SliderIntSkeet(crypt_str("Viewmodel X"), &configs.esp.viewmodel_x, -50, 50, "%.0f");
-			ImGui::SliderIntSkeet(crypt_str("Viewmodel Y"), &configs.esp.viewmodel_y, -50, 50, "%.0f");
-			ImGui::SliderIntSkeet(crypt_str("Viewmodel Z"), &configs.esp.viewmodel_z, -50, 50, "%.0f");
-			ImGui::SliderIntSkeet(crypt_str("Viewmodel roll"), &configs.esp.viewmodel_roll, -180, 180, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Viewmodel field of view"), &configs.visuals.viewmodel_fov, 0, 89, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Viewmodel X"), &configs.visuals.viewmodel_x, -50, 50, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Viewmodel Y"), &configs.visuals.viewmodel_y, -50, 50, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Viewmodel Z"), &configs.visuals.viewmodel_z, -50, 50, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Viewmodel roll"), &configs.visuals.viewmodel_roll, -180, 180, "%.0f");
 
-			ImGui::CheckboxSkeet(crypt_str("Rain"), &configs.esp.rain);
-			ImGui::CheckboxSkeet(crypt_str("Full bright"), &configs.esp.bright);
+			ImGui::CheckboxSkeet(crypt_str("Rain"), &configs.visuals.rain);
+			ImGui::CheckboxSkeet(crypt_str("Full bright"), &configs.visuals.bright);
 
-			ImGui::SingleSelectSkeet(crypt_str("Skybox changer"), &configs.esp.skybox_changer, skybox);
+			ImGui::SingleSelectSkeet(crypt_str("Skybox changer"), &configs.visuals.skybox_changer, skybox);
 
 			ImGui::Text(crypt_str("Color"));
 
-			ImGui::ColorEdit4Fixed(crypt_str("##SKYBOX__COLOR"), &configs.esp.skybox_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##SKYBOX__COLOR"), &configs.visuals.skybox_color, ImGuiWindowFlags_NoTitleBar);
 
-			if (configs.esp.skybox_changer == 21)
+			if (configs.visuals.skybox_changer == 21)
 			{
 				static char sky_custom[64] = "\0";
 
-				if (!configs.esp.custom_skybox.empty())
-					strcpy_s(sky_custom, sizeof(sky_custom), configs.esp.custom_skybox.c_str());
+				if (!configs.visuals.custom_skybox.empty())
+					strcpy_s(sky_custom, sizeof(sky_custom), configs.visuals.custom_skybox.c_str());
 
 				ImGui::Text(crypt_str("Name"));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
 
 				if (ImGui::InputText(crypt_str("##CUSTOMSKY__INPUT"), sky_custom, sizeof(sky_custom)))
-					configs.esp.custom_skybox = sky_custom;
+					configs.visuals.custom_skybox = sky_custom;
 
 				ImGui::PopStyleVar();
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Color modulation"), &configs.esp.nightmode);
+			ImGui::CheckboxSkeet(crypt_str("Color modulation"), &configs.visuals.nightmode);
 
-			if (configs.esp.nightmode)
+			if (configs.visuals.nightmode)
 			{
 				ImGui::Text(crypt_str("World color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##WORLD__COLOR"), &configs.esp.world_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WORLD__COLOR"), &configs.visuals.world_color, ImGuiWindowFlags_NoTitleBar);
 
 				ImGui::Text(crypt_str("Props color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##PROPS__COLOR"), &configs.esp.props_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##PROPS__COLOR"), &configs.visuals.props_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("World modulation"), &configs.esp.world_modulation);
+			ImGui::CheckboxSkeet(crypt_str("World modulation"), &configs.visuals.world_modulation);
 
-			if (configs.esp.world_modulation)
+			if (configs.visuals.world_modulation)
 			{
-				ImGui::SliderFloatSkeet(crypt_str("Bloom"), &configs.esp.bloom, 0.0f, 750.0f, "%.0f");
-				ImGui::SliderFloatSkeet(crypt_str("Exposure"), &configs.esp.exposure, 0.0f, 2000.0f, "%.0f");
-				ImGui::SliderFloatSkeet(crypt_str("Ambient"), &configs.esp.ambient, 0.0f, 1500.0f, "%.0f");
+				ImGui::SliderFloatSkeet(crypt_str("Bloom"), &configs.visuals.bloom, 0.0f, 750.0f, "%.0f");
+				ImGui::SliderFloatSkeet(crypt_str("Exposure"), &configs.visuals.exposure, 0.0f, 2000.0f, "%.0f");
+				ImGui::SliderFloatSkeet(crypt_str("Ambient"), &configs.visuals.ambient, 0.0f, 1500.0f, "%.0f");
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Fog modulation"), &configs.esp.fog);
+			ImGui::CheckboxSkeet(crypt_str("Fog modulation"), &configs.visuals.fog);
 
-			if (configs.esp.fog)
+			if (configs.visuals.fog)
 			{
-				ImGui::SliderIntSkeet(crypt_str("Distance"), &configs.esp.fog_distance, 0, 2500, "%.0f");
-				ImGui::SliderIntSkeet(crypt_str("Density"), &configs.esp.fog_density, 0, 100, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Distance"), &configs.visuals.fog_distance, 0, 2500, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Density"), &configs.visuals.fog_density, 0, 100, "%.0f");
 
 				ImGui::Text(crypt_str("Color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##FOG__COLOR"), &configs.esp.fog_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##FOG__COLOR"), &configs.visuals.fog_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Motionblur modulation"), &configs.esp.motionblur);
+			ImGui::CheckboxSkeet(crypt_str("Disable Jiggle Bones"), &configs.visuals.disable_jiggle_bones);
 
-			if (configs.esp.motionblur)
+			ImGui::CheckboxSkeet(crypt_str("Motionblur modulation"), &configs.visuals.motionblur);
+
+			if (configs.visuals.motionblur)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Motionblur Forward"), &configs.esp.motionblur_forward);
-				ImGui::SliderFloatSkeet(crypt_str("Falling min"), &configs.esp.motionblur_falling_min, 0.0f, 50.0f, "%.2f");
-				ImGui::SliderFloatSkeet(crypt_str("Falling max"), &configs.esp.motionblur_falling_max, 0.0f, 50.0f, "%.2f");
-				ImGui::SliderFloatSkeet(crypt_str("Falling intesity"), &configs.esp.motionblur_falling_intensity, 0.0f, 8.0f, "%.2f");
-				ImGui::SliderFloatSkeet(crypt_str("Rotation intensity"), &configs.esp.motionblur_rotation_intensity, 0.0f, 8.0f, "%.2f");
-				ImGui::SliderFloatSkeet(crypt_str("Motionblur Strength"), &configs.esp.motionblur_strength, 0.0f, 8.0f, "%.2f");
+				ImGui::CheckboxSkeet(crypt_str("Motionblur Forward"), &configs.visuals.motionblur_forward);
+				ImGui::SliderFloatSkeet(crypt_str("Falling min"), &configs.visuals.motionblur_falling_min, 0.0f, 50.0f, "%.2f");
+				ImGui::SliderFloatSkeet(crypt_str("Falling max"), &configs.visuals.motionblur_falling_max, 0.0f, 50.0f, "%.2f");
+				ImGui::SliderFloatSkeet(crypt_str("Falling intesity"), &configs.visuals.motionblur_falling_intensity, 0.0f, 8.0f, "%.2f");
+				ImGui::SliderFloatSkeet(crypt_str("Rotation intensity"), &configs.visuals.motionblur_rotation_intensity, 0.0f, 8.0f, "%.2f");
+				ImGui::SliderFloatSkeet(crypt_str("Motionblur Strength"), &configs.visuals.motionblur_strength, 0.0f, 8.0f, "%.2f");
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Lightning on hit"), &configs.esp.lightning_on_hit);
+			ImGui::CheckboxSkeet(crypt_str("Lightning on hit"), &configs.visuals.lightning_on_hit);
 
-			if (configs.esp.lightning_on_hit)
+			if (configs.visuals.lightning_on_hit)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Lightning kill only"), &configs.esp.lightning_on_hit_killonly);
-				ImGui::SliderIntSkeet(crypt_str("Lightning width"), &configs.esp.lightning_on_hit_width, 0, 30, "%.0f");
-				ImGui::SliderIntSkeet(crypt_str("Lightning radius"), &configs.esp.lightning_on_hit_radius, 0, 1000, "%.0f");
-				ImGui::SliderIntSkeet(crypt_str("Lightning beams"), &configs.esp.lightning_on_hit_beams, 0, 100, "%.0f");
+				ImGui::CheckboxSkeet(crypt_str("Lightning kill only"), &configs.visuals.lightning_on_hit_killonly);
+				ImGui::SliderIntSkeet(crypt_str("Lightning width"), &configs.visuals.lightning_on_hit_width, 0, 30, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Lightning radius"), &configs.visuals.lightning_on_hit_radius, 0, 1000, "%.0f");
+				ImGui::SliderIntSkeet(crypt_str("Lightning beams"), &configs.visuals.lightning_on_hit_beams, 0, 100, "%.0f");
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Smoke Color"), &configs.esp.smoke_color_enabled);
-			ImGui::ColorEdit4Fixed(crypt_str("##SMOKE_COLOR"), &configs.esp.smoke_color, ImGuiWindowFlags_NoTitleBar);
-			ImGui::CheckboxSkeet(crypt_str("Molotov Color"), &configs.esp.molotov_color_enabled);
-			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOV_COLOR"), &configs.esp.molotov_color, ImGuiWindowFlags_NoTitleBar);
-			ImGui::CheckboxSkeet(crypt_str("Console Color"), &configs.esp.console_color_enabled);
-			ImGui::ColorEdit4Fixed(crypt_str("##CONSOLE_COLOR"), &configs.esp.console_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Smoke Color"), &configs.visuals.smoke_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##SMOKE_COLOR"), &configs.visuals.smoke_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Molotov Color"), &configs.visuals.molotov_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOV_COLOR"), &configs.visuals.molotov_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Console Color"), &configs.visuals.console_color_enabled);
+			ImGui::ColorEdit4Fixed(crypt_str("##CONSOLE_COLOR"), &configs.visuals.console_color, ImGuiWindowFlags_NoTitleBar);
 		}
 		ImGui::EndChildSkeet();
 
@@ -1487,124 +1489,124 @@ void menu::draw()
 
 		ImGui::BeginChildSkeet("EFFECTS", child_size);
 		{
-			draw_multicomboSkeet(crypt_str("Indicators"), configs.esp.indicators, indicators);
+			draw_multicomboSkeet(crypt_str("Indicators"), configs.visuals.indicators, indicators);
 
-			draw_multicomboSkeet(crypt_str("Removals"), configs.esp.removals, removals);
+			draw_multicomboSkeet(crypt_str("Removals"), configs.visuals.removals, removals);
 
-			if (configs.esp.removals[REMOVALS_ZOOM])
-				ImGui::CheckboxSkeet(crypt_str("Fix zoom sensivity"), &configs.esp.fix_zoom_sensivity);
+			if (configs.visuals.removals[REMOVALS_ZOOM])
+				ImGui::CheckboxSkeet(crypt_str("Fix zoom sensivity"), &configs.visuals.fix_zoom_sensivity);
 
-			ImGui::CheckboxSkeet(crypt_str("Grenade warning"), &configs.esp.grenade_warning);
-			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNING__COLOR"), &configs.esp.grenade_warning_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Grenade warning"), &configs.visuals.grenade_warning);
+			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNING__COLOR"), &configs.visuals.grenade_warning_color, ImGuiWindowFlags_NoTitleBar);
 
-			if (configs.esp.grenade_warning)
+			if (configs.visuals.grenade_warning)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Offscreen warning"), &configs.esp.grenade_warning_offscreen);
+				ImGui::CheckboxSkeet(crypt_str("Offscreen warning"), &configs.visuals.grenade_warning_offscreen);
 
 				ImGui::Text(crypt_str("GW Traceline color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNINGTRACER__COLOR"), &configs.esp.grenade_warning_tracer_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEWARNINGTRACER__COLOR"), &configs.visuals.grenade_warning_tracer_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Grenade prediction"), &configs.esp.grenade_prediction);
+			ImGui::CheckboxSkeet(crypt_str("Grenade prediction"), &configs.visuals.grenade_prediction);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTION__COLOR"), &configs.esp.grenade_prediction_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTION__COLOR"), &configs.visuals.grenade_prediction_color, ImGuiWindowFlags_NoTitleBar);
 
-			if (configs.esp.grenade_prediction)
+			if (configs.visuals.grenade_prediction)
 			{
-				ImGui::CheckboxSkeet(crypt_str("Always Prediction"), &configs.esp.grenade_prediction_click_only);
+				ImGui::CheckboxSkeet(crypt_str("Always Prediction"), &configs.visuals.grenade_prediction_click_only);
 
 				ImGui::Text(crypt_str("GP Traceline Color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTIONTRACER__COLOR"), &configs.esp.grenade_prediction_tracer_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEPREDICTIONTRACER__COLOR"), &configs.visuals.grenade_prediction_tracer_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Grenade projectiles"), &configs.esp.projectiles);
+			ImGui::CheckboxSkeet(crypt_str("Grenade projectiles"), &configs.visuals.projectiles);
 
-			if (configs.esp.projectiles)
-				draw_multicomboSkeet(crypt_str("Grenade ESP"), configs.esp.grenade_esp, proj_combo);
+			if (configs.visuals.projectiles)
+				draw_multicomboSkeet(crypt_str("Grenade ESP"), configs.visuals.grenade_esp, proj_combo);
 
-			if (configs.esp.grenade_esp[GRENADE_ICON] || configs.esp.grenade_esp[GRENADE_TEXT])
+			if (configs.visuals.grenade_esp[GRENADE_ICON] || configs.visuals.grenade_esp[GRENADE_TEXT])
 			{
 				ImGui::Text(crypt_str("Color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##PROJECTILES__COLOR"), &configs.esp.projectiles_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##PROJECTILES__COLOR"), &configs.visuals.projectiles_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			if (configs.esp.grenade_esp[GRENADE_BOX])
+			if (configs.visuals.grenade_esp[GRENADE_BOX])
 			{
 				ImGui::Text(crypt_str("Box color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEBOX__COLOR"), &configs.esp.grenade_box_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEBOX__COLOR"), &configs.visuals.grenade_box_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			if (configs.esp.grenade_esp[GRENADE_GLOW])
+			if (configs.visuals.grenade_esp[GRENADE_GLOW])
 			{
 				ImGui::Text(crypt_str("Glow color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEGLOW__COLOR"), &configs.esp.grenade_glow_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##GRENADEGLOW__COLOR"), &configs.visuals.grenade_glow_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Molotov timer"), &configs.esp.molotov_timer);
+			ImGui::CheckboxSkeet(crypt_str("Molotov timer"), &configs.visuals.molotov_timer);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOVTIMER__COLOR"), &configs.esp.molotov_timer_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##MOLOTOVTIMER__COLOR"), &configs.visuals.molotov_timer_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Smoke timer"), &configs.esp.smoke_timer);
+			ImGui::CheckboxSkeet(crypt_str("Smoke timer"), &configs.visuals.smoke_timer);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##SMOKETIMER__COLOR"), &configs.esp.smoke_timer_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##SMOKETIMER__COLOR"), &configs.visuals.smoke_timer_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Bomb indicator"), &configs.esp.bomb_timer);
-			draw_multicomboSkeet(crypt_str("Weapon ESP"), configs.esp.weapon, weaponesp);
+			ImGui::CheckboxSkeet(crypt_str("Bomb indicator"), &configs.visuals.bomb_timer);
+			draw_multicomboSkeet(crypt_str("Weapon ESP"), configs.visuals.weapon, weaponesp);
 
-			if (configs.esp.weapon[WEAPON_ICON] || configs.esp.weapon[WEAPON_TEXT] || configs.esp.weapon[WEAPON_DISTANCE])
+			if (configs.visuals.weapon[WEAPON_ICON] || configs.visuals.weapon[WEAPON_TEXT] || configs.visuals.weapon[WEAPON_DISTANCE])
 			{
 				ImGui::Text(crypt_str("Color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESP__COLOR"), &configs.esp.weapon_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESP__COLOR"), &configs.visuals.weapon_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			if (configs.esp.weapon[WEAPON_BOX])
+			if (configs.visuals.weapon[WEAPON_BOX])
 			{
 				ImGui::Text(crypt_str("Box color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPBOX__COLOR"), &configs.esp.box_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPBOX__COLOR"), &configs.visuals.box_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			if (configs.esp.weapon[WEAPON_GLOW])
+			if (configs.visuals.weapon[WEAPON_GLOW])
 			{
 				ImGui::Text(crypt_str("Glow color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPGLOW__COLOR"), &configs.esp.weapon_glow_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPGLOW__COLOR"), &configs.visuals.weapon_glow_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			if (configs.esp.weapon[WEAPON_AMMO])
+			if (configs.visuals.weapon[WEAPON_AMMO])
 			{
 				ImGui::Text(crypt_str("Ammo bar color"));
 
-				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPAMMO__COLOR"), &configs.esp.weapon_ammo_color, ImGuiWindowFlags_NoTitleBar);
+				ImGui::ColorEdit4Fixed(crypt_str("##WEAPONESPAMMO__COLOR"), &configs.visuals.weapon_ammo_color, ImGuiWindowFlags_NoTitleBar);
 			}
 
-			ImGui::CheckboxSkeet(crypt_str("Client bullet impacts"), &configs.esp.client_bullet_impacts);
+			ImGui::CheckboxSkeet(crypt_str("Client bullet impacts"), &configs.visuals.client_bullet_impacts);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##CLIENTBULLET__COLOR"), &configs.esp.client_bullet_impacts_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##CLIENTBULLET__COLOR"), &configs.visuals.client_bullet_impacts_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Server bullet impacts"), &configs.esp.server_bullet_impacts);
+			ImGui::CheckboxSkeet(crypt_str("Server bullet impacts"), &configs.visuals.server_bullet_impacts);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##SERVERBULLET__COLOR"), &configs.esp.server_bullet_impacts_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##SERVERBULLET__COLOR"), &configs.visuals.server_bullet_impacts_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Local bullet tracers"), &configs.esp.bullet_tracer);
+			ImGui::CheckboxSkeet(crypt_str("Local bullet tracers"), &configs.visuals.bullet_tracer);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##LOCALBULLET__COLOR"), &configs.esp.bullet_tracer_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::ColorEdit4Fixed(crypt_str("##LOCALBULLET__COLOR"), &configs.visuals.bullet_tracer_color, ImGuiWindowFlags_NoTitleBar);
 
-			ImGui::CheckboxSkeet(crypt_str("Enemy bullet tracers"), &configs.esp.enemy_bullet_tracer);
+			ImGui::CheckboxSkeet(crypt_str("Enemy bullet tracers"), &configs.visuals.enemy_bullet_tracer);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##ENEMYBULLET__COLOR"), &configs.esp.enemy_bullet_tracer_color, ImGuiWindowFlags_NoTitleBar);
-			draw_multicomboSkeet(crypt_str("Hit marker"), configs.esp.hitmarker, hitmarkers);
-			ImGui::CheckboxSkeet(crypt_str("Damage marker"), &configs.esp.damage_marker);
-			//ImGui::CheckboxSkeet(crypt_str("Kill effect"), &configs.esp.kill_effect);
+			ImGui::ColorEdit4Fixed(crypt_str("##ENEMYBULLET__COLOR"), &configs.visuals.enemy_bullet_tracer_color, ImGuiWindowFlags_NoTitleBar);
+			draw_multicomboSkeet(crypt_str("Hit marker"), configs.visuals.hitmarker, hitmarkers);
+			ImGui::CheckboxSkeet(crypt_str("Damage marker"), &configs.visuals.damage_marker);
+			//ImGui::CheckboxSkeet(crypt_str("Kill effect"), &configs.visuals.kill_effect);
 
-			//if (configs.esp.kill_effect)
-			//	ImGui::SliderFloatSkeet(crypt_str("Duration"), &configs.esp.kill_effect_duration, 0.01f, 3.0f, "%.0f");
+			//if (configs.visuals.kill_effect)
+			//	ImGui::SliderFloatSkeet(crypt_str("Duration"), &configs.visuals.kill_effect_duration, 0.01f, 3.0f, "%.0f");
 
 			ImGui::KeybindSkeet(crypt_str("Thirdperson"), &configs.misc.thirdperson_toggle.key, &configs.misc.thirdperson_toggle.mode);
 
@@ -1613,13 +1615,13 @@ void menu::draw()
 			//ImGui::CheckboxSkeet(crypt_str("Keep thirdperson"), &configs.misc.keep_thirdperson);
 			ImGui::SliderIntSkeet(crypt_str("Thirdperson distance"), &configs.misc.thirdperson_distance, 100, 300, "%.0f");
 
-			ImGui::SliderIntSkeet(crypt_str("Field of view"), &configs.esp.fov, 0, 89, "%.0f");
+			ImGui::SliderIntSkeet(crypt_str("Field of view"), &configs.visuals.fov, 0, 89, "%.0f");
 
-			ImGui::CheckboxSkeet(crypt_str("Taser range"), &configs.esp.taser_range);
-			ImGui::CheckboxSkeet(crypt_str("Show spread"), &configs.esp.show_spread);
+			ImGui::CheckboxSkeet(crypt_str("Taser range"), &configs.visuals.taser_range);
+			ImGui::CheckboxSkeet(crypt_str("Show spread"), &configs.visuals.show_spread);
 
-			ImGui::ColorEdit4Fixed(crypt_str("##SPREAD__COLOR"), &configs.esp.show_spread_color, ImGuiWindowFlags_NoTitleBar);
-			ImGui::CheckboxSkeet(crypt_str("Penetration crosshair"), &configs.esp.penetration_reticle);
+			ImGui::ColorEdit4Fixed(crypt_str("##SPREAD__COLOR"), &configs.visuals.show_spread_color, ImGuiWindowFlags_NoTitleBar);
+			ImGui::CheckboxSkeet(crypt_str("Penetration crosshair"), &configs.visuals.penetration_reticle);
 
 		}
 		ImGui::EndChildSkeet();
@@ -1657,7 +1659,7 @@ void menu::draw()
 
 			ImGui::CheckboxSkeet(crypt_str("Inventory unlocker"), &configs.misc.inventory_access);
 
-			ImGui::CheckboxSkeet(crypt_str("Preserve killfeed"), &configs.esp.preserve_killfeed);
+			ImGui::CheckboxSkeet(crypt_str("Preserve killfeed"), &configs.visuals.preserve_killfeed);
 
 			ImGui::CheckboxSkeet("Killfeed changer", &configs.killfeedChanger.enabled);
 			ImGui::SameLine();
@@ -1719,33 +1721,33 @@ void menu::draw()
 			}
 			ImGui::PopID();
 
-			ImGui::SingleSelectSkeet(crypt_str("Hitsound"), &configs.esp.hitsound, sounds);
-			if (configs.esp.hitsound == 7)
+			ImGui::SingleSelectSkeet(crypt_str("Hitsound"), &configs.visuals.hitsound, sounds);
+			if (configs.visuals.hitsound == 7)
 			{
 				static char hitsound_custom[64] = "\0";
 
-				if (!configs.esp.custom_hitsound.empty())
-					strcpy_s(hitsound_custom, sizeof(hitsound_custom), configs.esp.custom_hitsound.c_str());
+				if (!configs.visuals.custom_hitsound.empty())
+					strcpy_s(hitsound_custom, sizeof(hitsound_custom), configs.visuals.custom_hitsound.c_str());
 
 				ImGui::Text(crypt_str("Sound file name"));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
 				if (ImGui::InputText(crypt_str("##CUSTOMHITSOUND__INPUT"), hitsound_custom, sizeof(hitsound_custom)))
-					configs.esp.custom_hitsound = hitsound_custom;
+					configs.visuals.custom_hitsound = hitsound_custom;
 
 				ImGui::PopStyleVar();
 			}
-			ImGui::SingleSelectSkeet(crypt_str("Killsound"), &configs.esp.killsound, sounds);
-			if (configs.esp.killsound == 7)
+			ImGui::SingleSelectSkeet(crypt_str("Killsound"), &configs.visuals.killsound, sounds);
+			if (configs.visuals.killsound == 7)
 			{
 				static char killsound_custom[64] = "\0";
 
-				if (!configs.esp.custom_killsound.empty())
-					strcpy_s(killsound_custom, sizeof(killsound_custom), configs.esp.custom_killsound.c_str());
+				if (!configs.visuals.custom_killsound.empty())
+					strcpy_s(killsound_custom, sizeof(killsound_custom), configs.visuals.custom_killsound.c_str());
 
 				ImGui::Text(crypt_str("Sound file name"));
 				ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 1.f);
 				if (ImGui::InputText(crypt_str("##CUSTOMKILLSOUND__INPUT"), killsound_custom, sizeof(killsound_custom)))
-					configs.esp.custom_killsound = killsound_custom;
+					configs.visuals.custom_killsound = killsound_custom;
 
 				ImGui::PopStyleVar();
 			}
@@ -2666,26 +2668,26 @@ void menu::draw()
 			ImVec2(0, 0), ImVec2(1, 1),
 			ImGui::GetColorU32(ImVec4(1, 1, 1, 1)));
 
-		Color aBox = Color(configs.player.type[0].box_color);
-		if (configs.player.type[0].box)
+		Color aBox = Color(configs.esp.type[0].box_color);
+		if (configs.esp.type[0].box)
 		{
 			ImGui::GetDrawList()->AddRect(ImVec2(vecWindowPosition.x + 694 + 150, vecWindowPosition.y + 39), ImVec2(vecWindowPosition.x + 886 + 170, vecWindowPosition.y + 386), ImColor(0, 0, 0, 255));
 			ImGui::GetDrawList()->AddRect(ImVec2(vecWindowPosition.x + 696 + 150, vecWindowPosition.y + 41), ImVec2(vecWindowPosition.x + 884 + 170, vecWindowPosition.y + 384), ImColor(0, 0, 0, 255));
 			ImGui::GetDrawList()->AddRect(ImVec2(vecWindowPosition.x + 695 + 150, vecWindowPosition.y + 40), ImVec2(vecWindowPosition.x + 885 + 170, vecWindowPosition.y + 385), ImColor(aBox.r(), aBox.g(), aBox.b(), aBox.a()));
 		}
-		Color aName = Color(configs.player.type[0].name_color);
-		if (configs.player.type[0].name)
+		Color aName = Color(configs.esp.type[0].name_color);
+		if (configs.esp.type[0].name)
 		{
 			RenderText("Sakura", ImVec2(vecWindowPosition.x + 715 + 150 + 80 - 50 / 2, vecWindowPosition.y + 22), 15.f, aName, false, false, skeet_menu.f2);
 		}
-		Color aHealthBar = Color(configs.player.type[0].health_color);
-		if (configs.player.type[0].health)
+		Color aHealthBar = Color(configs.esp.type[0].health_color);
+		if (configs.esp.type[0].health)
 		{
 			ImGui::GetDrawList()->AddRectFilled(ImVec2(vecWindowPosition.x + 689 + 150, vecWindowPosition.y + 39), ImVec2(vecWindowPosition.x + 693 + 150, vecWindowPosition.y + 385), ImColor(0, 0, 0, 100));
 			ImGui::GetDrawList()->AddRectFilled(ImVec2(vecWindowPosition.x + 690 + 150, vecWindowPosition.y + 40), ImVec2(vecWindowPosition.x + 692 + 150, vecWindowPosition.y + 385), ImColor(aHealthBar.r(), aHealthBar.g(), aHealthBar.b(), aHealthBar.a()));
 		}
-		Color aAmmoBar = Color(configs.player.type[0].ammobar_color);
-		if (configs.player.type[0].ammo)
+		Color aAmmoBar = Color(configs.esp.type[0].ammobar_color);
+		if (configs.esp.type[0].ammo)
 		{
 			ImGui::GetDrawList()->AddRectFilled(ImVec2(vecWindowPosition.x + 695 + 150, vecWindowPosition.y + 387), ImVec2(vecWindowPosition.x + 906 + 150, vecWindowPosition.y + 391), ImColor(0, 0, 0, 100));
 			ImGui::GetDrawList()->AddRectFilled(ImVec2(vecWindowPosition.x + 695 + 150, vecWindowPosition.y + 388), ImVec2(vecWindowPosition.x + 905 + 150, vecWindowPosition.y + 390), ImColor(aAmmoBar.r(), aAmmoBar.g(), aAmmoBar.b(), aAmmoBar.a()));
@@ -2973,31 +2975,31 @@ void C_DrawModel::Instance()
 	matrix3x4_t matPlayerView = { };
 	AngleMatrix(QAngle(0, -180, 0), matPlayerView, Vector(0, 0, 0));
 
-	auto fix = configs.player.type[0].chams_type == 3 || configs.player.type[0].chams_type == 5 || configs.player.type[0].chams_type == 6 || configs.player.type[0].chams_type == 8;
+	auto fix = configs.esp.type[0].chams_type == 3 || configs.esp.type[0].chams_type == 5 || configs.esp.type[0].chams_type == 6 || configs.esp.type[0].chams_type == 8;
 
 	m_modelrender()->SuppressEngineLighting(true);
-	if (configs.player.type[0].chams[PLAYER_CHAMS_VISIBLE] && !fix && !configs.player.type[0].double_material && !configs.player.type[0].animated_material)
-		ApplyMaterial(configs.player.type[0].chams_type, false, Color(configs.player.type[0].chams_color), true, false);
-	else if (configs.player.type[0].chams[PLAYER_CHAMS_VISIBLE] && (fix || configs.player.type[0].double_material || configs.player.type[0].animated_material))
-		ApplyMaterial(0, false, Color(configs.player.type[0].chams_color.r(), configs.player.type[0].chams_color.g(), configs.player.type[0].chams_color.b(), configs.player.type[0].chams_color.a() - 1), true, false);
+	if (configs.esp.type[0].chams[PLAYER_CHAMS_VISIBLE] && !fix && !configs.esp.type[0].double_material && !configs.esp.type[0].animated_material)
+		ApplyMaterial(configs.esp.type[0].chams_type, false, Color(configs.esp.type[0].chams_color), true, false);
+	else if (configs.esp.type[0].chams[PLAYER_CHAMS_VISIBLE] && (fix || configs.esp.type[0].double_material || configs.esp.type[0].animated_material))
+		ApplyMaterial(0, false, Color(configs.esp.type[0].chams_color.r(), configs.esp.type[0].chams_color.g(), configs.esp.type[0].chams_color.b(), configs.esp.type[0].chams_color.a() - 1), true, false);
 
 	m_PreviewModel->Draw(matPlayerView);
 
 	if (fix)
 	{
-		ApplyMaterial(configs.player.type[0].chams_type, true, Color(configs.player.type[0].chams_color), true, true);
+		ApplyMaterial(configs.esp.type[0].chams_type, true, Color(configs.esp.type[0].chams_color), true, true);
 		m_PreviewModel->Draw(matPlayerView);
 	}
 
-	if (configs.player.type[0].double_material)
+	if (configs.esp.type[0].double_material)
 	{
-		ApplyMaterial(6, true, Color(configs.player.type[0].double_material_color), true, true);
+		ApplyMaterial(6, true, Color(configs.esp.type[0].double_material_color), true, true);
 		m_PreviewModel->Draw(matPlayerView);
 	}
 
-	if (configs.player.type[0].animated_material)
+	if (configs.esp.type[0].animated_material)
 	{
-		ApplyMaterial(9, true, Color(configs.player.type[0].animated_material_color), true, true);
+		ApplyMaterial(9, true, Color(configs.esp.type[0].animated_material_color), true, true);
 		m_PreviewModel->Draw(matPlayerView);
 	}
 

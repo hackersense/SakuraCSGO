@@ -51,7 +51,7 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 	return result;
 }
 
-void __fastcall Hooks::hooked_standardblendingrules(player_t* player, int i, c_studio_hdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask)
+void __fastcall Hooks::hooked_standardblendingrules(player_t* player, int i, CStudioHdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask)
 {
 	auto backup_effects = player->m_fEffects();
 
@@ -65,7 +65,7 @@ void __fastcall Hooks::hooked_standardblendingrules(player_t* player, int i, c_s
 	//player->m_fEffects() &= ~8;
 }
 
-void __fastcall Hooks::hooked_doextrabonesprocessing(player_t* player, void* edx, c_studio_hdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context)
+void __fastcall Hooks::hooked_doextrabonesprocessing(player_t* player, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context)
 {
 	/*
 if (!player)
@@ -127,7 +127,7 @@ void __fastcall Hooks::hooked_modifyeyeposition(c_baseplayeranimationstate* stat
 
 void __fastcall Hooks::hooked_calcviewmodelbob(player_t* player, void* edx, Vector& position)
 {
-	if (!configs.esp.removals[REMOVALS_LANDING_BOB] || player != cheat.local() || !cheat.local()->is_alive())
+	if (!configs.visuals.removals[REMOVALS_LANDING_BOB] || player != cheat.local() || !cheat.local()->is_alive())
 		return ((CalcViewmodelBobFn)original_calcviewmodelbob)(player, position);
 }
 

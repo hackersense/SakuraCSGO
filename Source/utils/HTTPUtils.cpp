@@ -9,12 +9,12 @@ std::string HTTPUtils::get(std::string url)
 
 	DWORD dwLengthSizeBuffer = sizeof(szSizeBuffer);
 
-	hINet = InternetOpen("IE6.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
+	hINet = InternetOpenA("IE6.0", INTERNET_OPEN_TYPE_PRECONFIG, NULL, NULL, 0);
 
 	if (!hINet)
 		return "";
 
-	hHttpFile = InternetOpenUrl(hINet, url.c_str(), NULL, 0, 0, 0);
+	hHttpFile = InternetOpenUrlA(hINet, url.c_str(), NULL, 0, 0, 0);
 
 	if (!hHttpFile)
 		return "";

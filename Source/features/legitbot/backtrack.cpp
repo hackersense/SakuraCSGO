@@ -41,24 +41,18 @@ void backtrack::update() noexcept
         Record record{ };
         record.ownerIdx = entity->EntIndex();
         record.origin = entity->GetAbsOrigin();
-        record.absAngle = entity->GetAbsAngles();
-        record.mins = entity->GetCollideable()->OBBMins();
-        record.maxs = entity->GetCollideable()->OBBMaxs();
         record.simulationTime = entity->m_flSimulationTime();
-        record.hasHelmet = entity->m_bHasHelmet();
-        record.armor = entity->m_ArmorValue();
 
-        entity->SetupBones(record.matrix, cheat.local()->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
+        entity->setup_bones_fixed(record.matrix, cheat.local()->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
 
         if (record.matrix)
-            for (auto bone : { 8, 4, 3, 7, 6, 5 })
-                record.positions.push_back(record.matrix[bone].GetOrigin());
+            record.positions.push_back(record.matrix[8].GetOrigin());
+            //for (auto bone : { 8, 4, 3, 7, 6, 5 })
+             //   record.positions.push_back(record.matrix[bone].GetOrigin());
 
         records[i].push_front(record);
 
-        float timeLimit = static_cast<float>(configs.backtrack.timeLimit) / 1000.f + getExtraTicks();
-
-        while (records[i].size() > 3 && records[i].size() > static_cast<size_t>(TIME_TO_TICKS(timeLimit)))
+        while (records[i].size() > 3 && records[i].size() > static_cast<size_t>(TIME_TO_TICKS(static_cast<float>(configs.backtrack.timeLimit) / 1000.f + getExtraTicks())))
             records[i].pop_back();
 
        // if (auto invalid = std::find_if(std::cbegin(records[i]), std::cend(records[i]), [](const Record& rec) { return !backtrack::get().valid(rec.simulationTime); }); invalid != std::cend(records[i]))
@@ -165,8 +159,11 @@ void backtrack::updateIncomingSequences() noexcept
     //if (!key_binds::get().get_key_bind_state(key_bind_features::PING_SPIKE))
     //    return;
 
-    if (cheat.local()->m_iTeamNum() == 0)
+    if (!cheat.local())
         return;
+
+    //if (cheat.local()->m_iTeamNum() == TeamID::None)
+    //    return;
 
     auto network = m_clientstate()->m_pNetChannel;
     if (!network)

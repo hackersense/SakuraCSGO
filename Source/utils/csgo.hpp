@@ -33,6 +33,8 @@
 #include "..\sdk\interfaces\CSPlayerResource.h"
 #include "..\sdk\interfaces\IWeaponSystem.h"
 #include "..\sdk\new\MaterialSystem.h"
+#include "..\sdk\new\ConVar.h"
+#include "..\sdk\new\CVar.h"
 #include <d3dx9.h>
 #include <d3d9.h>
 
@@ -55,6 +57,7 @@ public:
 	IBaseClientDLL* m_client();
 	IClientEntityList* m_entitylist();
 	ICvar* m_cvar();
+	NEWCvar* m_cvar2();
 	IEngineTrace* m_trace();
 	VSoundEmitter* m_soundemitter();
 	IEngineSound* m_enginesound();
@@ -67,7 +70,7 @@ public:
 	IMaterialSystem* m_materialsystem();
 	MaterialSystem* m_materialsystem2();
 	IPanel* m_panel();
-	IVModelInfoClient* m_modelinfo();
+	IVModelInfo* m_modelinfo();
 	IPrediction* m_prediction();
 	IGameMovement* m_gamemovement();
 	ISurface* m_surface();
@@ -101,7 +104,8 @@ private:
 	IEngineTrace * p_trace = nullptr;
 	VSoundEmitter* p_soundemitter = nullptr;
 	IEngineSound * p_enginesound = nullptr;
-	ICvar * p_cvar = nullptr;
+	ICvar* p_cvar = nullptr;
+	NEWCvar* p_cvar2 = nullptr;
 	IInputInternal* p_inputinternal = nullptr;
 	IVStudioRender* p_studiorender = nullptr;
 	IVRenderView * p_renderview = nullptr;
@@ -110,25 +114,25 @@ private:
 	IPanoramaUIEngine* p_panoramauiengine = nullptr;
 	IMaterialSystem* p_materialsystem = nullptr;
 	MaterialSystem* p_materialsystem2 = nullptr;
-	IPanel * p_panel = nullptr;
-	IVModelInfoClient * p_modelinfo = nullptr;
-	IPrediction * p_prediciton = nullptr;
-	IGameMovement * p_gamemovement = nullptr;
-	ISurface * p_surface = nullptr;
-	IVDebugOverlay * p_debugoverlay = nullptr;
-	IPhysicsSurfaceProps * p_physsurface = nullptr;
-	IGameEventManager * p_eventmanager = nullptr;
-	IViewRenderBeams * p_viewrenderbeams = nullptr;
-	IMemAlloc * p_memalloc = nullptr;
-	IClientMode * p_clientmode = nullptr;
-	CGlobalVarsBase * p_globals = nullptr;
-	CGlowObjectManager * p_glow = nullptr;
-	CClientState * p_clientstate = nullptr;
+	IPanel* p_panel = nullptr;
+	IVModelInfo* p_modelinfo = nullptr;
+	IPrediction* p_prediciton = nullptr;
+	IGameMovement* p_gamemovement = nullptr;
+	ISurface* p_surface = nullptr;
+	IVDebugOverlay* p_debugoverlay = nullptr;
+	IPhysicsSurfaceProps* p_physsurface = nullptr;
+	IGameEventManager* p_eventmanager = nullptr;
+	IViewRenderBeams* p_viewrenderbeams = nullptr;
+	IMemAlloc* p_memalloc = nullptr;
+	IClientMode* p_clientmode = nullptr;
+	CGlobalVarsBase* p_globals = nullptr;
+	CGlowObjectManager* p_glow = nullptr;
+	CClientState* p_clientstate = nullptr;
 	IMoveHelper* p_movehelper = nullptr;
 	CMoveData* p_movedata = nullptr;
-	CInput * p_input = nullptr;
-	CSPlayerResource * p_playerresource = nullptr;
-	CSGameRulesProxy * p_gamerules = nullptr;
+	CInput* p_input = nullptr;
+	CSPlayerResource* p_playerresource = nullptr;
+	CSGameRulesProxy* p_gamerules = nullptr;
 	ILocalize* p_localize = nullptr;
 	IEngineTool* p_enginetool = nullptr;
 	IBaseFileSystem* p_basefilesystem = nullptr;

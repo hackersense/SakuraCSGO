@@ -188,7 +188,7 @@ public:
 
 	std::string getVersion()
 	{
-		return crypt_str("2.4");
+		return crypt_str("2.5");
 	}
 
 	auto getVersionLong()

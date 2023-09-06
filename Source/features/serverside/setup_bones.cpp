@@ -37,9 +37,9 @@ public:
 		}
 	}
 
-	void Init(c_studio_hdr* hdr, Vector* angles, Vector* origin, float currentTime, int frames, int boneMask)
+	void Init(CStudioHdr* hdr, Vector* angles, Vector* origin, float currentTime, int frames, int boneMask)
 	{
-		using Init_t = void(__thiscall*)(void*, c_studio_hdr*, QAngle*, Vector*, float, int, int);
+		using Init_t = void(__thiscall*)(void*, CStudioHdr*, QAngle*, Vector*, float, int, int);
 
 		static auto ik_init = (Init_t)util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 EC 08 8B 45 08 56 57 8B F9 8D 8F"));
 		ik_init(this, hdr, (QAngle*)angles, origin, currentTime, frames, boneMask);
@@ -64,12 +64,12 @@ public:
 
 struct CBoneSetup
 {
-	c_studio_hdr* m_pStudioHdr;
+	CStudioHdr* m_pStudioHdr;
 	int m_boneMask;
 	float* m_flPoseParameter;
 	void* m_pPoseDebugger;
 
-	void InitPose(Vector pos[], Quaternion q[], c_studio_hdr* hdr)
+	void InitPose(Vector pos[], Quaternion q[], CStudioHdr* hdr)
 	{
 		static auto init_pose = util::FindSignature("client.dll", "55 8B EC 83 EC 10 53 8B D9 89 55 F8 56 57 89 5D F4 8B 0B 89 4D F0");
 
@@ -150,9 +150,9 @@ struct mstudioposeparamdesc_t
 	float loop;
 };
 
-mstudioposeparamdesc_t* pPoseParameter(c_studio_hdr* hdr, int index)
+mstudioposeparamdesc_t* pPoseParameter(CStudioHdr* hdr, int index)
 {
-	using poseParametorFn = mstudioposeparamdesc_t*(__thiscall*)(c_studio_hdr*, int);
+	using poseParametorFn = mstudioposeparamdesc_t*(__thiscall*)(CStudioHdr*, int);
 	static poseParametorFn pose_parameter = (poseParametorFn)util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 8B 45 08 57 8B F9 8B 4F 04 85 C9 75 15 8B"));
 
 	return pose_parameter(hdr, index);
@@ -171,7 +171,7 @@ void UpdateCache(uintptr_t bonemerge)
 	bone_merge_update_cache(bonemerge);
 }
 
-float GetPoseParamValue(c_studio_hdr* hdr, int index, float flValue)
+float GetPoseParamValue(CStudioHdr* hdr, int index, float flValue)
 {
 	if (index < 0 || index > 24)
 		return 0.0f;
@@ -208,10 +208,10 @@ void MergeMatchingPoseParams(uintptr_t bonemerge, float* poses, float* target_po
 			if (*index != -1)
 			{
 				auto target = *(player_t**)(bonemerge + 0x4);
-				auto hdr = target->m_pStudioHdr();
+				auto hdr = target->getStudioHdr();
 				auto pose_param_value = 0.0f;
 
-				if (hdr && *(studiohdr_t**)hdr && counter >= 0)
+				if (hdr && *(StudioHdr**)hdr && counter >= 0)
 				{
 					auto pose = target_poses[counter];
 					auto pose_param = pPoseParameter(hdr, counter);
@@ -220,7 +220,7 @@ void MergeMatchingPoseParams(uintptr_t bonemerge, float* poses, float* target_po
 				}
 
 				auto target2 = *(player_t**)(bonemerge);
-				auto hdr2 = target2->m_pStudioHdr();
+				auto hdr2 = target2->getStudioHdr();
 
 				poses[*index] = GetPoseParamValue(hdr2, *index, pose_param_value);
 			}
@@ -239,7 +239,7 @@ void CSetupBones::setup()
 	if (!m_bShouldDoIK)
 		m_pIk = nullptr;
 
-	m_pHdr = m_animating->m_pStudioHdr();
+	m_pHdr = m_animating->getStudioHdr();
 
 	uint32_t bone_computed[8];
 	memset(bone_computed, 0, 8 * sizeof(uint32_t));
@@ -358,7 +358,7 @@ void CSetupBones::get_skeleton()
 			if (bone_merge)
 			{
 				MergeMatchingPoseParams(bone_merge, m_flWorldPoses, m_flPoseParameters);
-				auto world_hdr = weaponWorldModel->m_pStudioHdr();
+				auto world_hdr = weaponWorldModel->getStudioHdr();
 
 				world_ik->Construct();
 				world_ik->Init(world_hdr, &m_angAngles, &m_vecOrigin, m_flCurtime, 0, BONE_USED_BY_BONE_MERGE);
@@ -384,7 +384,7 @@ void CSetupBones::get_skeleton()
 							VirtualMethod::call<void, 247>(m_animating, layer, world_hdr, layer->m_iSequence);
 						}
 
-						if (!m_bShouldDispatch || layer->m_iDispatchDst <= 0 || layer->m_iDispatchDst >= (*(studiohdr_t**)world_hdr)->numlocalseq)
+						if (!m_bShouldDispatch || layer->m_iDispatchDst <= 0 || layer->m_iDispatchDst >= (*(StudioHdr**)world_hdr)->numLocalSeq)
 							bone_setup->AccumulatePose(m_vecBones, m_quatBones, layer->m_iSequence, layer->m_flCycle, layer->m_flWeight, m_flCurtime, m_pIk);
 						else if (m_bShouldDispatch)
 						{
@@ -433,14 +433,14 @@ void CSetupBones::get_skeleton()
 	bone_setup->CalcBoneAdj(m_vecBones, m_quatBones, (float*)(std::uintptr_t(m_animating) + 0xA54), m_boneMask);
 }
 
-void CSetupBones::studio_build_matrices(c_studio_hdr* hdr, const matrix3x4_t& rotationmatrix, Vector* pos, Quaternion* q, int boneMask, matrix3x4_t* bonetoworld, uint32_t* boneComputed)
+void CSetupBones::studio_build_matrices(CStudioHdr* hdr, const matrix3x4_t& rotationmatrix, Vector* pos, Quaternion* q, int boneMask, matrix3x4_t* bonetoworld, uint32_t* boneComputed)
 {
 	auto i = 0;
 	auto chain_length = 0;
 	auto bone = -1;
-	auto studio_hdr = *(studiohdr_t**)hdr;
+	auto studio_hdr = *(StudioHdr**)hdr;
 
-	if (bone < -1 || bone >= studio_hdr->numbones)
+	if (bone < -1 || bone >= studio_hdr->numBones)
 		bone = 0;
 
 	auto bone_parent = (CUtlVector<int>*)(std::uintptr_t(hdr) + 0x44);
@@ -450,9 +450,9 @@ void CSetupBones::studio_build_matrices(c_studio_hdr* hdr, const matrix3x4_t& ro
 
 	if (bone <= -1)
 	{
-		chain_length = studio_hdr->numbones;
+		chain_length = studio_hdr->numBones;
 
-		for (i = 0; i < studio_hdr->numbones; ++i)
+		for (i = 0; i < studio_hdr->numBones; ++i)
 			chain[chain_length - i - 1] = i;
 	}
 	else
@@ -492,7 +492,7 @@ void CSetupBones::studio_build_matrices(c_studio_hdr* hdr, const matrix3x4_t& ro
 
 void CSetupBones::attachment_helper()
 {
-	using AttachmentHelperFn = void(__thiscall*)(player_t*, c_studio_hdr*);
+	using AttachmentHelperFn = void(__thiscall*)(player_t*, CStudioHdr*);
 	static auto m_AttachmentHelper = util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 EC 48 53 8B 5D 08 89 4D F4"));
 
 	static auto attachment = (AttachmentHelperFn)m_AttachmentHelper;
@@ -501,11 +501,11 @@ void CSetupBones::attachment_helper()
 
 void CSetupBones::fix_bones_rotations()
 {
-	auto studio_hdr = m_animating->m_pStudioHdr();
+	auto studio_hdr = m_animating->getStudioHdr();
 
 	if (studio_hdr)
 	{
-		auto hdr = *(studiohdr_t**)studio_hdr;
+		auto hdr = *(StudioHdr**)studio_hdr;
 
 		if (hdr)
 		{

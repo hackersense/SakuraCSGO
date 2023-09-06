@@ -60,7 +60,7 @@ typedef int MaterialPropertyTypes_t;
 
 class IClientRenderable;
 class NEWMaterial;
-class c_studio_hdr;
+class CStudioHdr;
 class IMatRenderContext;
 class DataCacheHandle_t;
 class ITexture;
@@ -76,7 +76,7 @@ struct ColorMeshInfo_t;
 
 struct DrawModelState_t
 {
-    studiohdr_t*            m_pStudioHdr;
+    StudioHdr*              m_pStudioHdr;
     studiohwdata_t*         m_pStudioHWData;
     IClientRenderable*      m_pRenderable;
     const matrix3x4_t*      m_pModelToWorld;
@@ -212,7 +212,7 @@ public:
     virtual int                     DrawModel(int flags, IClientRenderable *pRenderable, ModelInstanceHandle_t instance, int entity_index, const model_t *model, Vector const& origin, Vector const& angles, int skin, int body, int hitboxset, const matrix3x4_t *modelToWorld = NULL, const matrix3x4_t *pLightingOffset = NULL) = 0;
     virtual void                    ForcedMaterialOverride(NEWMaterial *newMaterial, OverrideType_t nOverrideType = 0, int nOverrides = 0) = 0;
     virtual bool                    IsForcedMaterialOverride(void) = 0;
-    virtual void                    SetViewTarget(const c_studio_hdr* pStudioHdr, int nBodyIndex, const Vector& target) = 0;
+    virtual void                    SetViewTarget(const CStudioHdr* pStudioHdr, int nBodyIndex, const Vector& target) = 0;
     virtual ModelInstanceHandle_t   CreateInstance(IClientRenderable *pRenderable, LightCacheHandle_t *pCache = NULL) = 0;
     virtual void                    DestroyInstance(ModelInstanceHandle_t handle) = 0;
     virtual void                    SetStaticLighting(ModelInstanceHandle_t handle, LightCacheHandle_t* pHandle) = 0;

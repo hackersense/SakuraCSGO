@@ -179,6 +179,7 @@ struct MaterialVideoMode_t
 	ImageFormat m_Format;	// use ImageFormats (ignored for windowed mode)
 	int m_RefreshRate;		// 0 == default (ignored for windowed mode)
 };
+
 enum HDRType_t
 {
 	HDR_TYPE_NONE,

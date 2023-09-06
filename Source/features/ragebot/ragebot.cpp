@@ -1372,7 +1372,9 @@ void ragebot::fire(CUserCmd* cmd)
 			bool can_scope = cheat.globals.weapon && cheat.globals.weapon->m_zoomLevel() == 0 && cheat.globals.weapon->IsZoomable(true);
 
 			if (can_scope && configs.ragebot.autoscope != 0 && (configs.ragebot.autoscope == 1 || (configs.ragebot.autoscope == 2 && !hit)))
-				cmd->m_buttons |= IN_ATTACK2;
+				cmd->m_buttons |= IN_ZOOM;
+
+				//cmd->m_buttons |= IN_ATTACK2;
 
 			return;
 		}
@@ -1475,7 +1477,7 @@ void ragebot::fire(CUserCmd* cmd)
 		}
 	};
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(final_target.record->index, &player_info);
 
 	if (configs.player_list.roll_prediction[final_target.record->index] && !player_info.fakeplayer)
@@ -1543,7 +1545,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 
 	static auto nospread = m_cvar()->FindVar(crypt_str("weapon_accuracy_nospread"));
 
-	if (nospread->GetBool())
+	if (nospread->getBool())
 		return 101;
 
 	//auto final_hitchance = 0;
@@ -1557,7 +1559,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 	auto spread = ZERO;
 
 	//static auto weapon_recoil_scale = m_cvar()->FindVar(crypt_str("weapon_recoil_scale"));
-	//const auto current_aim_angle = math::calculate_angle(cheat.globals.eye_pos, final_target.data.point.point) - (cheat.local()->m_aimPunchAngle() * weapon_recoil_scale->GetFloat());
+	//const auto current_aim_angle = math::calculate_angle(cheat.globals.eye_pos, final_target.data.point.point) - (cheat.local()->m_aimPunchAngle() * weapon_recoil_scale->getFloat());
 
 	math::angle_vectors(aim_angle, &forward, &right, &up);
 
@@ -1710,7 +1712,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 
 		auto end = cheat.globals.eye_pos + direction * weapon_info->flRange;
 
-		if (can_hit(final_target.record->player, final_target.record->matrixes_data.main, final_target.data.hitbox, cheat.globals.eye_pos, end))
+		if (hitbox_intersection(final_target.record->player, final_target.record->matrixes_data.main, final_target.data.hitbox, cheat.globals.eye_pos, end))
 			++hits;
 	}
 
@@ -1747,7 +1749,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 
 			auto end = cheat.globals.eye_pos + direction * weapon_info->flRange;
 
-			if (can_hit(final_target.record->player, final_target.record->matrixes_data.main, final_target.data.hitbox, cheat.globals.eye_pos, end))
+			if (hitbox_intersection(final_target.record->player, final_target.record->matrixes_data.main, final_target.data.hitbox, cheat.globals.eye_pos, end))
 			{
 				auto fire_data = autowall::get().wall_penetration(cheat.globals.eye_pos, end, final_target.record->player);
 				auto valid_hitbox = true;

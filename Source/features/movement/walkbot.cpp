@@ -78,7 +78,7 @@ void walkbot::update(bool showdebug) {
 	std::string oldmapname = mapname;
 	mapname = m_engine()->GetLevelName();
 	if (oldmapname != mapname) {
-		//refresh(mapname, dots, configs.esp.walksave);
+		//refresh(mapname, dots, configs.visuals.walksave);
 		file("_def", file_load);
 		return;
 	}
@@ -86,7 +86,7 @@ void walkbot::update(bool showdebug) {
 	int oldteamnum = teamnum;
 	teamnum = cheat.local()->m_iTeamNum();
 	if (oldteamnum != teamnum) {
-		//refresh(mapname, dots, configs.esp.walksave);
+		//refresh(mapname, dots, configs.visuals.walksave);
 		marker = 0;
 		prishel = false;
 		return;
@@ -201,8 +201,8 @@ void walkbot::file(std::string addictive_name, int todo)
 	for (size_t i = 0; i < mapname.size(); ++i)
 		if (mapname[i] != '\\') levelNameFixed += mapname[i];
 
-	if (cheat.local()->m_iTeamNum() > 0)
-		levelNameFixed += std::to_string(cheat.local()->m_iTeamNum());
+	if (cheat.local()->m_iTeamNum() != TeamID::None)
+		levelNameFixed += std::to_string(static_cast<int>(cheat.local()->m_iTeamNum()));
 
 	levelNameFixed += addictive_name;
 
@@ -257,8 +257,8 @@ void walkbot::refresh(std::string levelName, std::vector<Vector> spots, bool sav
 	for (size_t i = 0; i < mapname.size(); ++i)
 		if (levelName[i] != '\\') levelNameFixed += levelName[i];
 
-	if (cheat.local()->m_iTeamNum() > 0)
-		levelNameFixed += std::to_string(cheat.local()->m_iTeamNum());
+	if (cheat.local()->m_iTeamNum() != TeamID::None)
+		levelNameFixed += std::to_string(static_cast<int>(cheat.local()->m_iTeamNum()));
 
 	std::string file = cfg_manager->get_folder_path(PathType::Walkbot) + levelNameFixed + ".ini";
 

@@ -10,8 +10,6 @@ returnType name args noexcept \
     return VirtualMethod::call<returnType, idx>argsRaw; \
 }
 
-#define VIRTUAL_METHOD_V(returnType, name, idx, args, argsRaw) VIRTUAL_METHOD(returnType, name, idx, args, argsRaw)
-
 namespace VirtualMethod
 {
     template <typename T, std::size_t Idx, typename ...Args>

@@ -60,6 +60,8 @@ namespace Hooks
 	extern ClientHook* directx_hook;
 	extern PresentFn oPresent;
 	extern ResetFn oReset;
+	extern MinHook eyeangles_hook;
+	extern MinHook buildtransformations_hook;
 	extern MinHook client_hook;
 	extern MinHook prediction_hook;
 	extern MinHook gamemovement_hook;
@@ -86,8 +88,8 @@ namespace Hooks
 
 	using GetForeignFallbackFontNameFn = const char* (__thiscall*)(void*);
 	using SetupBonesFn = bool(__thiscall*)(void*, matrix3x4_t*, int, int, float);
-	using DoExtraBonesProcessingFn = void(__thiscall*)(player_t*, c_studio_hdr*, Vector*, Quaternion*, const matrix3x4_t&, uint8_t*, void*);
-	using StandardBlendingRulesFn = void(__thiscall*)(player_t*, c_studio_hdr*, Vector*, Quaternion*, float, int);
+	using DoExtraBonesProcessingFn = void(__thiscall*)(player_t*, CStudioHdr*, Vector*, Quaternion*, const matrix3x4_t&, uint8_t*, void*);
+	using StandardBlendingRulesFn = void(__thiscall*)(player_t*, CStudioHdr*, Vector*, Quaternion*, float, int);
 	using UpdateClientSideAnimationFn = void(__fastcall*)(player_t*);
 	using PhysicsSimulateFn = void(__fastcall*)(player_t*);
 	using ModifyEyePositionFn = void(__thiscall*)(c_baseplayeranimationstate*, Vector&);
@@ -130,8 +132,8 @@ namespace Hooks
 	const char* __fastcall hooked_getforeignfallbackfontname(void* ecx, uint32_t i);
 	_declspec(noinline)const char* getforeignfallbackfontname_detour(void* ecx, uint32_t i);
 	bool __fastcall hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone_world_out, int max_bones, int bone_mask, float current_time);
-	void __fastcall hooked_doextrabonesprocessing(player_t* player, void* edx, c_studio_hdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context);
-	void __fastcall hooked_standardblendingrules(player_t* player, int i, c_studio_hdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask);
+	void __fastcall hooked_doextrabonesprocessing(player_t* player, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context);
+	void __fastcall hooked_standardblendingrules(player_t* player, int i, CStudioHdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask);
 	void __fastcall hooked_updateclientsideanimation(player_t* player, uint32_t i);
 	void __fastcall hooked_physicssimulate(player_t* player, void* edx);
 	void __fastcall hooked_modifyeyeposition(c_baseplayeranimationstate* state, void* edx, Vector& position);

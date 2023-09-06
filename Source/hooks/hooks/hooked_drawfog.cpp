@@ -9,5 +9,5 @@ bool __fastcall Hooks::hooked_drawfog(void* ecx, void* edx)
 	if (std::uintptr_t(_ReturnAddress()) != memory->shouldDrawFogReturnAddress)
 		return original_fn(ecx);
 
-	return !configs.esp.removals[REMOVALS_FOGS] || configs.esp.fog;
+	return !configs.visuals.removals[REMOVALS_FOGS] || configs.visuals.fog;
 }

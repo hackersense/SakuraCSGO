@@ -26,7 +26,7 @@
 //-----------------------------------------------------------------------------
 // Forward declarations
 //-----------------------------------------------------------------------------
-class studiohdr_t;
+struct StudioHdr;
 struct studiohwdata_t;
 struct vcollide_t;
 struct virtualmodel_t;
@@ -118,7 +118,7 @@ public:
 	virtual int GetRef(MDLHandle_t handle) = 0;
 
 	// Gets at the various data associated with a MDL
-	virtual studiohdr_t* GetStudioHdr(MDLHandle_t handle) = 0;
+	virtual StudioHdr* GetStudioHdr(MDLHandle_t handle) = 0;
 	virtual studiohwdata_t* GetHardwareData(MDLHandle_t handle) = 0;
 	virtual vcollide_t* GetVCollide(MDLHandle_t handle) = 0;
 	virtual vcollide_t* GetVCollide(MDLHandle_t handle, float flScale) = 0;
@@ -154,7 +154,7 @@ public:
 	virtual IDataCacheSection* GetCacheSection(MDLCacheDataType_t type) = 0;
 
 	// faster access when you already have the studiohdr
-	virtual virtualmodel_t* GetVirtualModelFast(const studiohdr_t* pStudioHdr, MDLHandle_t handle) = 0;
+	virtual virtualmodel_t* GetVirtualModelFast(const StudioHdr* pStudioHdr, MDLHandle_t handle) = 0;
 
 	// all cache entries that subsequently allocated or successfully checked 
 	// are considered "locked" and will not be freed when additional memory is needed
@@ -184,9 +184,9 @@ public:
 
 	virtual bool IsDataLoaded(MDLHandle_t handle, MDLCacheDataType_t type) = 0;
 
-	virtual int *GetFrameUnlockCounterPtr(MDLCacheDataType_t type) = 0;
+	virtual int* GetFrameUnlockCounterPtr(MDLCacheDataType_t type) = 0;
 
-	virtual studiohdr_t *LockStudioHdr(MDLHandle_t handle) = 0;
+	virtual StudioHdr* LockStudioHdr(MDLHandle_t handle) = 0;
 	virtual void UnlockStudioHdr(MDLHandle_t handle) = 0;
 
 	virtual bool PreloadModel(MDLHandle_t handle) = 0;

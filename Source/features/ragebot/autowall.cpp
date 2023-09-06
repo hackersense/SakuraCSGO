@@ -36,8 +36,8 @@ void autowall::scale_damage(player_t* e, CGameTrace& enterTrace, weapon_info_t* 
 	static auto mp_damage_scale_ct_body = m_cvar()->FindVar(crypt_str("mp_damage_scale_ct_body"));
 	static auto mp_damage_scale_t_body = m_cvar()->FindVar(crypt_str("mp_damage_scale_t_body"));
 
-	auto head_scale = e->m_iTeamNum() == 3 ? mp_damage_scale_ct_head->GetFloat() : mp_damage_scale_t_head->GetFloat();
-	auto body_scale = e->m_iTeamNum() == 3 ? mp_damage_scale_ct_body->GetFloat() : mp_damage_scale_t_body->GetFloat();
+	auto head_scale = e->m_iTeamNum() == TeamID::CT ? mp_damage_scale_ct_head->GetFloat() : mp_damage_scale_t_head->GetFloat();
+	auto body_scale = e->m_iTeamNum() == TeamID::CT ? mp_damage_scale_ct_body->GetFloat() : mp_damage_scale_t_body->GetFloat();
 
 	auto armor_heavy = e->m_bHasHeavyArmor();
 	auto armor_value = e->m_ArmorValue();
@@ -173,7 +173,7 @@ bool autowall::trace_to_exit(Vector startPosition, Vector direction, Vector& end
 
 		if (m_trace()->TraceRay({ end, destination }, MASK_SHOT, nullptr, &exitTrace); exitTrace.startsolid && exitTrace.surface.flags & SURF_HITBOX)
 		{
-			if (m_trace()->trace_entity({ end, startPosition }, MASK_SHOT & ~CONTENTS_HITBOX, exitTrace.entity, &exitTrace); exitTrace.DidHit() && !exitTrace.startsolid)
+			if (m_trace()->trace_entity(end, startPosition, MASK_SHOT & ~CONTENTS_HITBOX, exitTrace.entity, &exitTrace); exitTrace.DidHit() && !exitTrace.startsolid)
 			{
 				end = exitTrace.endpos;
 				return true;
@@ -336,9 +336,7 @@ bool autowall::fire_bullet(weapon_t* weapon, Vector& direction, bool& visible, f
 		return false;
 	
 	CGameTrace enterTrace;
-	CTraceFilter filter;
 
-	filter.pSkip = cheat.local();
 	currentDamage = weaponData->iDamage;
 
 	auto eyePosition = pos;
@@ -353,8 +351,8 @@ bool autowall::fire_bullet(weapon_t* weapon, Vector& direction, bool& visible, f
 		maxRange -= currentDistance;
 		auto end = eyePosition + direction * maxRange;
 
-		util::trace_line(eyePosition, end, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &enterTrace);
-		util::clip_trace_to_players(e, eyePosition, end + direction * 40.0f, MASK_SHOT_HULL | CONTENTS_HITBOX, &filter, &enterTrace);
+		m_trace()->trace_entity(eyePosition, end, MASK_SHOT_HULL | CONTENTS_HITBOX, cheat.local(), &enterTrace);
+		util::clip_trace_to_players(e, eyePosition, end + direction * 40.0f, MASK_SHOT_HULL | CONTENTS_HITBOX, &enterTrace);
 
 		auto enterSurfaceData = m_physsurface()->GetSurfaceData(enterTrace.surface.surfaceProps);
 		auto enterSurfPenetrationModifier = enterSurfaceData->game.m_flPenetrationModifier;

@@ -221,7 +221,7 @@ void local_animations::update_fake_animations()
 		local_data.animstate->m_flHeadHeightOrOffsetFromHittingGroundAnimation = 1.0f;
 
 		cheat.local()->setup_bones_fixed(cheat.globals.fake_matrix, cheat.local()->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
-		local_data.visualize_lag = configs.player.visualize_lag;
+		local_data.visualize_lag = configs.esp.visualize_lag;
 
 		if (!local_data.visualize_lag)
 		{

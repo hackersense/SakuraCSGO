@@ -6,7 +6,7 @@ std::deque<adjust_data> player_records[65] = { };
 void animation_system::init()
 {
 	//static auto threadedBoneSetup = m_cvar()->FindVar("cl_threaded_bone_setup");
-	//threadedBoneSetup->SetValue(1);
+	//threadedBoneSetup->setValue(1);
 
 	static auto extrapolate = m_cvar()->FindVar("cl_extrapolate");
 	extrapolate->SetValue(0);
@@ -488,7 +488,7 @@ void animation_system::update_player_animations(player_t* e)
 		memcpy(e->get_animlayers(), backup_layers, e->animlayer_count() * sizeof(AnimationLayer));
 	};
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(e->EntIndex(), &player_info);
 
 	if (!player_info.fakeplayer && cheat.local()->is_alive() && e->is_alive() && e->m_iTeamNum() != cheat.local()->m_iTeamNum() && !configs.legitbot.enabled)

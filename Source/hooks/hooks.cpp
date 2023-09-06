@@ -238,6 +238,8 @@ namespace Hooks
 	ClientHook* directx_hook;
 	PresentFn oPresent;
 	ResetFn oReset;
+	MinHook eyeangles_hook;
+	MinHook buildtransformations_hook;
 	MinHook client_hook;
 	MinHook prediction_hook;
 	MinHook gamemovement_hook;

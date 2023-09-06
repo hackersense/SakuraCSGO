@@ -54,6 +54,7 @@
 #define m_clientmode g_csgo.m_clientmode
 #define m_clientstate g_csgo.m_clientstate
 #define m_cvar g_csgo.m_cvar
+#define m_cvar2 g_csgo.m_cvar2
 #define m_debugoverlay g_csgo.m_debugoverlay
 #define m_device g_csgo.m_device
 #define m_engine g_csgo.m_engine

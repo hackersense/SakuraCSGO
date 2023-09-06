@@ -235,6 +235,8 @@ set(Headers
     "sdk/misc/vfunc.hpp"
     "sdk/new/Material.h"
     "sdk/new/MaterialSystem.h"
+    "sdk/new/ConVar.h"
+    "sdk/new/CVar.h"
     "sdk/MusicStatus.hpp"
     "sdk/ProtobufReader.h"
     "sdk/Steam.h"

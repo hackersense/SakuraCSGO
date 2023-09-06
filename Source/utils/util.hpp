@@ -66,9 +66,7 @@ namespace util
 	int epoch_time();
 	void RotateMovement(CUserCmd* cmd, float yaw);
 	bool get_bbox(entity_t* entity, Box& box);
-	void trace_line(Vector& start, Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* trace);
-	void trace_line_entity(Vector& start, Vector& end, unsigned int mask, IClientEntity* entity, CGameTrace* trace);
-	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* tr);
+	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CGameTrace* tr);
 	void movement_fix(Vector& wish_angle, CUserCmd* m_pcmd);
 	unsigned int find_in_datamap(datamap_t* map, const char* name);
 	void convex_hull(std::vector<ImVec2>& points);

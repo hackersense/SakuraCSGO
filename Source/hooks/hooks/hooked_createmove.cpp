@@ -28,8 +28,8 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	static auto sky = m_cvar()->FindVar(crypt_str("r_3dsky"));
 	static auto shadows = m_cvar()->FindVar(crypt_str("cl_csm_enabled"));
-	sky->SetValue(~configs.esp.removals[REMOVALS_3DSKY]);
-	shadows->SetValue(~configs.esp.removals[REMOVALS_SHADOWS]);
+	sky->SetValue(~configs.visuals.removals[REMOVALS_3DSKY]);
+	shadows->SetValue(~configs.visuals.removals[REMOVALS_SHADOWS]);
 
 	if (!cheat.local()->is_alive())
 		return active;

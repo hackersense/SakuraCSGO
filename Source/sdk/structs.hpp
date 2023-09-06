@@ -485,7 +485,7 @@ public:
     void runThink();
     void runPostThink();
     c_baseplayeranimationstate* get_animation_state();
-    c_studio_hdr* m_pStudioHdr();
+    CStudioHdr* getStudioHdr();
     bool setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, float currentTime);
     bool setup_bones_fixed(matrix3x4_t* matrix, int mask);
     Vector get_eye_position();
@@ -507,12 +507,12 @@ public:
     void set_abs_velocity(const Vector& velocity);
     float sequence_duration(int sequence);
     float get_sequence_cycle_rate(int sequence);
-    float get_sequence_cycle_rate(studiohdr_t* studiohdr, int sequence);
+    float get_sequence_cycle_rate(StudioHdr* studiohdr, int sequence);
     float get_layer_sequence_cycle_rate(AnimationLayer* layer, int sequence);
     void update_clientside_animation();
     void update_clientside_animation_original();
     bool is_alive();
-    player_info_t* get_player_info();
+    PlayerInfo* get_player_info();
     bool valid(bool check_team, bool check_dormant = true);
     int get_move_type();
     int animlayer_count();
@@ -617,7 +617,7 @@ class AnimationLayer
 public:
     bool            m_bClientBlend;		        //0x0000
     float           m_flBlendIn;	            //0x0004
-    studiohdr_t*    m_pStudioHdr;	            //0x0008
+    StudioHdr*      m_pStudioHdr;	            //0x0008
     int             m_iDispatchSrc;             //0x000C
     int             m_iDispatchDst;             //0x0010
     unsigned int    m_iOrder;                   //0x0014

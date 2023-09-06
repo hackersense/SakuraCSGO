@@ -116,7 +116,7 @@ void eventlogs::events(IGameEvent* event)
 
 		auto player_id = m_engine()->GetPlayerForUserID(userid), attacker_id = m_engine()->GetPlayerForUserID(attacker);
 
-		player_info_t player_info, attacker_info;
+		PlayerInfo player_info, attacker_info;
 
 		if (!m_engine()->GetPlayerInfo(player_id, &player_info) || !m_engine()->GetPlayerInfo(attacker_id, &attacker_info))
 			return;
@@ -152,7 +152,7 @@ void eventlogs::events(IGameEvent* event)
 
 		auto player_id = m_engine()->GetPlayerForUserID(userid);
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 
 		if (!m_engine()->GetPlayerInfo(player_id, &player_info))
 			return;
@@ -185,7 +185,7 @@ void eventlogs::events(IGameEvent* event)
 
 		auto player_id = m_engine()->GetPlayerForUserID(userid);
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 
 		if (!m_engine()->GetPlayerInfo(player_id, &player_info))
 			return;
@@ -210,7 +210,7 @@ void eventlogs::events(IGameEvent* event)
 
 		auto player_id = m_engine()->GetPlayerForUserID(userid);
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 
 		if (!m_engine()->GetPlayerInfo(player_id, &player_info))
 			return;

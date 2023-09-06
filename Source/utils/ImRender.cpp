@@ -78,7 +78,7 @@ void ImGuiRendering::BeginScene()
 
 	playeresp::get().render();
 
-	//if (configs.esp.grenade_warning)
+	//if (configs.visuals.grenade_warning)
 	//	grenade_warning_call();
 
 	worldesp::get().onImGuiRender();

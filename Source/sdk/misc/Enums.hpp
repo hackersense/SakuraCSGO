@@ -237,6 +237,14 @@ enum ItemDefinitionIndex
 	GLOVE_HYDRA
 };
 
+enum TeamID
+{
+	None = 0,
+	Spectators,
+	TT,
+	CT
+};
+
 enum ClassID
 {
 	CAI_BaseNPC,

@@ -207,7 +207,7 @@ public:
 
 	virtual model_t*	GetModel(void* hEntity) = 0;
 
-	virtual studiohdr_t*GetStudioModel(void* hEntity) = 0;
+	virtual StudioHdr*  GetStudioModel(void* hEntity) = 0;
 
 	virtual void		Con_NPrintf(int pos, const char* fmt, ...) = 0;
 

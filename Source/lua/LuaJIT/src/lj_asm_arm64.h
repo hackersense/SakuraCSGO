@@ -1,6 +1,6 @@
 /*
 ** ARM64 IR assembler (SSA IR -> machine code).
-** Copyright (C) 2005-2022 Mike Pall. See Copyright Notice in luajit.h
+** Copyright (C) 2005-2023 Mike Pall. See Copyright Notice in luajit.h
 **
 ** Contributed by Djordje Kovacevic and Stefan Pejic from RT-RK.com.
 ** Sponsored by Cisco Systems, Inc.
@@ -337,7 +337,8 @@ static int asm_fusemadd(ASMState *as, IRIns *ir, A64Ins ai, A64Ins air)
 {
   IRRef lref = ir->op1, rref = ir->op2;
   IRIns *irm;
-  if (lref != rref &&
+  if ((as->flags & JIT_F_OPT_FMA) &&
+      lref != rref &&
       ((mayfuse(as, lref) && (irm = IR(lref), irm->o == IR_MUL) &&
        ra_noreg(irm->r)) ||
        (mayfuse(as, rref) && (irm = IR(rref), irm->o == IR_MUL) &&
@@ -418,10 +419,10 @@ static int asm_fuseorshift(ASMState *as, IRIns *ir)
 static void asm_gencall(ASMState *as, const CCallInfo *ci, IRRef *args)
 {
   uint32_t n, nargs = CCI_XNARGS(ci);
-  int32_t ofs = 0;
+  int32_t spofs = 0, spalign = LJ_HASFFI && LJ_TARGET_OSX ? 0 : 7;
   Reg gpr, fpr = REGARG_FIRSTFPR;
-  if ((void *)ci->func)
-    emit_call(as, (void *)ci->func);
+  if (ci->func)
+    emit_call(as, ci->func);
   for (gpr = REGARG_FIRSTGPR; gpr <= REGARG_LASTGPR; gpr++)
     as->cost[gpr] = REGCOST(~0u, ASMREF_L);
   gpr = REGARG_FIRSTGPR;
@@ -437,8 +438,14 @@ static void asm_gencall(ASMState *as, const CCallInfo *ci, IRRef *args)
 	  fpr++;
 	} else {
 	  Reg r = ra_alloc1(as, ref, RSET_FPR);
-	  emit_spstore(as, ir, r, ofs + ((LJ_BE && !irt_isnum(ir->t)) ? 4 : 0));
-	  ofs += 8;
+	  int32_t al = spalign;
+#if LJ_HASFFI && LJ_TARGET_OSX
+	  al |= irt_isnum(ir->t) ? 7 : 3;
+#endif
+	  spofs = (spofs + al) & ~al;
+	  if (LJ_BE && al >= 7 && !irt_isnum(ir->t)) spofs += 4, al -= 4;
+	  emit_spstore(as, ir, r, spofs);
+	  spofs += al + 1;
 	}
       } else {
 	if (gpr <= REGARG_LASTGPR) {
@@ -448,10 +455,27 @@ static void asm_gencall(ASMState *as, const CCallInfo *ci, IRRef *args)
 	  gpr++;
 	} else {
 	  Reg r = ra_alloc1(as, ref, RSET_GPR);
-	  emit_spstore(as, ir, r, ofs + ((LJ_BE && !irt_is64(ir->t)) ? 4 : 0));
-	  ofs += 8;
+	  int32_t al = spalign;
+#if LJ_HASFFI && LJ_TARGET_OSX
+	  al |= irt_size(ir->t) - 1;
+#endif
+	  spofs = (spofs + al) & ~al;
+	  if (al >= 3) {
+	    if (LJ_BE && al >= 7 && !irt_is64(ir->t)) spofs += 4, al -= 4;
+	    emit_spstore(as, ir, r, spofs);
+	  } else {
+	    lj_assertA(al == 0 || al == 1, "size %d unexpected", al + 1);
+	    emit_lso(as, al ? A64I_STRH : A64I_STRB, r, RID_SP, spofs);
+	  }
+	  spofs += al + 1;
 	}
       }
+#if LJ_HASFFI && LJ_TARGET_OSX
+    } else {  /* Marker for start of varargs. */
+      gpr = REGARG_LASTGPR+1;
+      fpr = REGARG_LASTFPR+1;
+      spalign = 7;
+#endif
     }
   }
 }
@@ -500,7 +524,7 @@ static void asm_callx(ASMState *as, IRIns *ir)
     ci.func = (ASMFunction)(ir_k64(irf)->u64);
   } else {  /* Need a non-argument register for indirect calls. */
     Reg freg = ra_alloc1(as, func, RSET_RANGE(RID_X8, RID_MAX_GPR)-RSET_FIXED);
-    emit_n(as, A64I_BLR, freg);
+    emit_n(as, A64I_BLR_AUTH, freg);
     ci.func = (ASMFunction)(void *)0;
   }
   asm_gencall(as, &ci, args);
@@ -908,7 +932,7 @@ static void asm_hrefk(ASMState *as, IRIns *ir)
   IRIns *irkey = IR(kslot->op1);
   int32_t ofs = (int32_t)(kslot->op2 * sizeof(Node));
   int32_t kofs = ofs + (int32_t)offsetof(Node, key);
-  int bigofs = !emit_checkofs(A64I_LDRx, ofs);
+  int bigofs = !emit_checkofs(A64I_LDRx, kofs);
   Reg dest = (ra_used(ir) || bigofs) ? ra_dest(as, ir, RSET_GPR) : RID_NONE;
   Reg node = ra_alloc1(as, ir->op1, RSET_GPR);
   Reg key, idx = node;
@@ -934,7 +958,7 @@ static void asm_hrefk(ASMState *as, IRIns *ir)
   emit_nm(as, A64I_CMPx, key, ra_allock(as, k, rset_exclude(allow, key)));
   emit_lso(as, A64I_LDRx, key, idx, kofs);
   if (bigofs)
-    emit_opk(as, A64I_ADDx, dest, node, ofs, RSET_GPR);
+    emit_opk(as, A64I_ADDx, dest, node, ofs, rset_exclude(RSET_GPR, node));
 }
 
 static void asm_uref(ASMState *as, IRIns *ir)
@@ -1083,6 +1107,8 @@ static void asm_ahuvload(ASMState *as, IRIns *ir)
   }
   type = ra_scratch(as, rset_clear(gpr, tmp));
   idx = asm_fuseahuref(as, ir->op1, &ofs, rset_clear(gpr, type), A64I_LDRx);
+  rset_clear(gpr, idx);
+  if (ofs & FUSE_REG) rset_clear(gpr, ofs & 31);
   if (ir->o == IR_VLOAD) ofs += 8 * ir->op2;
   /* Always do the type check, even if the load result is unused. */
   asm_guardcc(as, irt_isnum(ir->t) ? CC_LS : CC_NE);
@@ -1090,7 +1116,7 @@ static void asm_ahuvload(ASMState *as, IRIns *ir)
     lj_assertA(irt_isinteger(ir->t) || irt_isnum(ir->t),
 	       "bad load type %d", irt_type(ir->t));
     emit_nm(as, A64I_CMPx | A64F_SH(A64SH_LSR, 32),
-	    ra_allock(as, LJ_TISNUM << 15, rset_exclude(gpr, idx)), tmp);
+	    ra_allock(as, LJ_TISNUM << 15, gpr), tmp);
   } else if (irt_isaddr(ir->t)) {
     emit_n(as, (A64I_CMNx^A64I_K12) | A64F_U12(-irt_toitype(ir->t)), type);
     emit_dn(as, A64I_ASRx | A64F_IMMR(47), type, tmp);
@@ -1201,7 +1227,7 @@ dotypecheck:
       tmp = ra_scratch(as, allow);
       rset_clear(allow, tmp);
     }
-    if (ra_hasreg(dest) && irt_isnum(t) && !(ir->op2 & IRSLOAD_CONVERT))
+    if (ra_hasreg(dest) && tmp != dest)
       emit_dn(as, A64I_FMOV_D_R, (dest & 31), tmp);
     /* Need type check, even if the load result is unused. */
     asm_guardcc(as, irt_isnum(t) ? CC_LS : CC_NE);
@@ -1288,8 +1314,9 @@ static void asm_tbar(ASMState *as, IRIns *ir)
   Reg link = ra_scratch(as, rset_exclude(RSET_GPR, tab));
   Reg mark = RID_TMP;
   MCLabel l_end = emit_label(as);
-  emit_lso(as, A64I_STRx, link, tab, (int32_t)offsetof(GCtab, gclist));
   emit_lso(as, A64I_STRB, mark, tab, (int32_t)offsetof(GCtab, marked));
+  /* Keep STRx in the middle to avoid LDP/STP fusion with surrounding code. */
+  emit_lso(as, A64I_STRx, link, tab, (int32_t)offsetof(GCtab, gclist));
   emit_setgl(as, tab, gc.grayagain);
   emit_dn(as, A64I_ANDw^emit_isk13(~LJ_GC_BLACK, 0), mark, mark);
   emit_getgl(as, link, gc.grayagain);
@@ -1414,7 +1441,7 @@ static void asm_intneg(ASMState *as, IRIns *ir)
 static void asm_intmul(ASMState *as, IRIns *ir)
 {
   Reg dest = ra_dest(as, ir, RSET_GPR);
-  Reg left = ra_alloc1(as, ir->op1, rset_exclude(RSET_GPR, dest));
+  Reg left = ra_alloc1(as, ir->op1, RSET_GPR);
   Reg right = ra_alloc1(as, ir->op2, rset_exclude(RSET_GPR, left));
   if (irt_isguard(ir->t)) {  /* IR_MULOV */
     asm_guardcc(as, CC_NE);
@@ -1914,7 +1941,7 @@ static void asm_head_root_base(ASMState *as)
 }
 
 /* Coalesce BASE register for a side trace. */
-static RegSet asm_head_side_base(ASMState *as, IRIns *irp, RegSet allow)
+static Reg asm_head_side_base(ASMState *as, IRIns *irp)
 {
   IRIns *ir;
   asm_head_lreg(as);
@@ -1922,16 +1949,15 @@ static RegSet asm_head_side_base(ASMState *as, IRIns *irp, RegSet allow)
   if (ra_hasreg(ir->r) && (rset_test(as->modset, ir->r) || irt_ismarked(ir->t)))
     ra_spill(as, ir);
   if (ra_hasspill(irp->s)) {
-    rset_clear(allow, ra_dest(as, ir, allow));
+    return ra_dest(as, ir, RSET_GPR);
   } else {
     Reg r = irp->r;
     lj_assertA(ra_hasreg(r), "base reg lost");
-    rset_clear(allow, r);
     if (r != ir->r && !rset_test(as->freeset, r))
       ra_restore(as, regcost_ref(as->cost[r]));
     ra_destreg(as, ir, r);
+    return r;
   }
-  return allow;
 }
 
 /* -- Tail of trace ------------------------------------------------------- */
@@ -1975,19 +2001,41 @@ static void asm_tail_prep(ASMState *as)
 /* Ensure there are enough stack slots for call arguments. */
 static Reg asm_setup_call_slots(ASMState *as, IRIns *ir, const CCallInfo *ci)
 {
-  IRRef args[CCI_NARGS_MAX*2];
+#if LJ_HASFFI
   uint32_t i, nargs = CCI_XNARGS(ci);
-  int nslots = 0, ngpr = REGARG_NUMGPR, nfpr = REGARG_NUMFPR;
-  asm_collectargs(as, ir, ci, args);
-  for (i = 0; i < nargs; i++) {
-    if (args[i] && irt_isfp(IR(args[i])->t)) {
-      if (nfpr > 0) nfpr--; else nslots += 2;
-    } else {
-      if (ngpr > 0) ngpr--; else nslots += 2;
+  if (nargs > (REGARG_NUMGPR < REGARG_NUMFPR ? REGARG_NUMGPR : REGARG_NUMFPR) ||
+      (LJ_TARGET_OSX && (ci->flags & CCI_VARARG))) {
+    IRRef args[CCI_NARGS_MAX*2];
+    int ngpr = REGARG_NUMGPR, nfpr = REGARG_NUMFPR;
+    int spofs = 0, spalign = LJ_TARGET_OSX ? 0 : 7, nslots;
+    asm_collectargs(as, ir, ci, args);
+    for (i = 0; i < nargs; i++) {
+      int al = spalign;
+      if (!args[i]) {
+#if LJ_TARGET_OSX
+	/* Marker for start of varaargs. */
+	nfpr = 0;
+	ngpr = 0;
+	spalign = 7;
+#endif
+      } else if (irt_isfp(IR(args[i])->t)) {
+	if (nfpr > 0) { nfpr--; continue; }
+#if LJ_TARGET_OSX
+	al |= irt_isnum(IR(args[i])->t) ? 7 : 3;
+#endif
+      } else {
+	if (ngpr > 0) { ngpr--; continue; }
+#if LJ_TARGET_OSX
+	al |= irt_size(IR(args[i])->t) - 1;
+#endif
+      }
+      spofs = (spofs + 2*al+1) & ~al;  /* Align and bump stack pointer. */
     }
+    nslots = (spofs + 3) >> 2;
+    if (nslots > as->evenspill)  /* Leave room for args in stack slots. */
+      as->evenspill = nslots;
   }
-  if (nslots > as->evenspill)  /* Leave room for args in stack slots. */
-    as->evenspill = nslots;
+#endif
   return REGSP_HINT(RID_RET);
 }
 

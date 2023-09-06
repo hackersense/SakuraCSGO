@@ -499,7 +499,7 @@ struct Config
 		int triggers_amount;
 	} fakelag;
 
-	struct Player_t
+	struct ESP_t
 	{
 		bool enabled;
 		bool arrows;
@@ -565,7 +565,7 @@ struct Config
 			int ragdoll_chams_material;
 			Color ragdoll_chams_color;
 		} type[3];
-	} player;
+	} esp;
 
 	struct Player_list_t
 	{
@@ -676,6 +676,7 @@ struct Config
 		Color molotov_color;
 		bool console_color_enabled;
 		Color console_color;
+		bool disable_jiggle_bones;
 		bool motionblur;
 		bool motionblur_forward;
 		float motionblur_falling_min;
@@ -696,7 +697,7 @@ struct Config
 		std::vector<int> grenade_esp;
 		Color grenade_glow_color;
 		Color grenade_box_color;
-	} esp;
+	} visuals;
 
 	struct KillfeedChanger_t
 	{

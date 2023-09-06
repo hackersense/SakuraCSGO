@@ -86,13 +86,13 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	//m_prediction()->m_bOldCLPredictValue = false;
 	//m_prediction()->split->m_bIsFirstTimePredicted = false;
 
-	//if (m_pcmd->m_impulse)
-	//	cheat.local()->m_nImpulse() = m_pcmd->m_impulse;
+	if (m_pcmd->m_impulse)
+		cheat.local()->m_nImpulse() = m_pcmd->m_impulse;
 
-	//m_pcmd->m_buttons |= *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3344);
-	//m_pcmd->m_buttons &= ~(*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3340));
+	m_pcmd->m_buttons |= *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3344);
+	m_pcmd->m_buttons &= ~(*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3340));
 
-	//cheat.local()->updateButtonState(m_pcmd->m_buttons);
+	cheat.local()->updateButtonState(m_pcmd->m_buttons);
 
 	m_gamemovement()->StartTrackPredictionErrors(cheat.local());
 	m_prediction()->CheckMovingGround(cheat.local(), m_globals()->m_frametime);

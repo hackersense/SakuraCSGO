@@ -7,7 +7,7 @@
 class CPhysCollide;
 class CUtlBuffer;
 class IClientRenderable;
-class c_studio_hdr;
+class CStudioHdr;
 struct virtualmodel_t;
 
 enum RenderableTranslucencyType_t
@@ -42,17 +42,17 @@ public:
 	virtual const char*                     GetModelKeyValueText(const model_t *model) = 0;
 	virtual bool                            GetModelKeyValue(const model_t *model, CUtlBuffer &buf) = 0;
 	virtual float                           GetModelRadius(const model_t *model) = 0;
-	virtual c_studio_hdr*					GetStudioHdr(MDLHandle_t handle) = 0;
-	virtual const studiohdr_t*              FindModel(const studiohdr_t *pStudioHdr, void **cache, const char *modelname) const = 0;
-	virtual const studiohdr_t*              FindModel(void *cache) const = 0;
-	virtual virtualmodel_t*                 GetVirtualModel(const studiohdr_t *pStudioHdr) const = 0;
-	virtual uint8_t*                        GetAnimBlock(const studiohdr_t *pStudioHdr, int iBlock) const = 0;
+	virtual CStudioHdr*						GetStudioHdr(MDLHandle_t handle) = 0;
+	virtual const StudioHdr*                FindModel(const StudioHdr*pStudioHdr, void **cache, const char *modelname) const = 0;
+	virtual const StudioHdr*                FindModel(void *cache) const = 0;
+	virtual virtualmodel_t*                 GetVirtualModel(const StudioHdr*pStudioHdr) const = 0;
+	virtual uint8_t*                        GetAnimBlock(const StudioHdr*pStudioHdr, int iBlock) const = 0;
 	virtual void                            GetModelMaterialColorAndLighting(const model_t *model, Vector const& origin, Vector const& angles, CGameTrace* pTrace, Vector& lighting, Vector& matColor) = 0;
 	virtual void                            GetIlluminationPoint(const model_t *model, IClientRenderable *pRenderable, Vector const& origin, Vector const& angles, Vector* pLightingCenter) = 0;
 	virtual int                             GetModelContents(int modelIndex) const = 0;
 	virtual void							unused_30() = 0;
 	virtual void							unused_31() = 0;
-	virtual studiohdr_t*                    GetStudioModel(const model_t *mod) = 0;
+	virtual StudioHdr*                      GetStudioModel(const model_t *mod) = 0;
 	virtual int                             GetModelSpriteWidth(const model_t *model) const = 0;
 	virtual int                             GetModelSpriteHeight(const model_t *model) const = 0;
 	virtual void                            SetLevelScreenFadeRange(float flMinSize, float flMaxSize) = 0;
@@ -60,19 +60,14 @@ public:
 	virtual void                            SetViewScreenFadeRange(float flMinSize, float flMaxSize) = 0;
 	virtual unsigned char                   ComputeLevelScreenFade(const Vector &vecAbsOrigin, float flRadius, float flFadeScale) const = 0;
 	virtual unsigned char                   ComputeViewScreenFade(const Vector &vecAbsOrigin, float flRadius, float flFadeScale) const = 0;
-	virtual int                             GetAutoplayList(const studiohdr_t *pStudioHdr, unsigned short **pAutoplayList) const = 0;
+	virtual int                             GetAutoplayList(const StudioHdr*pStudioHdr, unsigned short **pAutoplayList) const = 0;
 	virtual CPhysCollide*                   GetCollideForVirtualTerrain(int index) = 0;
 	virtual bool                            IsUsingFBTexture(const model_t *model, int nSkin, int nBody, IClientRenderable* *pClientRenderable) const = 0;
 	virtual const model_t*                  FindOrLoadModel(const char *name) const = 0;
 	virtual MDLHandle_t                     GetCacheHandle(const model_t *model) const = 0;
 	virtual int                             GetBrushModelPlaneCount(const model_t *model) const = 0;
-	virtual void                            GetBrushModelPlane(const model_t *model, int nIndex, cplane_t &plane, Vector *pOrigin) const = 0;
+	virtual void                            GetBrushModelPlane(const model_t *model, int nIndex, CPlane &plane, Vector *pOrigin) const = 0;
 	virtual int                             GetSurfacepropsForVirtualTerrain(int index) = 0;
 	virtual bool                            UsesEnvCubemap(const model_t *model) const = 0;
 	virtual bool                            UsesStaticLighting(const model_t *model) const = 0;
-};
-
-class IVModelInfoClient : public IVModelInfo
-{
-public:
 };

@@ -49,7 +49,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 			else if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
 				type = TEAM;
 
-			if (configs.player.type[type].footsteps)
+			if (configs.esp.type[type].footsteps)
 			{
 				static auto model_index = m_modelinfo()->GetModelIndex(crypt_str("sprites/physbeam.vmt"));
 
@@ -64,13 +64,13 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 				info.m_nHaloIndex = -1;
 				info.m_flHaloScale = 3.0f;
 				info.m_flLife = 2.0f;
-				info.m_flWidth = (float)configs.player.type[type].thickness;
+				info.m_flWidth = (float)configs.esp.type[type].thickness;
 				info.m_flFadeLength = 1.0f;
 				info.m_flAmplitude = 0.0f;
-				info.m_flRed = (float)configs.player.type[type].footsteps_color.r();
-				info.m_flGreen = (float)configs.player.type[type].footsteps_color.g();
-				info.m_flBlue = (float)configs.player.type[type].footsteps_color.b();
-				info.m_flBrightness = (float)configs.player.type[type].footsteps_color.a();
+				info.m_flRed = (float)configs.esp.type[type].footsteps_color.r();
+				info.m_flGreen = (float)configs.esp.type[type].footsteps_color.g();
+				info.m_flBlue = (float)configs.esp.type[type].footsteps_color.b();
+				info.m_flBrightness = (float)configs.esp.type[type].footsteps_color.a();
 				info.m_flSpeed = 0.0f;
 				info.m_nStartFrame = 0.0f;
 				info.m_flFrameRate = 60.0f;
@@ -78,7 +78,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 				info.m_nFlags = FBEAM_FADEOUT;
 				info.m_vecCenter = e->GetAbsOrigin() + Vector(0.0f, 0.0f, 5.0f);
 				info.m_flStartRadius = 5.0f;
-				info.m_flEndRadius = (float)configs.player.type[type].radius;
+				info.m_flEndRadius = (float)configs.esp.type[type].radius;
 				info.m_bRenderable = true;
 
 				auto beam_draw = m_viewrenderbeams()->CreateBeamRingPoint(info);
@@ -131,8 +131,8 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 		{
 			Vector position(event->GetFloat(crypt_str("x")), event->GetFloat(crypt_str("y")), event->GetFloat(crypt_str("z")));
 
-			if (configs.esp.server_bullet_impacts)
-				m_debugoverlay()->AddBoxOverlay(position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.esp.server_bullet_impacts_color.r(), configs.esp.server_bullet_impacts_color.g(), configs.esp.server_bullet_impacts_color.b(), configs.esp.server_bullet_impacts_color.a(), 4.0f);
+			if (configs.visuals.server_bullet_impacts)
+				m_debugoverlay()->AddBoxOverlay(position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.visuals.server_bullet_impacts_color.r(), configs.visuals.server_bullet_impacts_color.g(), configs.visuals.server_bullet_impacts_color.b(), configs.visuals.server_bullet_impacts_color.a(), 4.0f);
 
 			aim_shot* current_shot = nullptr;
 
@@ -200,28 +200,28 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 		{
 			auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(user_id));
 
-			if (configs.esp.lightning_on_hit && configs.esp.lightning_on_hit_killonly)
+			if (configs.visuals.lightning_on_hit && configs.visuals.lightning_on_hit_killonly)
 			{
 				auto tesla_info = tesla_info_t{};
-				tesla_info.m_flbeamwidth = configs.esp.lightning_on_hit_width;
-				tesla_info.m_flradius = configs.esp.lightning_on_hit_radius;
+				tesla_info.m_flbeamwidth = configs.visuals.lightning_on_hit_width;
+				tesla_info.m_flradius = configs.visuals.lightning_on_hit_radius;
 				tesla_info.m_entindex = user_id;
 				tesla_info.m_color = Vector(1, 1, 1);
 				tesla_info.m_pos = entity->hitbox_position(HITBOX_UPPER_CHEST);
 				tesla_info.m_ang = ZERO;
 				tesla_info.m_fltimevis = 0.75f;
-				tesla_info.m_nbeams = configs.esp.lightning_on_hit_beams;
+				tesla_info.m_nbeams = configs.visuals.lightning_on_hit_beams;
 				tesla_info.m_spritename = "sprites/physbeam.vmt"; // "sprites/purplelaser1.vmt"
 
 				memory->fs_tesla(tesla_info);
 			}
 
-			if (configs.player.enabled && configs.esp.kill_effect)
-				cheat.local()->m_flHealthShotBoostExpirationTime() = m_globals()->m_curtime + configs.esp.kill_effect_duration;
+			if (configs.esp.enabled && configs.visuals.kill_effect)
+				cheat.local()->m_flHealthShotBoostExpirationTime() = m_globals()->m_curtime + configs.visuals.kill_effect_duration;
 
-			if (configs.esp.killsound && configs.player.enabled)
+			if (configs.visuals.killsound && configs.esp.enabled)
 			{
-				switch (configs.esp.killsound)
+				switch (configs.visuals.killsound)
 				{
 				case 1:
 					m_surface()->PlaySound(crypt_str("buttons\\arena_switch_press_02.wav"));
@@ -242,7 +242,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 					m_surface()->PlaySound(crypt_str("flick.wav"));
 					break;
 				case 7:
-					m_surface()->PlaySound(configs.esp.custom_killsound.c_str());
+					m_surface()->PlaySound(configs.visuals.custom_killsound.c_str());
 					break;
 				}
 			}
@@ -266,25 +266,25 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 		{
 			auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(user_id));
 			
-			if (configs.esp.lightning_on_hit && !configs.esp.lightning_on_hit_killonly)
+			if (configs.visuals.lightning_on_hit && !configs.visuals.lightning_on_hit_killonly)
 			{
 				auto tesla_info = tesla_info_t{};
-				tesla_info.m_flbeamwidth = configs.esp.lightning_on_hit_width;
-				tesla_info.m_flradius = configs.esp.lightning_on_hit_radius;
+				tesla_info.m_flbeamwidth = configs.visuals.lightning_on_hit_width;
+				tesla_info.m_flradius = configs.visuals.lightning_on_hit_radius;
 				tesla_info.m_entindex = user_id;
 				tesla_info.m_color = Vector(1, 1, 1);
 				tesla_info.m_pos = entity->hitbox_position(HITBOX_UPPER_CHEST);
 				tesla_info.m_ang = ZERO;
 				tesla_info.m_fltimevis = 0.75f;
-				tesla_info.m_nbeams = configs.esp.lightning_on_hit_beams;
+				tesla_info.m_nbeams = configs.visuals.lightning_on_hit_beams;
 				tesla_info.m_spritename = "sprites/physbeam.vmt"; // "sprites/purplelaser1.vmt"
 
 				memory->fs_tesla(tesla_info);
 			}
 
-			if (configs.esp.hitsound && configs.player.enabled)
+			if (configs.visuals.hitsound && configs.esp.enabled)
 			{
-				switch (configs.esp.hitsound)
+				switch (configs.visuals.hitsound)
 				{
 				case 1:
 					m_surface()->PlaySound(crypt_str("buttons\\arena_switch_press_02.wav"));
@@ -305,7 +305,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 					m_surface()->PlaySound(crypt_str("flick.wav"));
 					break;
 				case 7:
-					m_surface()->PlaySound(configs.esp.custom_hitsound.c_str());
+					m_surface()->PlaySound(configs.visuals.custom_hitsound.c_str());
 					break;
 				}
 			}
@@ -476,7 +476,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 	else if (!strcmp(event_name, crypt_str("player_say")))
 		misc::get().chat_revealer(*event, event);
 
-	if ((configs.esp.bullet_tracer || configs.esp.enemy_bullet_tracer) && configs.player.enabled)
+	if ((configs.visuals.bullet_tracer || configs.visuals.enemy_bullet_tracer) && configs.esp.enabled)
 		bullettracers::get().events(event);
 
 	eventlogs::get().events(event);

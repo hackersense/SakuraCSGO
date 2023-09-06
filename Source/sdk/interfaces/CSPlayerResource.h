@@ -8,9 +8,9 @@
 
 class ICSPlayerResource {
 public:
-	VIRTUAL_METHOD_V(bool, is_alive, 5, (int index), (this, index));
-	VIRTUAL_METHOD_V(const char*, get_player_name, 8, (int index), (this, index));
-	VIRTUAL_METHOD_V(int, get_player_health, 14, (int index), (this, index));
+	VIRTUAL_METHOD(bool, is_alive, 5, (int index), (this, index));
+	VIRTUAL_METHOD(const char*, get_player_name, 8, (int index), (this, index));
+	VIRTUAL_METHOD(int, get_player_health, 14, (int index), (this, index));
 };
 
 class CSPlayerResource 

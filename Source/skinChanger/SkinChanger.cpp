@@ -115,7 +115,7 @@ static void post_data_update_start(player_t* local) noexcept
 	//if (!local->is_alive())
 	//	return;
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 
 	if (!m_engine()->GetPlayerInfo(local->EntIndex(), &player_info))
 		return;
@@ -275,7 +275,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 		{
 			UpdateRequired = false;
 			hudUpdateRequired = true;
-
+			//m_cvar2()->FindVar("cl_fullupdate")->changeCallback();
 			m_clientstate()->ForceFullUpdate();
 			cheat.globals.updating_skins = true;
 		}
@@ -292,7 +292,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 
 	static auto backup_model_index = -1;
 
-	if (configs.player.enabled)
+	if (configs.esp.enabled)
 	{
 		const char** player_model_index = nullptr;
 		auto player_model = 0;
@@ -301,11 +301,11 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 		{
 		case 2:
 			player_model_index = player_model_index_t;
-			player_model = configs.player.player_model_t;
+			player_model = configs.esp.player_model_t;
 			break;
 		case 3:
 			player_model_index = player_model_index_ct;
-			player_model = configs.player.player_model_ct;
+			player_model = configs.esp.player_model_ct;
 			break;
 		}
 
@@ -321,7 +321,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 
 					if (studio_model)
 					{
-						auto name = crypt_str("models/") + std::string(studio_model->szName);
+						auto name = crypt_str("models/") + std::string(studio_model->name);
 						backup_model_index = m_modelinfo()->GetModelIndex(name.c_str());
 					}
 				}
@@ -363,7 +363,7 @@ std::uint64_t UserIdToXUID(const int user_id)
 		if (!player)
 			continue;
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 
 		if (!m_engine()->GetPlayerInfo(i, &player_info))
 			continue;

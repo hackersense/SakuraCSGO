@@ -303,26 +303,7 @@ namespace util
 		return true;
 	}
 
-	void trace_line(Vector& start, Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* trace)
-	{
-		Ray_t ray;
-		ray.Init(start, end);
-
-		m_trace()->TraceRay(ray, mask, filter, trace);
-	}
-
-	void trace_line_entity(Vector& start, Vector& end, unsigned int mask, IClientEntity* entity, CGameTrace* trace)
-	{
-		Ray_t ray;
-		ray.Init(start, end);
-
-		CTraceFilter filter;
-		filter.pSkip = entity;
-
-		m_trace()->TraceRay(ray, mask, &filter, trace);
-	}
-
-	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CTraceFilter* filter, CGameTrace* tr)
+	void clip_trace_to_players(IClientEntity* e, const Vector& start, const Vector& end, unsigned int mask, CGameTrace* tr)
 	{
 		Vector mins = e->GetCollideable()->OBBMins(), maxs = e->GetCollideable()->OBBMaxs();
 
@@ -621,7 +602,7 @@ namespace util
 
 	void thirdperson(bool fakeducking)
 	{
-		if (configs.player.enabled && (configs.misc.thirdperson_toggle.key > KEY_NONE && configs.misc.thirdperson_toggle.key < KEY_MAX || configs.misc.thirdperson_when_spectating))
+		if (configs.esp.enabled && (configs.misc.thirdperson_toggle.key > KEY_NONE && configs.misc.thirdperson_toggle.key < KEY_MAX || configs.misc.thirdperson_when_spectating))
 		{
 			static auto current_fraction = 0.0f;
 			static auto in_thirdperson = false;
@@ -880,6 +861,7 @@ namespace util
 
 	float server_time(CUserCmd* cmd) noexcept
 	{
+		//return TICKS_TO_TIME(cheat.globals.fixed_tickbase);
 		static int tick;
 		static CUserCmd* lastCmd;
 
@@ -890,7 +872,7 @@ namespace util
 				tick++;
 			lastCmd = cmd;
 		}
-		return tick * m_globals()->m_intervalpertick;
+		return TICKS_TO_TIME(tick);
 	}
 
 	bool isChatOpen()

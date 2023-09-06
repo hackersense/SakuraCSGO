@@ -70,7 +70,7 @@ void misc::watermark()
 			}
 
 			auto tickrate = std::to_string(static_cast<int>(1.0f / m_globals()->m_intervalpertick));
-			watermarkText.append(crypt_str(" | ")).append(server).append(crypt_str(" | ")).append(isLocal ? "" : std::to_string(cheat.globals.ping) + crypt_str(" ms | ")).append(isValve ? "" : tickrate + crypt_str(" tick | "));
+			watermarkText.append(server).append(crypt_str(" | ")).append(isLocal ? "" : std::to_string(cheat.globals.ping) + crypt_str(" ms | ")).append(isValve ? "" : tickrate + crypt_str(" tick | "));
 		}
 	}
 
@@ -215,7 +215,7 @@ void misc::force_crosshair()
 {
 	static auto weapon_debug_spread_show = m_cvar()->FindVar("weapon_debug_spread_show");
 
-	if (configs.esp.force_crosshair)
+	if (configs.visuals.force_crosshair)
 	{
 		if (weapon_debug_spread_show->GetInt() != 3 && !cheat.globals.scoped)
 			weapon_debug_spread_show->SetValue(3);
@@ -440,50 +440,50 @@ void misc::automatic_peek(CUserCmd* cmd, float current_yaw)
 
 void misc::view_model()
 {
-	if (configs.esp.viewmodel_fov)
+	if (configs.visuals.viewmodel_fov)
 	{
-		auto viewFOV = (float)configs.esp.viewmodel_fov + 68.0f;
-		static auto viewFOVcvar = m_cvar()->FindVar(crypt_str("viewmodel_fov"));
+		auto viewFOV = (float)configs.visuals.viewmodel_fov + 68.0f;
+		static auto viewFOVcvar = m_cvar2()->FindVar(crypt_str("viewmodel_fov"));
 
 		if (viewFOVcvar->GetFloat() != viewFOV)
 		{
-			viewFOVcvar->m_fnChangeCallbacks.m_Size = 0.0f;
+			viewFOVcvar->onChangeCallbacks.m_Size = 0;
 			viewFOVcvar->SetValue(viewFOV);
 		}
 	}
 
-	if (configs.esp.viewmodel_x)
+	if (configs.visuals.viewmodel_x)
 	{
-		auto viewX = (float)configs.esp.viewmodel_x / 2.0f;
-		static auto viewXcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_x"));
+		auto viewX = (float)configs.visuals.viewmodel_x / 2.0f;
+		static auto viewXcvar = m_cvar2()->FindVar(crypt_str("viewmodel_offset_x"));
 
 		if (viewXcvar->GetFloat() != viewX)
 		{
-			viewXcvar->m_fnChangeCallbacks.m_Size = 0.0f;
+			viewXcvar->onChangeCallbacks.m_Size = 0;
 			viewXcvar->SetValue(viewX);
 		}
 	}
 
-	if (configs.esp.viewmodel_y)
+	if (configs.visuals.viewmodel_y)
 	{
-		auto viewY = (float)configs.esp.viewmodel_y / 2.0f;
-		static auto viewYcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_y"));
+		auto viewY = (float)configs.visuals.viewmodel_y / 2.0f;
+		static auto viewYcvar = m_cvar2()->FindVar(crypt_str("viewmodel_offset_y"));
 
 		if (viewYcvar->GetFloat() != viewY)
 		{
-			viewYcvar->m_fnChangeCallbacks.m_Size = 0.0f;
+			viewYcvar->onChangeCallbacks.m_Size = 0;
 			viewYcvar->SetValue(viewY);
 		}
 	}
 
-	if (configs.esp.viewmodel_z)
+	if (configs.visuals.viewmodel_z)
 	{
-		auto viewZ = (float)configs.esp.viewmodel_z / 2.0f;
-		static auto viewZcvar = m_cvar()->FindVar(crypt_str("viewmodel_offset_z"));
+		auto viewZ = (float)configs.visuals.viewmodel_z / 2.0f;
+		static auto viewZcvar = m_cvar2()->FindVar(crypt_str("viewmodel_offset_z"));
 
 		if (viewZcvar->GetFloat() != viewZ)
 		{
-			viewZcvar->m_fnChangeCallbacks.m_Size = 0.0f;
+			viewZcvar->onChangeCallbacks.m_Size = 0;
 			viewZcvar->SetValue(viewZ);
 		}
 	}
@@ -491,13 +491,13 @@ void misc::view_model()
 
 void misc::full_bright()
 {
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return;
 
 	static auto mat_fullbright = m_cvar()->FindVar(crypt_str("mat_fullbright"));
 
-	if (mat_fullbright->GetBool() != configs.esp.bright)
-		mat_fullbright->SetValue(configs.esp.bright);
+	if (mat_fullbright->GetBool() != configs.visuals.bright)
+		mat_fullbright->SetValue(configs.visuals.bright);
 }
 
 void misc::pov_arrows(Vector origin, Color color)
@@ -530,8 +530,8 @@ void misc::pov_arrows(Vector origin, Color color)
 	auto screenCenter = Vector2D(width * 0.5f, height * 0.5f);
 	auto angleYawRad = DEG2RAD(viewAngles.y - math::calculate_angle(cheat.globals.eye_pos, origin).y - 90.0f);
 
-	auto radius = configs.player.distance;
-	auto size = configs.player.size;
+	auto radius = configs.esp.distance;
+	auto size = configs.esp.size;
 
 	auto newPointX = screenCenter.x + ((((width - (size * 3)) * 0.5f) * (radius / 100.0f)) * cos(angleYawRad)) + (int)(6.0f * (((float)size - 4.0f) / 16.0f));
 	auto newPointY = screenCenter.y + ((((height - (size * 3)) * 0.5f) * (radius / 100.0f)) * sin(angleYawRad));
@@ -549,10 +549,10 @@ void misc::pov_arrows(Vector origin, Color color)
 
 void misc::zeus_range()
 {
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return;
 
-	if (!configs.esp.taser_range)
+	if (!configs.visuals.taser_range)
 		return;
 
 	if (!m_input()->m_bCameraInThirdPerson)
@@ -595,38 +595,38 @@ void misc::night_mode()
 	else if (!m_engine()->IsInGame() && in_game)
 		in_game = false;
 
-	static auto player_enable = configs.player.enabled;
+	static auto player_enable = configs.esp.enabled;
 
-	if (player_enable != configs.player.enabled)
+	if (player_enable != configs.esp.enabled)
 	{
-		player_enable = configs.player.enabled;
+		player_enable = configs.esp.enabled;
 		cheat.globals.change_materials = true;
 		return;
 	}
 
-	static auto setting = configs.esp.nightmode;
+	static auto setting = configs.visuals.nightmode;
 
-	if (setting != configs.esp.nightmode)
+	if (setting != configs.visuals.nightmode)
 	{
-		setting = configs.esp.nightmode;
+		setting = configs.visuals.nightmode;
 		cheat.globals.change_materials = true;
 		return;
 	}
 
-	static auto setting_world = configs.esp.world_color;
+	static auto setting_world = configs.visuals.world_color;
 
-	if (setting_world != configs.esp.world_color)
+	if (setting_world != configs.visuals.world_color)
 	{
-		setting_world = configs.esp.world_color;
+		setting_world = configs.visuals.world_color;
 		cheat.globals.change_materials = true;
 		return;
 	}
 
-	static auto setting_props = configs.esp.props_color;
+	static auto setting_props = configs.visuals.props_color;
 
-	if (setting_props != configs.esp.props_color)
+	if (setting_props != configs.visuals.props_color)
 	{
-		setting_props = configs.esp.props_color;
+		setting_props = configs.visuals.props_color;
 		cheat.globals.change_materials = true;
 	}
 }
@@ -673,10 +673,10 @@ void misc::desync_arrows()
 
 void misc::lag_hitbox()
 {
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return;
 
-	if (!configs.player.lag_hitbox)
+	if (!configs.esp.lag_hitbox)
 		return;
 
 	auto player = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(ragebot::get().last_target_index));
@@ -715,7 +715,7 @@ void misc::lag_hitbox()
 		math::vector_transform(hitbox->bbmin, ragebot::get().last_target[ragebot::get().last_target_index].record.matrixes_data.main[hitbox->bone], min);
 		math::vector_transform(hitbox->bbmax, ragebot::get().last_target[ragebot::get().last_target_index].record.matrixes_data.main[hitbox->bone], max);
 
-		m_debugoverlay()->AddCapsuleOverlay(min, max, hitbox->radius, configs.player.lag_hitbox_color.r(), configs.player.lag_hitbox_color.g(), configs.player.lag_hitbox_color.b(), configs.player.lag_hitbox_color.a(), 4.0f, 0, 1);
+		m_debugoverlay()->AddCapsuleOverlay(min, max, hitbox->radius, configs.esp.lag_hitbox_color.r(), configs.esp.lag_hitbox_color.g(), configs.esp.lag_hitbox_color.b(), configs.esp.lag_hitbox_color.a(), 4.0f, 0, 1);
 	}
 }
 
@@ -1235,7 +1235,7 @@ void misc::anti_crasher()
 
 void misc::anti_exploit()
 {
-	static auto cl_lagcompensation = m_cvar()->FindVar(crypt_str("cl_lagcompensation"));
+	static auto cl_lagcompensation = m_cvar2()->FindVar(crypt_str("cl_lagcompensation"));
 
 	static auto is_command_set = configs.misc.anti_exploit;
 	if (is_command_set != configs.misc.anti_exploit)
@@ -1244,13 +1244,13 @@ void misc::anti_exploit()
 
 		std::string command = "kill; jointeam 1; cl_lagcompensation ";
 		command += std::to_string(configs.misc.anti_exploit ? 0 : 1) + ";";
-		command += "jointeam " + std::to_string(old_team) + "; ";
+		command += "jointeam " + std::to_string(static_cast<int>(old_team)) + "; ";
 
 		m_engine()->ExecuteClientCmd(command.data());
 		is_command_set = configs.misc.anti_exploit;
 	}
 
-	cl_lagcompensation->m_fnChangeCallbacks.m_Size = 0;
+	cl_lagcompensation->onChangeCallbacks.m_Size = 0;
 	cl_lagcompensation->SetValue(!configs.misc.anti_exploit);
 }
 
@@ -1284,7 +1284,7 @@ void misc::color_console() {
 			//	continue;
 			//}
 
-			if (!configs.esp.console_color_enabled || !m_engine()->Con_IsVisible()) {
+			if (!configs.visuals.console_color_enabled || !m_engine()->Con_IsVisible()) {
 				material[num]->ColorModulate(1.f, 1.f, 1.f);
 				material[num]->AlphaModulate(1.f);
 				continue;
@@ -1292,11 +1292,11 @@ void misc::color_console() {
 
 			//if (config->visuals.console.rainbow) {
 			//	material[num]->ColorModulate(rainbowColor(config->visuals.console.rainbowSpeed));
-			//  material[num]->AlphaModulate(configs.esp.console_color.get_alpha());
+			//  material[num]->AlphaModulate(configs.visuals.console_color.get_alpha());
 			//}
 			//else {
-			material[num]->ColorModulate(configs.esp.console_color.get_red() / 255.f, configs.esp.console_color.get_green() / 255.f, configs.esp.console_color.get_blue() / 255.f);
-			material[num]->AlphaModulate(configs.esp.console_color.get_alpha() / 255.f);
+			material[num]->ColorModulate(configs.visuals.console_color.get_red() / 255.f, configs.visuals.console_color.get_green() / 255.f, configs.visuals.console_color.get_blue() / 255.f);
+			material[num]->AlphaModulate(configs.visuals.console_color.get_alpha() / 255.f);
 			//}
 		}
 	}
@@ -1377,7 +1377,7 @@ void misc::killfeed_changer(IGameEvent& event)
 
 void misc::preserve_killfeed(bool roundStart)
 {
-	if (!configs.esp.preserve_killfeed)
+	if (!configs.visuals.preserve_killfeed)
 		return;
 
 	static auto nextUpdate = 0.0f;
@@ -1508,7 +1508,7 @@ void misc::chat_revealer(IGameEvent& event, IGameEvent* events)
 	if (!isAlive)
 		output += "*DEAD* ";
 
-	team == 3 ? output += "(Counter-Terrorist) " : output += "(Terrorist) ";
+	team == TeamID::CT ? output += "(Counter-Terrorist) " : output += "(Terrorist) ";
 
 	output = output + name + " @ " + lastLocation + " : " + text;
 	m_clientmode()->getHudChat()->printf(0, output.c_str());
@@ -1669,7 +1669,7 @@ void misc::spectators_list()
 		if (e->m_hObserverTarget().Get() != cheat.local())
 			continue;
 
-		player_info_t player_info;
+		PlayerInfo player_info;
 		m_engine()->GetPlayerInfo(i, &player_info);
 
 		spectators.push_back(player_info.name);

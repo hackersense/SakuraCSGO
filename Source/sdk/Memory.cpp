@@ -9,16 +9,16 @@ static constexpr auto relativeToAbsolute(uintptr_t address) noexcept
 
 Memory::Memory() noexcept
 {
-    if (!GetModuleHandleA(crypt_str("discordhook")))
-    {
-        reset = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("gameoverlayrenderer"), "\x57\x53\xC7\x45") + 11);
-        present = reset + 4;
-    }
-    else
-    {
-        present = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("discordhook"), "\x83\xC4\x0C\xFF\x75\x18") + 14);
-        reset = present + 60;
-    }
+    //if (!GetModuleHandleW(crypt_str(L"discordhook")))
+    //{
+    reset = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("gameoverlayrenderer"), "\x57\x53\xC7\x45") + 11);
+    present = reset + 4;
+    //}
+    //else
+    //{
+    //    present = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("discordhook"), "\x83\xC4\x0C\xFF\x75\x18") + 14);
+    //    reset = present + 60;
+    //}
 
     auto temp = reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("client"), "\xB9????\xE8????\x8B\x5D\x08") + 1);
     hud = *temp;
@@ -95,7 +95,7 @@ Memory::Memory() noexcept
     keyValuesFromString = relativeToAbsolute<decltype(keyValuesFromString)>(findPattern(crypt_str("client"), "\xE8????\x83\xC4\x04\x89\x45\xD8") + 1);
     keyValuesFindKey = relativeToAbsolute<decltype(keyValuesFindKey)>(findPattern(crypt_str("client"), "\xE8????\xF7\x45") + 1);
     keyValuesSetString = relativeToAbsolute<decltype(keyValuesSetString)>(findPattern(crypt_str("client"), "\xE8????\x89\x77\x38") + 1);
-    keyValuesSystem = reinterpret_cast<IKeyValuesSystem*(__stdcall*)()>(GetProcAddress(GetModuleHandleA("vstdlib"), "KeyValuesSystem"))();
+    keyValuesSystem = reinterpret_cast<IKeyValuesSystem*(__stdcall*)()>(GetProcAddress(GetModuleHandleW(L"vstdlib"), "KeyValuesSystem"))();
     static auto engine = findPattern<false>(crypt_str("engine"), "\xE8????\x83\xC4\x08\x84\xC0\x75\x10\xFF\x75\x0C");
     static auto client = findPattern<false>(crypt_str("client"), "\xE8????\x83\xC4\x08\x84\xC0\x75\x10");
     if (!engine && !client)
@@ -114,11 +114,11 @@ Memory::Memory() noexcept
     jmpEbxGadgetInClient = findPattern(crypt_str("client"), "\x1B\xFF\x23\xF8\xF6\x87") + 1;
     shouldDrawFogReturnAddress = relativeToAbsolute<std::uintptr_t>(findPattern(crypt_str("client"), "\xE8????\x8B\x0D????\x0F\xB6\xD0") + 1) + 82;
     performScreenOverlay = findPattern(crypt_str("client"), "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");
-    memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleA("tier0"), "g_pMemAlloc"));
-    SteamClient* steamClient = ((SteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleA("steam_api"), "SteamClient"))();
+    memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleW(L"tier0"), "g_pMemAlloc"));
+    SteamClient* steamClient = ((SteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleW(L"steam_api"), "SteamClient"))();
     steamGameCoordinator = (SteamGameCoordinator*)steamClient->getGenericInterface((void*)1, (void*)1, "SteamGameCoordinator001");
     //cheat.local(reinterpret_cast<player_t*>(findPattern(crypt_str("client"), crypt_str("\xA1????\x89\x45\xBC\x85\xC0")) + 1));
 
-    createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "CreateSimpleThread"));
-    releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleA("tier0.dll"), "ReleaseThreadHandle"));
+    createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleW(L"tier0.dll"), "CreateSimpleThread"));
+    releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleW(L"tier0.dll"), "ReleaseThreadHandle"));
 }

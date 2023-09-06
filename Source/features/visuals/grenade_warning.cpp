@@ -61,7 +61,7 @@ bool c_grenade_prediction::data_t::draw()
 
 		if (prev_on_screen && cur_on_screen)
 		{
-			auto color = configs.esp.grenade_warning_tracer_color;
+			auto color = configs.visuals.grenade_warning_tracer_color;
 			if (i % 4)
 				imRender->DrawLine((int)prev_screen.x, (int)prev_screen.y, (int)cur_screen.x, (int)cur_screen.y, color, 2);
 		}
@@ -83,7 +83,7 @@ bool c_grenade_prediction::data_t::draw()
 		alpha_damage = 255 - 255 * (distance / 15);
 	}
 
-	auto col = configs.esp.grenade_warning_color;
+	auto col = configs.visuals.grenade_warning_color;
 	Ray_t ray;
 	CTraceFilterWorldAndPropsOnly filter;
 	CGameTrace trace;
@@ -138,7 +138,7 @@ bool c_grenade_prediction::data_t::draw()
 
 	static int width, height;
 	m_engine()->GetScreenSize(width, height);
-	if (configs.esp.grenade_warning_offscreen && !isOnScreen(vEnemyOrigin, screenPos))
+	if (configs.visuals.grenade_warning_offscreen && !isOnScreen(vEnemyOrigin, screenPos))
 	{
 		auto screenCenter = Vector2D(width * 0.5f, height * 0.5f);
 		auto angleYawRad = DEG2RAD(viewAngles.y - math::calculate_angle(cheat.globals.eye_pos, vEnemyOrigin).y - 90.0f);
@@ -187,7 +187,7 @@ void c_grenade_prediction::run(entity_t* ent)
 	if (!studio_model)
 		return;
 
-	auto name = std::string(studio_model->szName);
+	auto name = std::string(studio_model->name);
 
 	if (name.find("thrown") != std::string::npos || client_class->m_ClassID == CBaseCSGrenadeProjectile || client_class->m_ClassID == CDecoyProjectile || client_class->m_ClassID == CMolotovProjectile)
 	{
@@ -202,7 +202,7 @@ void c_grenade_prediction::run(entity_t* ent)
 			last_server_tick = m_globals()->m_curtime;
 		}
 
-		if (entity->IsDormant() || !configs.esp.grenade_warning)
+		if (entity->IsDormant() || !configs.visuals.grenade_warning)
 			return;
 
 		const auto client_class = entity->GetClientClass();
@@ -215,7 +215,7 @@ void c_grenade_prediction::run(entity_t* ent)
 				return;
 
 			const auto studio_model = m_modelinfo()->GetStudioModel(model);
-			if (!studio_model || std::string_view(studio_model->szName).find("fraggrenade") == std::string::npos)
+			if (!studio_model || std::string_view(studio_model->name).find("fraggrenade") == std::string::npos)
 				return;
 		}
 

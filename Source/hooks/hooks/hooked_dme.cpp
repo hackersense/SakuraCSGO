@@ -22,7 +22,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 {
 	static auto original_fn = modelrender_hook->getOriginal<DrawModelExecute_t>(21);
 	
-	if (!configs.player.enabled)
+	if (!configs.esp.enabled)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
 	if (m_engine()->IsTakingScreenshot() && configs.misc.anti_screenshot)
@@ -34,10 +34,10 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	auto model_entity = static_cast<player_t *>(m_entitylist()->GetClientEntity(info.entity_index));
 	auto name = m_modelinfo()->GetModelName(info.pModel);
 
-	auto is_player = strstr(name, "models/player") && model_entity->is_alive() && (configs.player.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] || configs.player.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] || configs.player.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] || configs.player.fake_chams_enabled || configs.player.backtrack_chams);
-	auto is_weapon = strstr(name, "weapons/v_") && !strstr(name, "arms") && configs.esp.weapon_chams;
-	auto is_arms = strstr(name, "arms") && configs.esp.arms_chams;
-	auto is_sleeve = strstr(name, "sleeve") && configs.esp.arms_chams;
+	auto is_player = strstr(name, "models/player") && model_entity->is_alive() && (configs.esp.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.fake_chams_enabled || configs.esp.backtrack_chams);
+	auto is_weapon = strstr(name, "weapons/v_") && !strstr(name, "arms") && configs.visuals.weapon_chams;
+	auto is_arms = strstr(name, "arms") && configs.visuals.arms_chams;
+	auto is_sleeve = strstr(name, "sleeve") && configs.visuals.arms_chams;
 
 	if (m_modelrender()->IsForcedMaterialOverride() && !is_weapon && !is_arms && !is_sleeve)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
@@ -155,18 +155,18 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 		{
 			auto alpha_modifier = playeresp::get().esp_alpha_fade[model_entity->EntIndex()];
 
-			auto material = materials[configs.player.type[ENEMY].chams_type];
+			auto material = materials[configs.esp.type[ENEMY].chams_type];
 			auto double_material = materials[6];
 
 			if (material && double_material && !material->IsErrorMaterial() && !double_material->IsErrorMaterial())
 			{
-				if (configs.player.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] && configs.player.type[ENEMY].chams[PLAYER_CHAMS_INVISIBLE])
+				if (configs.esp.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] && configs.esp.type[ENEMY].chams[PLAYER_CHAMS_INVISIBLE])
 				{
-					auto alpha = (float)configs.player.backtrack_chams_color.a() / 255.0f;;
+					auto alpha = (float)configs.esp.backtrack_chams_color.a() / 255.0f;;
 
-					if (configs.player.backtrack_chams)
+					if (configs.esp.backtrack_chams)
 					{
-						auto backtrack_material = materials[configs.player.backtrack_chams_material];
+						auto backtrack_material = materials[configs.esp.backtrack_chams_material];
 
 						if (backtrack_material && !backtrack_material->IsErrorMaterial())
 						{
@@ -176,9 +176,9 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 							{
 								float backtrack_color[3] =
 								{
-									configs.player.backtrack_chams_color[0] / 255.0f,
-									configs.player.backtrack_chams_color[1] / 255.0f,
-									configs.player.backtrack_chams_color[2] / 255.0f
+									configs.esp.backtrack_chams_color[0] / 255.0f,
+									configs.esp.backtrack_chams_color[1] / 255.0f,
+									configs.esp.backtrack_chams_color[2] / 255.0f
 								};
 
 								m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -194,13 +194,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					alpha = (float)configs.player.type[ENEMY].xqz_color.a() / 255.0f;
+					alpha = (float)configs.esp.type[ENEMY].xqz_color.a() / 255.0f;
 
 					float xqz_color[3] =
 					{
-						configs.player.type[ENEMY].xqz_color[0] / 255.0f,
-						configs.player.type[ENEMY].xqz_color[1] / 255.0f,
-						configs.player.type[ENEMY].xqz_color[2] / 255.0f
+						configs.esp.type[ENEMY].xqz_color[0] / 255.0f,
+						configs.esp.type[ENEMY].xqz_color[1] / 255.0f,
+						configs.esp.type[ENEMY].xqz_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -213,13 +213,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 					
-					alpha = (float)configs.player.type[ENEMY].chams_color.a() / 255.0f;
+					alpha = (float)configs.esp.type[ENEMY].chams_color.a() / 255.0f;
 
 					float normal_color[3] =
 					{
-						configs.player.type[ENEMY].chams_color[0] / 255.0f,
-						configs.player.type[ENEMY].chams_color[1] / 255.0f,
-						configs.player.type[ENEMY].chams_color[2] / 255.0f
+						configs.esp.type[ENEMY].chams_color[0] / 255.0f,
+						configs.esp.type[ENEMY].chams_color[1] / 255.0f,
+						configs.esp.type[ENEMY].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -232,19 +232,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[ENEMY].animated_material)
+					if (configs.esp.type[ENEMY].animated_material)
 					{
 						auto animated_material = materials[9];
 						
 						if (animated_material)
 						{
-							alpha = (float)configs.player.type[ENEMY].animated_material_color.a() / 255.0f;
+							alpha = (float)configs.esp.type[ENEMY].animated_material_color.a() / 255.0f;
 
 							float animated_color[3] =
 							{
-								configs.player.type[ENEMY].animated_material_color[0] / 255.0f,
-								configs.player.type[ENEMY].animated_material_color[1] / 255.0f,
-								configs.player.type[ENEMY].animated_material_color[2] / 255.0f
+								configs.esp.type[ENEMY].animated_material_color[0] / 255.0f,
+								configs.esp.type[ENEMY].animated_material_color[1] / 255.0f,
+								configs.esp.type[ENEMY].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -259,15 +259,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[ENEMY].double_material && configs.player.type[ENEMY].chams_type != 6)
+					if (configs.esp.type[ENEMY].double_material && configs.esp.type[ENEMY].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[ENEMY].double_material_color.a() / 255.0f;
+						alpha = (float)configs.esp.type[ENEMY].double_material_color.a() / 255.0f;
 
 						float double_color[3] =
 						{
-							configs.player.type[ENEMY].double_material_color[0] / 255.0f,
-							configs.player.type[ENEMY].double_material_color[1] / 255.0f,
-							configs.player.type[ENEMY].double_material_color[2] / 255.0f
+							configs.esp.type[ENEMY].double_material_color[0] / 255.0f,
+							configs.esp.type[ENEMY].double_material_color[1] / 255.0f,
+							configs.esp.type[ENEMY].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -283,13 +283,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 
 					called_original = true;
 				}
-				else if (configs.player.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE])
+				else if (configs.esp.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE])
 				{
-					auto alpha = (float)configs.player.backtrack_chams_color.a() / 255.0f;;
+					auto alpha = (float)configs.esp.backtrack_chams_color.a() / 255.0f;;
 
-					if (configs.player.backtrack_chams)
+					if (configs.esp.backtrack_chams)
 					{
-						auto backtrack_material = materials[configs.player.backtrack_chams_material];
+						auto backtrack_material = materials[configs.esp.backtrack_chams_material];
 
 						if (backtrack_material && !backtrack_material->IsErrorMaterial())
 						{
@@ -299,9 +299,9 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 							{
 								float backtrack_color[3] =
 								{
-									configs.player.backtrack_chams_color[0] / 255.0f,
-									configs.player.backtrack_chams_color[1] / 255.0f,
-									configs.player.backtrack_chams_color[2] / 255.0f
+									configs.esp.backtrack_chams_color[0] / 255.0f,
+									configs.esp.backtrack_chams_color[1] / 255.0f,
+									configs.esp.backtrack_chams_color[2] / 255.0f
 								};
 
 								m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -317,13 +317,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					alpha = (float)configs.player.type[ENEMY].chams_color.a() / 255.0f;
+					alpha = (float)configs.esp.type[ENEMY].chams_color.a() / 255.0f;
 
 					float normal_color[3] =
 					{
-						configs.player.type[ENEMY].chams_color[0] / 255.0f,
-						configs.player.type[ENEMY].chams_color[1] / 255.0f,
-						configs.player.type[ENEMY].chams_color[2] / 255.0f
+						configs.esp.type[ENEMY].chams_color[0] / 255.0f,
+						configs.esp.type[ENEMY].chams_color[1] / 255.0f,
+						configs.esp.type[ENEMY].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -336,19 +336,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[ENEMY].animated_material)
+					if (configs.esp.type[ENEMY].animated_material)
 					{
 						auto animated_material = materials[9];
 
 						if (animated_material)
 						{
-							alpha = (float)configs.player.type[ENEMY].animated_material_color.a() / 255.0f;
+							alpha = (float)configs.esp.type[ENEMY].animated_material_color.a() / 255.0f;
 
 							float animated_color[3] =
 							{
-								configs.player.type[ENEMY].animated_material_color[0] / 255.0f,
-								configs.player.type[ENEMY].animated_material_color[1] / 255.0f,
-								configs.player.type[ENEMY].animated_material_color[2] / 255.0f
+								configs.esp.type[ENEMY].animated_material_color[0] / 255.0f,
+								configs.esp.type[ENEMY].animated_material_color[1] / 255.0f,
+								configs.esp.type[ENEMY].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -363,15 +363,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[ENEMY].double_material && configs.player.type[ENEMY].chams_type != 6)
+					if (configs.esp.type[ENEMY].double_material && configs.esp.type[ENEMY].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[ENEMY].double_material_color.a() / 255.0f;
+						alpha = (float)configs.esp.type[ENEMY].double_material_color.a() / 255.0f;
 
 						float double_color[3] =
 						{
-							configs.player.type[ENEMY].double_material_color[0] / 255.0f,
-							configs.player.type[ENEMY].double_material_color[1] / 255.0f,
-							configs.player.type[ENEMY].double_material_color[2] / 255.0f
+							configs.esp.type[ENEMY].double_material_color[0] / 255.0f,
+							configs.esp.type[ENEMY].double_material_color[1] / 255.0f,
+							configs.esp.type[ENEMY].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha * alpha_modifier);
@@ -394,20 +394,20 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 		}
 		else if (type == TEAM)
 		{
-			auto material = materials[configs.player.type[TEAM].chams_type];
+			auto material = materials[configs.esp.type[TEAM].chams_type];
 			auto double_material = materials[6];
 
 			if (material && double_material && !material->IsErrorMaterial() && !double_material->IsErrorMaterial())
 			{
-				if (configs.player.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] && configs.player.type[TEAM].chams[PLAYER_CHAMS_INVISIBLE])
+				if (configs.esp.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] && configs.esp.type[TEAM].chams[PLAYER_CHAMS_INVISIBLE])
 				{
-					auto alpha = (float)configs.player.type[TEAM].xqz_color.a() / 255.0f;
+					auto alpha = (float)configs.esp.type[TEAM].xqz_color.a() / 255.0f;
 
 					float xqz_color[3] =
 					{
-						configs.player.type[TEAM].xqz_color[0] / 255.0f,
-						configs.player.type[TEAM].xqz_color[1] / 255.0f,
-						configs.player.type[TEAM].xqz_color[2] / 255.0f
+						configs.esp.type[TEAM].xqz_color[0] / 255.0f,
+						configs.esp.type[TEAM].xqz_color[1] / 255.0f,
+						configs.esp.type[TEAM].xqz_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -420,13 +420,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					alpha = (float)configs.player.type[TEAM].chams_color.a() / 255.0f;
+					alpha = (float)configs.esp.type[TEAM].chams_color.a() / 255.0f;
 
 					float normal_color[3] =
 					{
-						configs.player.type[TEAM].chams_color[0] / 255.0f,
-						configs.player.type[TEAM].chams_color[1] / 255.0f,
-						configs.player.type[TEAM].chams_color[2] / 255.0f
+						configs.esp.type[TEAM].chams_color[0] / 255.0f,
+						configs.esp.type[TEAM].chams_color[1] / 255.0f,
+						configs.esp.type[TEAM].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -439,19 +439,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[TEAM].animated_material)
+					if (configs.esp.type[TEAM].animated_material)
 					{
 						auto animated_material = materials[9];
 
 						if (animated_material)
 						{
-							alpha = (float)configs.player.type[TEAM].animated_material_color.a() / 255.0f;
+							alpha = (float)configs.esp.type[TEAM].animated_material_color.a() / 255.0f;
 
 							float animated_color[3] =
 							{
-								configs.player.type[TEAM].animated_material_color[0] / 255.0f,
-								configs.player.type[TEAM].animated_material_color[1] / 255.0f,
-								configs.player.type[TEAM].animated_material_color[2] / 255.0f
+								configs.esp.type[TEAM].animated_material_color[0] / 255.0f,
+								configs.esp.type[TEAM].animated_material_color[1] / 255.0f,
+								configs.esp.type[TEAM].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha);
@@ -466,15 +466,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[TEAM].double_material && configs.player.type[TEAM].chams_type != 6)
+					if (configs.esp.type[TEAM].double_material && configs.esp.type[TEAM].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[TEAM].double_material_color.a() / 255.0f;
+						alpha = (float)configs.esp.type[TEAM].double_material_color.a() / 255.0f;
 
 						float double_color[3] =
 						{
-							configs.player.type[TEAM].double_material_color[0] / 255.0f,
-							configs.player.type[TEAM].double_material_color[1] / 255.0f,
-							configs.player.type[TEAM].double_material_color[2] / 255.0f
+							configs.esp.type[TEAM].double_material_color[0] / 255.0f,
+							configs.esp.type[TEAM].double_material_color[1] / 255.0f,
+							configs.esp.type[TEAM].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha);
@@ -490,15 +490,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 
 					called_original = true;
 				}
-				else if (configs.player.type[TEAM].chams[PLAYER_CHAMS_VISIBLE])
+				else if (configs.esp.type[TEAM].chams[PLAYER_CHAMS_VISIBLE])
 				{
-					auto alpha = (float)configs.player.type[TEAM].chams_color.a() / 255.0f;
+					auto alpha = (float)configs.esp.type[TEAM].chams_color.a() / 255.0f;
 
 					float normal_color[3] =
 					{
-						configs.player.type[TEAM].chams_color[0] / 255.0f,
-						configs.player.type[TEAM].chams_color[1] / 255.0f,
-						configs.player.type[TEAM].chams_color[2] / 255.0f
+						configs.esp.type[TEAM].chams_color[0] / 255.0f,
+						configs.esp.type[TEAM].chams_color[1] / 255.0f,
+						configs.esp.type[TEAM].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -511,19 +511,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[TEAM].animated_material)
+					if (configs.esp.type[TEAM].animated_material)
 					{
 						auto animated_material = materials[9];
 
 						if (animated_material)
 						{
-							alpha = (float)configs.player.type[TEAM].animated_material_color.a() / 255.0f;
+							alpha = (float)configs.esp.type[TEAM].animated_material_color.a() / 255.0f;
 
 							float animated_color[3] =
 							{
-								configs.player.type[TEAM].animated_material_color[0] / 255.0f,
-								configs.player.type[TEAM].animated_material_color[1] / 255.0f,
-								configs.player.type[TEAM].animated_material_color[2] / 255.0f
+								configs.esp.type[TEAM].animated_material_color[0] / 255.0f,
+								configs.esp.type[TEAM].animated_material_color[1] / 255.0f,
+								configs.esp.type[TEAM].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha);
@@ -538,15 +538,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[TEAM].double_material && configs.player.type[TEAM].chams_type != 6)
+					if (configs.esp.type[TEAM].double_material && configs.esp.type[TEAM].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[TEAM].double_material_color.a() / 255.0f;
+						alpha = (float)configs.esp.type[TEAM].double_material_color.a() / 255.0f;
 
 						float double_color[3] =
 						{
-							configs.player.type[TEAM].double_material_color[0] / 255.0f,
-							configs.player.type[TEAM].double_material_color[1] / 255.0f,
-							configs.player.type[TEAM].double_material_color[2] / 255.0f
+							configs.esp.type[TEAM].double_material_color[0] / 255.0f,
+							configs.esp.type[TEAM].double_material_color[1] / 255.0f,
+							configs.esp.type[TEAM].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha);
@@ -571,23 +571,23 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 		{
 			auto alpha_modifier = 1.0f;
 
-			if (configs.player.transparency_in_scope && cheat.globals.scoped)
-				alpha_modifier = configs.player.transparency_in_scope_amount;
+			if (configs.esp.transparency_in_scope && cheat.globals.scoped)
+				alpha_modifier = configs.esp.transparency_in_scope_amount;
 
-			auto material = materials[configs.player.type[LOCAL].chams_type];
+			auto material = materials[configs.esp.type[LOCAL].chams_type];
 			auto double_material = materials[6];
 
 			if (material && double_material && !material->IsErrorMaterial() && !double_material->IsErrorMaterial())
 			{
-				if (configs.player.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] && configs.player.type[LOCAL].chams[PLAYER_CHAMS_INVISIBLE])
+				if (configs.esp.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] && configs.esp.type[LOCAL].chams[PLAYER_CHAMS_INVISIBLE])
 				{
-					auto alpha = (float)configs.player.type[LOCAL].xqz_color.a() / 255.0f * alpha_modifier;
+					auto alpha = (float)configs.esp.type[LOCAL].xqz_color.a() / 255.0f * alpha_modifier;
 
 					float xqz_color[3] =
 					{
-						configs.player.type[LOCAL].xqz_color[0] / 255.0f,
-						configs.player.type[LOCAL].xqz_color[1] / 255.0f,
-						configs.player.type[LOCAL].xqz_color[2] / 255.0f
+						configs.esp.type[LOCAL].xqz_color[0] / 255.0f,
+						configs.esp.type[LOCAL].xqz_color[1] / 255.0f,
+						configs.esp.type[LOCAL].xqz_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -600,13 +600,13 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					alpha = (float)configs.player.type[LOCAL].chams_color.a() / 255.0f * alpha_modifier;
+					alpha = (float)configs.esp.type[LOCAL].chams_color.a() / 255.0f * alpha_modifier;
 
 					float normal_color[3] =
 					{
-						configs.player.type[LOCAL].chams_color[0] / 255.0f,
-						configs.player.type[LOCAL].chams_color[1] / 255.0f,
-						configs.player.type[LOCAL].chams_color[2] / 255.0f
+						configs.esp.type[LOCAL].chams_color[0] / 255.0f,
+						configs.esp.type[LOCAL].chams_color[1] / 255.0f,
+						configs.esp.type[LOCAL].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -619,19 +619,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[LOCAL].animated_material)
+					if (configs.esp.type[LOCAL].animated_material)
 					{
 						auto animated_material = materials[9];
 
 						if (animated_material)
 						{
-							auto alpha = (float)configs.player.type[LOCAL].animated_material_color.a() / 255.0f;
+							auto alpha = (float)configs.esp.type[LOCAL].animated_material_color.a() / 255.0f;
 
 							float animated_color[3] =
 							{
-								configs.player.type[LOCAL].animated_material_color[0] / 255.0f,
-								configs.player.type[LOCAL].animated_material_color[1] / 255.0f,
-								configs.player.type[LOCAL].animated_material_color[2] / 255.0f
+								configs.esp.type[LOCAL].animated_material_color[0] / 255.0f,
+								configs.esp.type[LOCAL].animated_material_color[1] / 255.0f,
+								configs.esp.type[LOCAL].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha);
@@ -646,15 +646,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[LOCAL].double_material && configs.player.type[LOCAL].chams_type != 6)
+					if (configs.esp.type[LOCAL].double_material && configs.esp.type[LOCAL].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[LOCAL].double_material_color.a() / 255.0f * alpha_modifier;
+						alpha = (float)configs.esp.type[LOCAL].double_material_color.a() / 255.0f * alpha_modifier;
 
 						float double_color[3] =
 						{
-							configs.player.type[LOCAL].double_material_color[0] / 255.0f,
-							configs.player.type[LOCAL].double_material_color[1] / 255.0f,
-							configs.player.type[LOCAL].double_material_color[2] / 255.0f
+							configs.esp.type[LOCAL].double_material_color[0] / 255.0f,
+							configs.esp.type[LOCAL].double_material_color[1] / 255.0f,
+							configs.esp.type[LOCAL].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha);
@@ -670,15 +670,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 
 					called_original = true;
 				}
-				else if (configs.player.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE])
+				else if (configs.esp.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE])
 				{
-					auto alpha = (float)configs.player.type[LOCAL].chams_color.a() / 255.0f * alpha_modifier;
+					auto alpha = (float)configs.esp.type[LOCAL].chams_color.a() / 255.0f * alpha_modifier;
 
 					float normal_color[3] =
 					{
-						configs.player.type[LOCAL].chams_color[0] / 255.0f,
-						configs.player.type[LOCAL].chams_color[1] / 255.0f,
-						configs.player.type[LOCAL].chams_color[2] / 255.0f
+						configs.esp.type[LOCAL].chams_color[0] / 255.0f,
+						configs.esp.type[LOCAL].chams_color[1] / 255.0f,
+						configs.esp.type[LOCAL].chams_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -691,19 +691,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
 
-					if (configs.player.type[LOCAL].animated_material)
+					if (configs.esp.type[LOCAL].animated_material)
 					{
 						auto animated_material = materials[9];
 
 						if (animated_material)
 						{
-							alpha = (float)configs.player.type[LOCAL].animated_material_color.a() / 255.0f * alpha_modifier;
+							alpha = (float)configs.esp.type[LOCAL].animated_material_color.a() / 255.0f * alpha_modifier;
 
 							float animated_color[3] =
 							{
-								configs.player.type[LOCAL].animated_material_color[0] / 255.0f,
-								configs.player.type[LOCAL].animated_material_color[1] / 255.0f,
-								configs.player.type[LOCAL].animated_material_color[2] / 255.0f
+								configs.esp.type[LOCAL].animated_material_color[0] / 255.0f,
+								configs.esp.type[LOCAL].animated_material_color[1] / 255.0f,
+								configs.esp.type[LOCAL].animated_material_color[2] / 255.0f
 							};
 
 							m_renderview()->SetBlend(alpha);
@@ -718,15 +718,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 						}
 					}
 
-					if (configs.player.type[LOCAL].double_material && configs.player.type[LOCAL].chams_type != 6)
+					if (configs.esp.type[LOCAL].double_material && configs.esp.type[LOCAL].chams_type != 6)
 					{
-						alpha = (float)configs.player.type[LOCAL].double_material_color.a() / 255.0f * alpha_modifier;
+						alpha = (float)configs.esp.type[LOCAL].double_material_color.a() / 255.0f * alpha_modifier;
 
 						float double_color[3] =
 						{
-							configs.player.type[LOCAL].double_material_color[0] / 255.0f,
-							configs.player.type[LOCAL].double_material_color[1] / 255.0f,
-							configs.player.type[LOCAL].double_material_color[2] / 255.0f
+							configs.esp.type[LOCAL].double_material_color[0] / 255.0f,
+							configs.esp.type[LOCAL].double_material_color[1] / 255.0f,
+							configs.esp.type[LOCAL].double_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha);
@@ -744,7 +744,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				}
 			}
 
-			if (!called_original && configs.player.layered)
+			if (!called_original && configs.esp.layered)
 			{
 				m_renderview()->SetBlend(alpha_modifier);
 				m_renderview()->SetColorModulation(1.0f, 1.0f, 1.0f);
@@ -752,7 +752,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 			}
 
-			if (configs.player.fake_chams_enabled && !antiaim::get().freeze_check && (configs.antiaim.enabled || configs.fakelag.enabled))
+			if (configs.esp.fake_chams_enabled && !antiaim::get().freeze_check && (configs.antiaim.enabled || configs.fakelag.enabled))
 			{
 				if (!local_animations::get().local_data.visualize_lag)
 				{
@@ -764,14 +764,14 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					}
 				}
 
-				auto alpha = (float)configs.player.fake_chams_color.a() / 255.0f;
-				material = materials[configs.player.fake_chams_type];
+				auto alpha = (float)configs.esp.fake_chams_color.a() / 255.0f;
+				material = materials[configs.esp.fake_chams_type];
 
 				float fake_color[3] =
 				{
-					configs.player.fake_chams_color[0] / 255.0f,
-					configs.player.fake_chams_color[1] / 255.0f,
-					configs.player.fake_chams_color[2] / 255.0f
+					configs.esp.fake_chams_color[0] / 255.0f,
+					configs.esp.fake_chams_color[1] / 255.0f,
+					configs.esp.fake_chams_color[2] / 255.0f
 				};
 
 				m_renderview()->SetBlend(alpha);
@@ -784,19 +784,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				original_fn(m_modelrender(), ctx, state, info, cheat.globals.fake_matrix);
 				m_modelrender()->ForcedMaterialOverride(nullptr);
 
-				if (configs.player.fake_animated_material)
+				if (configs.esp.fake_animated_material)
 				{
 					auto animated_material = materials[9];
 
 					if (animated_material)
 					{
-						alpha = (float)configs.player.fake_animated_material_color.a() / 255.0f;
+						alpha = (float)configs.esp.fake_animated_material_color.a() / 255.0f;
 
 						float animated_color[3] =
 						{
-							configs.player.fake_animated_material_color[0] / 255.0f,
-							configs.player.fake_animated_material_color[1] / 255.0f,
-							configs.player.fake_animated_material_color[2] / 255.0f
+							configs.esp.fake_animated_material_color[0] / 255.0f,
+							configs.esp.fake_animated_material_color[1] / 255.0f,
+							configs.esp.fake_animated_material_color[2] / 255.0f
 						};
 
 						m_renderview()->SetBlend(alpha);
@@ -811,15 +811,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					}
 				}
 
-				if (configs.player.fake_double_material && configs.player.fake_chams_type != 6 && double_material)
+				if (configs.esp.fake_double_material && configs.esp.fake_chams_type != 6 && double_material)
 				{
-					alpha = (float)configs.player.fake_double_material_color.a() / 255.0f;
+					alpha = (float)configs.esp.fake_double_material_color.a() / 255.0f;
 
 					float double_color[3] =
 					{
-						configs.player.fake_double_material_color[0] / 255.0f,
-						configs.player.fake_double_material_color[1] / 255.0f,
-						configs.player.fake_double_material_color[2] / 255.0f
+						configs.esp.fake_double_material_color[0] / 255.0f,
+						configs.esp.fake_double_material_color[1] / 255.0f,
+						configs.esp.fake_double_material_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -844,7 +844,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				}
 			}
 
-			if (!called_original && !configs.player.layered)
+			if (!called_original && !configs.esp.layered)
 			{
 				m_renderview()->SetBlend(alpha_modifier);
 				m_renderview()->SetColorModulation(1.0f, 1.0f, 1.0f);
@@ -855,18 +855,18 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	}
 	else if (is_weapon)
 	{
-		auto alpha = (float)configs.esp.weapon_chams_color.a() / 255.0f;
+		auto alpha = (float)configs.visuals.weapon_chams_color.a() / 255.0f;
 
-		auto material = materials[configs.esp.weapon_chams_type];
+		auto material = materials[configs.visuals.weapon_chams_type];
 		auto double_material = materials[6];
 
 		if (material && double_material && !material->IsErrorMaterial() && !double_material->IsErrorMaterial())
 		{
 			float weapon_color[3] =
 			{
-				configs.esp.weapon_chams_color[0] / 255.0f,
-				configs.esp.weapon_chams_color[1] / 255.0f,
-				configs.esp.weapon_chams_color[2] / 255.0f
+				configs.visuals.weapon_chams_color[0] / 255.0f,
+				configs.visuals.weapon_chams_color[1] / 255.0f,
+				configs.visuals.weapon_chams_color[2] / 255.0f
 			};
 
 			m_renderview()->SetBlend(alpha);
@@ -879,19 +879,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 			original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 			m_modelrender()->ForcedMaterialOverride(nullptr);
 
-			if (configs.esp.weapon_animated_material)
+			if (configs.visuals.weapon_animated_material)
 			{
 				auto animated_material = materials[9];
 
 				if (animated_material)
 				{
-					auto alpha = (float)configs.esp.weapon_animated_material_color.a() / 255.0f;
+					auto alpha = (float)configs.visuals.weapon_animated_material_color.a() / 255.0f;
 
 					float animated_color[3] =
 					{
-						configs.esp.weapon_animated_material_color[0] / 255.0f,
-						configs.esp.weapon_animated_material_color[1] / 255.0f,
-						configs.esp.weapon_animated_material_color[2] / 255.0f
+						configs.visuals.weapon_animated_material_color[0] / 255.0f,
+						configs.visuals.weapon_animated_material_color[1] / 255.0f,
+						configs.visuals.weapon_animated_material_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -906,15 +906,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				}
 			}
 
-			if (configs.esp.weapon_double_material && configs.esp.weapon_chams_type != 6)
+			if (configs.visuals.weapon_double_material && configs.visuals.weapon_chams_type != 6)
 			{
-				alpha = (float)configs.esp.weapon_double_material_color.a() / 255.0f;
+				alpha = (float)configs.visuals.weapon_double_material_color.a() / 255.0f;
 
 				float double_color[3] =
 				{
-					configs.esp.weapon_double_material_color[0] / 255.0f,
-					configs.esp.weapon_double_material_color[1] / 255.0f,
-					configs.esp.weapon_double_material_color[2] / 255.0f
+					configs.visuals.weapon_double_material_color[0] / 255.0f,
+					configs.visuals.weapon_double_material_color[1] / 255.0f,
+					configs.visuals.weapon_double_material_color[2] / 255.0f
 				};
 
 				m_renderview()->SetBlend(alpha);
@@ -936,18 +936,18 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	}
 	else if (is_arms || is_sleeve)
 	{
-		auto alpha = (float)configs.esp.arms_chams_color.a() / 255.0f;
+		auto alpha = (float)configs.visuals.arms_chams_color.a() / 255.0f;
 
-		auto material = materials[configs.esp.arms_chams_type];
+		auto material = materials[configs.visuals.arms_chams_type];
 		auto double_material = materials[6];
 
 		if (material && double_material && !material->IsErrorMaterial() && !double_material->IsErrorMaterial())
 		{
 			float arms_color[3] =
 			{
-				configs.esp.arms_chams_color[0] / 255.0f,
-				configs.esp.arms_chams_color[1] / 255.0f,
-				configs.esp.arms_chams_color[2] / 255.0f
+				configs.visuals.arms_chams_color[0] / 255.0f,
+				configs.visuals.arms_chams_color[1] / 255.0f,
+				configs.visuals.arms_chams_color[2] / 255.0f
 			};
 
 			m_renderview()->SetBlend(alpha);
@@ -960,19 +960,19 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 			original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 			m_modelrender()->ForcedMaterialOverride(nullptr);
 
-			if (configs.esp.arms_animated_material)
+			if (configs.visuals.arms_animated_material)
 			{
 				auto animated_material = materials[9];
 
 				if (animated_material)
 				{
-					auto alpha = (float)configs.esp.arms_animated_material_color.a() / 255.0f;
+					auto alpha = (float)configs.visuals.arms_animated_material_color.a() / 255.0f;
 
 					float animated_color[3] =
 					{
-						configs.esp.arms_animated_material_color[0] / 255.0f,
-						configs.esp.arms_animated_material_color[1] / 255.0f,
-						configs.esp.arms_animated_material_color[2] / 255.0f
+						configs.visuals.arms_animated_material_color[0] / 255.0f,
+						configs.visuals.arms_animated_material_color[1] / 255.0f,
+						configs.visuals.arms_animated_material_color[2] / 255.0f
 					};
 
 					m_renderview()->SetBlend(alpha);
@@ -987,15 +987,15 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 				}
 			}
 
-			if (configs.esp.arms_double_material && configs.esp.arms_chams_type != 6)
+			if (configs.visuals.arms_double_material && configs.visuals.arms_chams_type != 6)
 			{
-				alpha = (float)configs.esp.arms_double_material_color.a() / 255.0f;
+				alpha = (float)configs.visuals.arms_double_material_color.a() / 255.0f;
 
 				float double_color[3] =
 				{
-					configs.esp.arms_double_material_color[0] / 255.0f,
-					configs.esp.arms_double_material_color[1] / 255.0f,
-					configs.esp.arms_double_material_color[2] / 255.0f
+					configs.visuals.arms_double_material_color[0] / 255.0f,
+					configs.visuals.arms_double_material_color[1] / 255.0f,
+					configs.visuals.arms_double_material_color[2] / 255.0f
 				};
 
 				m_renderview()->SetBlend(alpha);

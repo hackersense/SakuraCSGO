@@ -55,14 +55,6 @@ typedef float RadianEuler[3];
 #define HITGROUP_NECK 8
 #define HITGROUP_GEAR 10
 
-enum modtype_t
-{
-    mod_bad = 0,
-    mod_brush,
-    mod_sprite,
-    mod_studio
-};
-
 enum Hitboxes
 {
 	HITBOX_HEAD = 0,
@@ -173,7 +165,7 @@ struct model_t
 	char name[255];
 };
 
-struct studioseqdesc_t
+struct StudioSeqdesc
 {
 	std::byte		pad[104];		// 0
 	float			fadeInTime;		// 104
@@ -182,72 +174,67 @@ struct studioseqdesc_t
 	int				numAnimTags;	// 196
 };
 
-class studiohdr_t
+class StudioHdr
 {
 public:
-	int				id;                     //0x0000 
-	int				version;                //0x0004 
-	long			checksum;               //0x0008 
-	char			szName[64];             //0x000C 
-	int				length;                 //0x004C 
-	Vector			vecEyePos;              //0x0050 
-	Vector			vecIllumPos;            //0x005C 
-	Vector			vecHullMin;             //0x0068 
-	Vector			vecHullMax;             //0x0074 
-	Vector			vecBBMin;               //0x0080 
-	Vector			vecBBMax;               //0x008C 
-	int				flags;                  //0x0098 
-	int				numbones;               //0x009C 
-	int				boneindex;              //0x00A0 
-	int				numbonecontrollers;     //0x00A4 
-	int				bonecontrollerindex;    //0x00A8 
-	int				numhitboxsets;          //0x00AC 
-	int				hitboxsetindex;         //0x00B0 
-	int				numlocalanim;           //0x00B4 
-	int				localanimindex;         //0x00B8 
-	int				numlocalseq;            //0x00BC 
-	int				localseqindex;          //0x00C0 
-	int				activitylistversion;    //0x00C4 
-	int				eventsindexed;          //0x00C8 
-	int				numtextures;            //0x00CC 
-	int				textureindex;           //0x00D0
+	int id;
+	int version;
+	int checksum;
+	char name[64];
+	int length;
+	Vector eyePosition;
+	Vector illumPosition;
+	Vector hullMin;
+	Vector hullMax;
+	Vector bbMin;
+	Vector bbMax;
+	int flags;
+	int numBones;
+	int boneIndex;
+	int numBoneControllers;
+	int boneControllerIndex;
+	int numHitboxSets;
+	int hitboxSetIndex;
+	int numLocalAnim;
+	int localAnimIndex;
+	int numLocalSeq;
 
 	const char* getName()
 	{
-		return szName;
+		return name;
 	}
 
 	mstudiohitboxset_t* getHitboxSet(int i)
 	{
-		if (i > numhitboxsets)
+		if (i > numHitboxSets)
 			return nullptr;
-		return (mstudiohitboxset_t*)((uint8_t*)this + hitboxsetindex) + i;
+		return reinterpret_cast<mstudiohitboxset_t*>(std::uintptr_t(this) + hitboxSetIndex) + i;
 	}
 
 	mstudiobone_t* getBone(int i)
 	{
-		if (i > numbones)
+		if (i > numBones)
 			return nullptr;
-		return (mstudiobone_t*)((uint8_t*)this + boneindex) + i;
+		return reinterpret_cast<mstudiobone_t*>(std::uintptr_t(this) + boneIndex) + i;
 	}
 };
 
-class c_studio_hdr
+class CStudioHdr
 {
 public:
-	studiohdr_t*					m_pStudioHdr; //0x0000 
-	void*							m_pVModel; //0x0004
-	void*							softBody;	//0x0008
-	CUtlVector <const studiohdr_t*> m_pStudioHdrCache; //0x000C 
-	int								m_nFrameUnlockCounter; //0x0020 
-	int*							m_pFrameUnlockCounter; //0x0024 
-	std::byte						pad[8]; //0x0028 
-	CUtlVector<int>					bone_flags; //0x0030
-	CUtlVector<int>					m_boneParent; //0x0050
-	void* activityToSequence;
+	StudioHdr*						studioHdr;
+	void*							virtualModel;
+	void*							softBody;
+	CUtlVector<const StudioHdr*>	hdrCache;
+	int								numFrameUnlockCounter;
+	int*							frameUnlockCounter;
+	std::byte						pad[8];
+	CUtlVector<int>					boneFlags;
+	CUtlVector<int>					boneParent;
+	void*							activityToSequence;
 
-	studioseqdesc_t getSeqdesc(int sequence)
+	StudioSeqdesc getSeqdesc(int sequence)
 	{
-		return *reinterpret_cast<studioseqdesc_t*>(memory->seqdesc(this, sequence));
+		return *reinterpret_cast<StudioSeqdesc*>(memory->seqdesc(this, sequence));
 	}
 };

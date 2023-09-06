@@ -205,7 +205,7 @@ void resolver::resolve_yaw()
 	if (configs.ragebot.resolver_mode == 1 && math::random_int(0, 2))
 		return;
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(player->EntIndex(), &player_info);
 	auto animstate = player->get_animation_state();
 
@@ -347,7 +347,7 @@ void resolver::resolve_yaw()
 			backup_side = ResolverSide::RESOLVER_ORIGINAL;
 	}
 
-
+	/*
 	const auto is_overriding = key_binds::get().get_key_bind_state(key_bind_features::RESOLVER_OVERRIDE);
 	const auto player_desync_delta = player->get_max_desync_delta();
 	const auto low_player_desync_delta = player_desync_delta / 2;
@@ -375,9 +375,9 @@ void resolver::resolve_yaw()
 	case ResolverSide::RESOLVER_LOW_SECOND:
 		animstate->m_flGoalFeetYaw = currentEyeYaw - (low_delta + currentYaw);
 		break;
-	}
+	}*/
 
-	//test(player);
+	test(player);
 
 	auto& info = resolver_info{ player->EntIndex(), true, beforeAnimYaw, player->get_animation_state()->m_flGoalFeetYaw, cheat.globals.missed_shots[player->EntIndex()], player_record->shot };
 
@@ -393,7 +393,7 @@ void resolver::resolve_pitch()
 	if (!configs.ragebot.resolver[RESOLVER_PITCH])
 		return;
 
-	player_info_t player_info;
+	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(player->EntIndex(), &player_info);
 	auto animstate = player->get_animation_state();
 

@@ -10,12 +10,7 @@ struct Record
     std::deque<Vector> positions;
     int ownerIdx;
     Vector origin;
-    Vector absAngle;
-    Vector mins;
-    Vector maxs;
     float simulationTime;
-    bool hasHelmet;
-    int armor;
     matrix3x4_t matrix[MAXSTUDIOBONES];
 };
 

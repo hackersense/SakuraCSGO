@@ -4,8 +4,8 @@
 
 class UIPanel {
 public:
-    VIRTUAL_METHOD_V(int, getChildCount, 48, (), (this));
-    VIRTUAL_METHOD_V(UIPanel*, getChild, 49, (int n), (this, n));
+    VIRTUAL_METHOD(int, getChildCount, 48, (), (this));
+    VIRTUAL_METHOD(UIPanel*, getChild, 49, (int n), (this, n));
     VIRTUAL_METHOD(bool, hasClass, 139, (const char* name), (this, name));
     VIRTUAL_METHOD(void, setHasClass, 145, (const char* name, bool hasClass), (this, name, hasClass));
     VIRTUAL_METHOD(float, getAttributeFloat, 278, (const char* name, float defaultValue), (this, name, defaultValue));
@@ -22,7 +22,7 @@ struct IPanoramaEventRegistration {
 
 class UIEngine {
 public:
-    VIRTUAL_METHOD_V(void, dispatchEvent, 52, (void* eventPtr), (this, eventPtr));
+    VIRTUAL_METHOD(void, dispatchEvent, 52, (void* eventPtr), (this, eventPtr));
 };
 
 class IPanoramaUIEngine {
