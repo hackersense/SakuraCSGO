@@ -341,7 +341,7 @@ void worldesp::motion_blur(CViewSetup* setup)
 		else
 		{
 			const float horizontalFov = setup->fov;
-			const float verticalFov = (setup->aspect_ratio <= 0.0f) ? (setup->fov) : (setup->fov / setup->aspect_ratio);
+			const float verticalFov = (setup->aspectRatio <= 0.0f) ? (setup->fov) : (setup->fov / setup->aspectRatio);
 			const float viewdotMotion = currentForwardVector.Dot(positionChange);
 
 			if (configs.visuals.motionblur_forward)
@@ -452,7 +452,7 @@ void worldesp::molotov_timer(entity_t* entity)
 		return;
 
 	auto inferno = reinterpret_cast<inferno_t*>(entity);
-	auto origin = inferno->GetAbsOrigin();
+	Vector origin = inferno->GetAbsOrigin();
 	auto col = configs.visuals.molotov_timer_color;
 	Vector screen_origin;
 	auto spawn_time = inferno->get_spawn_time();
@@ -666,7 +666,7 @@ void worldesp::grenade_projectiles(entity_t* entity)
 
 					if (configs.visuals.weapon[WEAPON_DISTANCE])
 					{
-						auto distance = cheat.local()->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
+						auto distance = localPlayer->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
 						render::get().text(fonts[ESP], box.x + box.w / 2, box.y - 13 - offset, configs.visuals.weapon_color, HFONT_CENTERED_X, "%i FT", (int)distance);
 					}
 				}
@@ -680,7 +680,7 @@ void worldesp::grenade_projectiles(entity_t* entity)
 
 					if (configs.visuals.weapon[WEAPON_DISTANCE])
 					{
-						auto distance = cheat.local()->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
+						auto distance = localPlayer->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
 
 						if (configs.visuals.weapon[WEAPON_ICON] && configs.visuals.weapon[WEAPON_TEXT])
 							offset = 21;
@@ -778,7 +778,7 @@ void worldesp::dropped_weapons(entity_t* entity)
 
 			if (configs.visuals.weapon[WEAPON_DISTANCE])
 			{
-				auto distance = cheat.local()->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
+				auto distance = localPlayer->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
 				render::get().text(fonts[ESP], box.x + box.w / 2, box.y - 13 - offset, configs.visuals.weapon_color, HFONT_CENTERED_X, "%i FT", (int)distance);
 			}
 		}
@@ -810,7 +810,7 @@ void worldesp::dropped_weapons(entity_t* entity)
 
 			if (configs.visuals.weapon[WEAPON_DISTANCE])
 			{
-				auto distance = cheat.local()->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
+				auto distance = localPlayer->GetAbsOrigin().DistTo(weapon->GetAbsOrigin()) / 12.0f;
 
 				if (configs.visuals.weapon[WEAPON_ICON] && configs.visuals.weapon[WEAPON_TEXT])
 					offset = 21;

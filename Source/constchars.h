@@ -64,7 +64,7 @@ inline std::vector<const char*> safe_points_conditions =
 	"In air",
 	"In crouch",
 	"On limbs",
-	"Low damage"
+	"Low health"
 };
 
 inline std::vector<const char*> body_aim_conditions =

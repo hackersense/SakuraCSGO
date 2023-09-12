@@ -22,15 +22,15 @@ bool entity_t::is_player()
 	if (!this)
 		return false;
 
-	auto client_class = GetClientClass();
+	//auto client_class = GetClientClass();
 
-	if (!client_class)
-		return false;
+	//if (!client_class)
+	//	return false;
 
-	return client_class->m_ClassID == CCSPlayer;
+	//return client_class->m_ClassID == CCSPlayer;
 
-	//using Fn = bool(__thiscall*)(void*);
-	//return call_virtual<Fn>(this, 158)(this);
+	using Fn = bool(__thiscall*)(void*);
+	return call_virtual<Fn>(this, 158)(this);
 }
 
 void entity_t::set_model_index(int index)
@@ -67,12 +67,34 @@ void entity_t::set_abs_origin(const Vector& origin)
 	return memory->setAbsOrigin(this, origin);
 }
 
+#pragma optimize( "", off)
+#pragma runtime_checks("", off) //Disable runtime checks to prevent ESP error
+void entity_t::getSequenceLinearMotion(CStudioHdr* studioHdr, int sequence, Vector& v)
+{
+	if (!this)
+		return;
+
+	memory->getSequenceLinearMotion(studioHdr, sequence, (float*)&m_flPoseParameter(), &v);
+}
+#pragma runtime_checks("", restore) //Restore runtime checks
+#pragma optimize( "", on )
+
+float entity_t::getSequenceMoveDist(CStudioHdr* studioHdr, int sequence)
+{
+	Vector v{};
+
+	getSequenceLinearMotion(studioHdr, sequence, v);
+
+	return v.Length();
+}
+
 weapon_info_t* weapon_t::get_weapon_info()
 {
-	if (!this || !m_weaponsystem())
+	if (!this) //  || !m_weaponsystem()
 		return nullptr;
 
-	return m_weaponsystem()->GetWeaponData(m_iItemDefinitionIndex());
+	return VirtualMethod::call<weapon_info_t*, 461>(this);
+	//return m_weaponsystem()->GetWeaponData(m_iItemDefinitionIndex());
 }
 
 float weapon_t::get_inaccuracy()
@@ -125,7 +147,7 @@ bool weapon_t::can_fire(bool check_revolver, int tickbase)
 
 	auto owner = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntityFromHandle(m_hOwnerEntity()));
 
-	if (owner == cheat.local() && (antiaim::get().freeze_check || owner->m_fFlags() & FL_ATCONTROLS))
+	if (owner == localPlayer.get() && (antiaim::get().freeze_check || owner->m_fFlags() & FL_ATCONTROLS))
 		return false;
 
 	if (!owner->valid(false) || owner->m_bIsDefusing() || owner->m_bWaitForNoAttack())
@@ -133,7 +155,7 @@ bool weapon_t::can_fire(bool check_revolver, int tickbase)
 
 	auto server_time = (tickbase != INT_MAX ? tickbase : util::server_time()); // TICKS_TO_TIME
 
-	if (tickbase == -1 && owner == cheat.local() && configs.ragebot.double_tap && misc::get().double_tap_key && !misc::get().hide_shots_key && !configs.ragebot.double_tap_instant)
+	if (tickbase == -1 && owner == localPlayer.get() && configs.ragebot.double_tap && misc::get().double_tap_key && !misc::get().hide_shots_key && !configs.ragebot.double_tap_instant)
 		server_time = (cheat.globals.backup_tickbase - cheat.globals.tickbase_shift);
 
 	if (owner->m_flNextAttack() > server_time)
@@ -150,12 +172,12 @@ bool weapon_t::can_fire(bool check_revolver, int tickbase)
 
 bool weapon_t::can_shift_tickbase(int tickbase_shift)
 {
-	if (!this || !cheat.local())
+	if (!this || !localPlayer)
 		return false;
 
-	auto curtime = TICKS_TO_TIME(cheat.local()->m_nTickBase() - tickbase_shift);
+	auto curtime = TICKS_TO_TIME(localPlayer->m_nTickBase() - tickbase_shift);
 
-	if (curtime < cheat.local()->m_flNextAttack() || curtime < m_flNextPrimaryAttack())
+	if (curtime < localPlayer->m_flNextAttack() || curtime < m_flNextPrimaryAttack())
 		return false;
 
 	return true;
@@ -633,6 +655,16 @@ std::string weapon_t::get_name()
 	}
 }
 
+int entity_t::lookupSequence(const char* sequence)
+{
+	return memory->lookUpSequence(this, sequence);
+}
+
+CStudioHdr* entity_t::get_model_ptr()
+{
+	return *reinterpret_cast<CStudioHdr**>(reinterpret_cast<uintptr_t>(this) + 0x2950);
+}
+
 std::array<float, 24>& entity_t::m_flPoseParameter()
 {
 	static auto _m_flPoseParameter = netvars::get().get_offset(crypt_str("CBaseAnimating"), crypt_str("m_flPoseParameter"));
@@ -647,6 +679,37 @@ float entity_t::get_first_sequence_anim_tag(int sequence, int animtag)
 	return returnValue;
 }
 
+float entity_t::setPoseParameter(float value, int index)
+{
+	static auto address = memory->studioSetPoseParameter;
+
+	CStudioHdr* studioHdr = get_model_ptr();
+	if (!studioHdr)
+		return value;
+
+	if (index >= 0)
+	{
+		float newValue;
+
+		__asm {
+
+			pushad
+
+			movss xmm2, [value]
+			lea ecx, [newValue]
+			push ecx
+			mov edx, index
+			mov ecx, studioHdr
+			call address
+			pop ecx
+
+			popad
+		}
+		m_flPoseParameter()[index] = newValue;
+	}
+	return value;
+}
+
 Vector player_t::get_eye_position()
 {
 	if (!this)
@@ -657,19 +720,20 @@ Vector player_t::get_eye_position()
 
 	Vector position = m_vecOrigin() + m_vecViewOffset();
 
-	if (this != cheat.local())
+	if (this != localPlayer.get())
 	{
 		//modify_another_eye_position(get_animation_state(), position);
 
 		return position;
 	}
 
+	//modify_another_eye_position(get_animation_state(), position);
 	modify_eye_position(position);
 
 	return position;
 }
 
-void player_t::modify_another_eye_position(c_baseplayeranimationstate* animstate, Vector& eye_position)
+void player_t::modify_another_eye_position(AnimationState* animstate, Vector& eye_position)
 {
 	if (!this)
 		return;
@@ -683,7 +747,7 @@ void player_t::modify_another_eye_position(c_baseplayeranimationstate* animstate
 	if (!animstate->m_pBaseEntity->is_player())
 		return;
 
-	if (!animstate->m_bInHitGroundAnimation && animstate->m_flDuckAmount <= 0.0f && animstate->m_pBaseEntity->m_hGroundEntity())
+	if (!animstate->m_bOnLanding && animstate->m_flDuckAmount <= 0.0f && animstate->m_pBaseEntity->m_hGroundEntity())
 		return;
 
 	if (!animstate->m_pBaseEntity->is_alive())
@@ -699,14 +763,14 @@ void player_t::modify_another_eye_position(c_baseplayeranimationstate* animstate
 	if (head_bone == -1)
 		return;
 
-	matrix3x4_t* bones = animstate->m_pBaseEntity->m_CachedBoneData().Base();
+	Vector bones = get_bone_position(head_bone);//animstate->m_pBaseEntity->m_CachedBoneData().Base();
 
-	auto head_pos = Vector(bones[head_bone][0][3], bones[head_bone][1][3], bones[head_bone][2][3] + 1.7f);
+	bones.z += 1.7f;
 
-	if (head_pos.z >= eye_position.z)
+	if (bones.z >= eye_position.z)
 		return;
 
-	eye_position.z = math::lerp2(math::simple_spline_remap_val_clamped(fabs(eye_position.z - head_pos.z), 4.0f, 10.0f, 0.0f, 1.0f), eye_position.z, head_pos.z);
+	eye_position.z = math::lerp2(math::simple_spline_remap_val_clamped(fabs(eye_position.z - bones.z), 4.0f, 10.0f, 0.0f, 1.0f), eye_position.z, bones.z);
 }
 
 void player_t::modify_eye_position(Vector& eye_position)
@@ -722,7 +786,7 @@ void player_t::modify_eye_position(Vector& eye_position)
 	if (!local_animations::get().local_data.prediction_animstate->m_pBaseEntity->is_alive())
 		return;
 
-	if (!local_animations::get().local_data.prediction_animstate->m_bInHitGroundAnimation && local_animations::get().local_data.prediction_animstate->m_flDuckAmount <= 0.0f && local_animations::get().local_data.prediction_animstate->m_pBaseEntity->m_hGroundEntity())
+	if (!local_animations::get().local_data.prediction_animstate->m_bOnLanding && local_animations::get().local_data.prediction_animstate->m_flDuckAmount <= 0.0f && local_animations::get().local_data.prediction_animstate->m_pBaseEntity->m_hGroundEntity())
 		return;
 
 	auto head_bone = -1;
@@ -748,11 +812,14 @@ bool player_t::is_alive()
 	if (!this)
 		return false;
 
-	if (m_iTeamNum() != TeamID::TT && m_iTeamNum() != TeamID::CT)
-		return false;
+	//if (m_iTeamNum() != TeamID::TT && m_iTeamNum() != TeamID::CT)
+	//	return false;
 
-	if (m_lifeState() != LIFE_ALIVE)
-		return false;
+	//if (m_lifeState() != LIFE_ALIVE)
+	//	return false;
+
+	//if (m_iHealth() < 1)
+	//	return false;
 
 	//return true;
 	return VirtualMethod::call<bool, 156>(this);
@@ -774,7 +841,7 @@ int	player_t::get_move_type()
 	if (!this)
 		return 0;
 
-	static auto movetype = netvars::get().get_offset("CBaseEntity", "m_nRenderMode") + 1;
+	static auto movetype = (netvars::get().get_offset("CBaseEntity", "m_nRenderMode") + 1);
 	if (movetype)
 		return *reinterpret_cast<int*>(uintptr_t(this) + movetype);
 
@@ -802,6 +869,16 @@ int player_t::get_hitbox_bone_id(int hitbox_id)
 		return -1;
 
 	return hitbox->bone;
+}
+
+Vector player_t::get_bone_position(int bone)
+{
+	if (!this)
+		return ZERO;
+
+	Vector vectors[4];
+	memory->getBonePos(this, bone, vectors);
+	return { vectors[1].x, vectors[2].y, vectors[3].z };
 }
 
 Vector player_t::bone_position(int hitbox_id)
@@ -880,15 +957,12 @@ CUtlVector<matrix3x4_t>& player_t::m_CachedBoneData()
 {
 	return *reinterpret_cast<CUtlVector<matrix3x4_t>*>(uintptr_t(this) + 0x2914);
 	//static auto m_CachedBoneData = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), crypt_str("FF B7 ?? ?? ?? ?? 52")) + 2) + 4;
-	//return *(CUtlVector <matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
+	//return *(CUtlVector<matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
 }
 
 CBoneAccessor& player_t::m_BoneAccessor()
 {
-	static auto m_nForceBone = netvars::get().get_offset(crypt_str("CBaseAnimating"), crypt_str("m_nForceBone"));
-	static auto BoneAccessor = m_nForceBone + 0x1C;
-
-	return *reinterpret_cast<CBoneAccessor*>(uintptr_t(this) + BoneAccessor);
+	return *reinterpret_cast<CBoneAccessor*>(uintptr_t(this) + (netvars::get().get_offset(crypt_str("CBaseAnimating"), crypt_str("m_nForceBone")) + 0x1C));
 }
 
 void player_t::invalidate_bone_cache()
@@ -974,6 +1048,15 @@ void player_t::update_clientside_animation_original()
 	call_virtual<Fn>(this, 224)(this);
 }
 
+weapon_t* player_t::getActiveWeapon()
+{
+	if (!this)
+		return nullptr;
+
+	using Fn = weapon_t*(__thiscall*)(void*);
+	return call_virtual<Fn>(this, 268)(this);
+}
+
 uint32_t& player_t::m_iMostRecentModelBoneCounter()
 {
 	static auto most_recent_model_bone_counter = *reinterpret_cast<uintptr_t*>(memory->invalidateBoneCache + 0x1B);
@@ -988,18 +1071,6 @@ float& player_t::m_flLastBoneSetupTime()
 	return *reinterpret_cast<float*>(uintptr_t(this) + last_bone_setup_time);
 }
 
-void player_t::select_item(const char* string, int sub_type)
-{
-	static auto select_item_fn = reinterpret_cast <void(__thiscall*)(void*, const char*, int)>(util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 56 8B F1 ? ? ? 85 C9 74 71 8B 06")));
-	select_item_fn(this, string, sub_type);
-}
-
-bool player_t::using_standard_weapons_in_vechile()
-{
-	static auto using_standard_weapons_in_vechile_fn = reinterpret_cast<bool(__thiscall*)(void*)>(util::FindSignature(crypt_str("client.dll"), crypt_str("56 57 8B F9 8B 97 ? ? ? ? 83 FA FF 74 41")));
-	return using_standard_weapons_in_vechile_fn(this);
-}
-
 bool player_t::physics_run_think(int index)
 {
 	return memory->physicsRunThink(this, index);
@@ -1010,45 +1081,39 @@ VarMapping_t* player_t::var_mapping()
 	return reinterpret_cast<VarMapping_t*>(DWORD(this) + 0x24);
 }
 
-int& player_t::getButtons()
+int& player_t::m_nButtons()
 {
 	static auto buttons = util::find_in_datamap(GetPredDescMap(), "m_nButtons");
 	return *reinterpret_cast<int*>(uintptr_t(this) + buttons);
 }
 
-int& player_t::getButtonLast()
+int& player_t::m_afButtonLast()
 {
 	static auto buttonLast = util::find_in_datamap(GetPredDescMap(), "m_afButtonLast");
 	return *reinterpret_cast<int*>(uintptr_t(this) + buttonLast);
 }
 
-int& player_t::getButtonPressed()
+int& player_t::m_afButtonPressed()
 {
 	static auto buttonPressed = util::find_in_datamap(GetPredDescMap(), "m_afButtonPressed");
 	return *reinterpret_cast<int*>(uintptr_t(this) + buttonPressed);
 }
 
-int& player_t::getButtonReleased()
+int& player_t::m_afButtonReleased()
 {
 	static auto buttonReleased = util::find_in_datamap(GetPredDescMap(), "m_afButtonReleased");
 	return *reinterpret_cast<int*>(uintptr_t(this) + buttonReleased);
 }
 
-uint32_t& player_t::m_nImpulse()
-{
-	static auto buttonReleased = util::find_in_datamap(GetPredDescMap(), "m_nImpulse");
-	return *reinterpret_cast<uint32_t*>(uintptr_t(this) + buttonReleased);
-}
-
 void player_t::updateButtonState(int userCmdButtonMask)
 {
-	getButtonLast() = getButtons();
+	m_afButtonLast() = m_nButtons();
 
-	getButtons() = userCmdButtonMask;
-	const int buttonsChanged = getButtonLast() ^ getButtons();
+	m_nButtons() = userCmdButtonMask;
+	const int buttonsChanged = m_afButtonLast() ^ m_nButtons();
 
-	getButtonPressed() = buttonsChanged & getButtons();
-	getButtonReleased() = buttonsChanged & (~getButtons());
+	m_afButtonPressed() = buttonsChanged & m_nButtons();
+	m_afButtonReleased() = buttonsChanged & (~m_nButtons());
 }
 
 void player_t::checkHasThinkFunction(bool isThinking)
@@ -1116,13 +1181,13 @@ void player_t::runPostThink()
 
 bool player_t::valid(bool check_team, bool check_dormant)
 {
-	if (!this || !cheat.local() || !is_player() || !is_alive())
+	if (!this || !localPlayer || !is_player() || !is_alive())
 		return false;
 
 	if (IsDormant() && check_dormant)
 		return false;
 
-	if (check_team && cheat.local()->m_iTeamNum() == m_iTeamNum())
+	if (check_team && localPlayer->m_iTeamNum() == m_iTeamNum())
 		return false;
 
 	return true;
@@ -1133,18 +1198,25 @@ int player_t::animlayer_count()
 	if (!this)
 		return 0;
 
-	int count = *reinterpret_cast<int*>(DWORD(this) + 0x299C);
+	//return *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + 0x299C);
+	int count = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(this) + 0x299C);
 
 	return count > 0 ? count : 13;
 }
 
 AnimationLayer* player_t::get_animlayers()
 {
-	return *reinterpret_cast<AnimationLayer**>(DWORD(this) + 0x2990);
+	if (!this)
+		return nullptr;
+
+	return *reinterpret_cast<AnimationLayer**>(reinterpret_cast<uintptr_t>(this) + 0x2990);
 }
 
 AnimationLayer* player_t::get_animlayer(int overlay)
 {
+	if (!this)
+		return 0;
+
 	return &get_animlayers()[overlay];
 }
 
@@ -1173,10 +1245,10 @@ float& player_t::m_flSpawnTime()
 	return *reinterpret_cast<float*>(uintptr_t(this) + m_iAddonBits - 4);
 }
 
-c_baseplayeranimationstate* player_t::get_animation_state()
+AnimationState* player_t::get_animation_state()
 {
 	static int m_bIsScoped = netvars::get().get_offset("CCSPlayer", "m_bIsScoped");
-	return *reinterpret_cast<c_baseplayeranimationstate**>(reinterpret_cast<void*>(uintptr_t(this) + (m_bIsScoped - 0x14)));
+	return *reinterpret_cast<AnimationState**>(reinterpret_cast<void*>(uintptr_t(this) + (m_bIsScoped - 0x14)));
 }
 
 CStudioHdr* player_t::getStudioHdr()
@@ -1190,32 +1262,22 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 	if (!this)
 		return false;
 
-	auto setuped = false;
-
 	int* render = reinterpret_cast<int*>(this + 0x274);
 	int backupRender = *render;
-	auto backup_effects = m_fEffects();
-	int backupShouldSkipFrame = last_skip_framecount();
-	auto& backupAbsOrigin = GetAbsOrigin();
+	uint32_t backup_effects = m_fEffects();
+	Vector backupAbsOrigin = GetAbsOrigin();
 
 	*render = 0;
-	last_skip_framecount() = 0;
+	invalidate_bone_cache();
 	m_fEffects() |= EF_NOINTERP;
 
-	auto animstate = get_animation_state();
-	auto previous_weapon = animstate ? animstate->m_pLastBoneSetupWeapon : nullptr;
-
-	if (previous_weapon)
-		animstate->m_pLastBoneSetupWeapon = animstate->m_pActiveWeapon;
-
-	if (this != cheat.local())
+	if (this != localPlayer.get())
 		set_abs_origin(m_vecOrigin());
 
 	cheat.globals.setuping_bones = true;
-	invalidate_bone_cache();
 
 	//if (mask == BONE_USED_BY_ANYTHING) {
-	setuped = SetupBones(matrix, maxBones, mask, currentTime);
+	bool setuped = SetupBones(matrix, maxBones, mask, currentTime);
 		/*
 	} else {
 		CSetupBones setup_bones;
@@ -1230,7 +1292,7 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 
 		memcpy(setup_bones.m_flPoseParameters, &m_flPoseParameter(), 24 * sizeof(float));
 
-		auto weapon = m_hActiveWeapon().Get();
+		auto weapon = getActiveWeapon();
 		auto world_model = weapon ? weapon->m_hWeaponWorldModel().Get() : nullptr;
 
 		if (world_model)
@@ -1257,14 +1319,10 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 	*/
 	cheat.globals.setuping_bones = false;
 
-	if (this != cheat.local())
+	if (this != localPlayer.get())
 		set_abs_origin(backupAbsOrigin);
 
-	if (previous_weapon)
-		animstate->m_pLastBoneSetupWeapon = previous_weapon;
-
 	*render = backupRender;
-	last_skip_framecount() = backupShouldSkipFrame;
 	m_fEffects() = backup_effects;
 
 	return setuped;
@@ -1306,7 +1364,7 @@ float player_t::get_max_desync_delta()
 	if (!animstate)
 		return 0.0f;
 	
-	return get_custom_desync_delta(animstate->m_vVelocitySubtract.y);
+	return get_custom_desync_delta(animstate->m_flAimYawMax);
 }
 
 float player_t::get_min_desync_delta()
@@ -1319,7 +1377,7 @@ float player_t::get_min_desync_delta()
 	if (!animstate)
 		return 0.0f;
 
-	return get_custom_desync_delta(animstate->m_vVelocitySubtract.x);
+	return get_custom_desync_delta(animstate->m_flAimYawMin);
 }
 
 float player_t::get_custom_desync_delta(float value)
@@ -1371,8 +1429,8 @@ float player_t::get_max_desync_delta_for_auto()
 		avg_speedfactor += duck_speed * (0.5f - avg_speedfactor);
 	}
 
-	auto m_flMinBodyYaw = avg_speedfactor * abs(animstate->m_vVelocitySubtract.x);
-	auto m_flMaxBodyYaw = avg_speedfactor * abs(animstate->m_vVelocitySubtract.y);
+	auto m_flMinBodyYaw = avg_speedfactor * abs(animstate->m_flAimYawMin);
+	auto m_flMaxBodyYaw = avg_speedfactor * abs(animstate->m_flAimYawMax);
 
 	if (abs(animstate->m_flEyeYaw - animstate->m_flGoalFeetYaw) <= m_flMaxBodyYaw)
 		if (m_flMinBodyYaw > abs(animstate->m_flEyeYaw - animstate->m_flGoalFeetYaw))
@@ -1391,17 +1449,17 @@ void player_t::invalidate_physics_recursive(int change_flags)
 
 float player_t::get_max_player_speed()
 {
-	weapon_t* weapon = cheat.local()->m_hActiveWeapon().Get();
+	weapon_t* weapon = localPlayer->getActiveWeapon();
 	if (weapon)
 	{
 		auto weapon_info = weapon->get_weapon_info();
 
 		if (weapon_info)
-			return cheat.local()->m_bIsScoped() ? weapon_info->flMaxPlayerSpeedAlt : weapon_info->flMaxPlayerSpeed;
+			return localPlayer->m_bIsScoped() ? weapon_info->flMaxPlayerSpeedAlt : weapon_info->flMaxPlayerSpeed;
 	}
 	//return weapon->get_max_speed();
 
-	return cheat.local()->get_animation_state()->m_flSpeedNormalized;
+	return localPlayer->get_animation_state()->m_flSpeedNormalized;
 }
 
 float& viewmodel_t::m_flCycle()

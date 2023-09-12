@@ -17,7 +17,7 @@
 #include "..\sdk\interfaces\IVModelInfoClient.hpp"
 #include "..\sdk\interfaces\IMDLCache.hpp"
 #include "..\sdk\interfaces\IMemAlloc.h"
-#include "..\sdk\interfaces\CClientState.hpp"
+#include "..\sdk\interfaces\CSplitScreen.h"
 #include "..\sdk\interfaces\IPrediction.hpp"
 #include "..\sdk\interfaces\IMoveHelper.hpp"
 #include "..\sdk\interfaces\CInput.hpp"
@@ -93,7 +93,6 @@ public:
 	IBaseFileSystem* m_basefilesystem();
 	IFileSystem* m_filesystem();
 	IWeaponSystem* m_weaponsystem();
-	DWORD m_postprocessing();
 	DWORD m_ccsplayerrenderablevftable();
 private:
 	IDirect3DDevice9 * p_device = nullptr;
@@ -138,7 +137,6 @@ private:
 	IBaseFileSystem* p_basefilesystem = nullptr;
 	IFileSystem* p_filesystem = nullptr;
 	IWeaponSystem* p_weaponsystem = nullptr;
-	DWORD p_postprocessing = 0;
 	DWORD p_ccsplayerrenderablevftable = 0;
 };
 

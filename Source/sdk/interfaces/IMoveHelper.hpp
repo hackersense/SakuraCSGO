@@ -1,11 +1,5 @@
 #pragma once
 
-#include "../math/QAngle.hpp"
-#include "../misc/CUserCmd.hpp"
-#include "IMoveHelper.hpp"
-
-class IClientEntity;
-
 class IMoveHelper
 {
 	virtual void UnknownVirtual() = 0;

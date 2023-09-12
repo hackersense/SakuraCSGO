@@ -16,9 +16,8 @@
 
 #define FRAME_ADDRESS() (std::uintptr_t(_AddressOfReturnAddress()) - sizeof(std::uintptr_t))
 
-bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumber, bool active, CUserCmd* cmd, bool& sendPacket)
+bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumber, bool active, CUserCmd* cmd, bool& sendPacket) noexcept
 {
-	// /*
 	if (!cheat.available())
 		return active;
 
@@ -26,16 +25,16 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	misc::get().clan_tag();
 	backtrack::get().updateIncomingSequences();
 
-	static auto sky = m_cvar()->FindVar(crypt_str("r_3dsky"));
-	static auto shadows = m_cvar()->FindVar(crypt_str("cl_csm_enabled"));
+	static auto sky = m_cvar2()->FindVar(crypt_str("r_3dsky"));
+	static auto shadows = m_cvar2()->FindVar(crypt_str("cl_csm_enabled"));
 	sky->SetValue(~configs.visuals.removals[REMOVALS_3DSKY]);
 	shadows->SetValue(~configs.visuals.removals[REMOVALS_SHADOWS]);
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return active;
 
-	cheat.globals.weapon = cheat.local()->m_hActiveWeapon().Get();
-	// */
+	cheat.globals.weapon = localPlayer->getActiveWeapon();
+
 	if (!cheat.globals.weapon)
 		return active;
 
@@ -112,7 +111,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	if (cheat.globals.ticks_allowed < tickAllowed && (misc::get().double_tap_key || misc::get().hide_shots_key) && !cheat.globals.fakeducking)
 		cheat.globals.should_recharge = true;
 
-	cheat.globals.backup_tickbase = cheat.local()->m_nTickBase();
+	cheat.globals.backup_tickbase = localPlayer->m_nTickBase();
 	cheat.globals.fixed_tickbase = (cheat.globals.next_tickbase_shift > 0) ? cheat.globals.backup_tickbase - cheat.globals.next_tickbase_shift : cheat.globals.backup_tickbase;
 
 	util::server_time(cmd);
@@ -191,7 +190,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	misc::get().auto_crouch(cmd);
 
-	if (configs.misc.crouch_in_air && !(cheat.local()->m_fFlags() & FL_ONGROUND))
+	if (configs.misc.crouch_in_air && !(localPlayer->m_fFlags() & FL_ONGROUND))
 		cmd->m_buttons |= IN_DUCK;
 
 	if (cheat.globals.loaded_script)
@@ -203,7 +202,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	local_animations::get().update_prediction_animations();
 
-	cheat.globals.eye_pos = cheat.local()->get_eye_position();
+	cheat.globals.eye_pos = localPlayer->get_eye_position();
 
 	grenade_prediction::get().run(cmd);
 
@@ -220,7 +219,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	if (key_binds::get().get_key_bind_state(key_bind_features::SLOW_WALK))
 		slowwalk::get().create_move(cmd);
 
-	if (configs.ragebot.enabled && !cheat.globals.weapon->is_non_aim() && engineprediction::get().backup_data.flags & FL_ONGROUND && cheat.local()->m_fFlags() & FL_ONGROUND)
+	if (configs.ragebot.enabled && !cheat.globals.weapon->is_non_aim() && engineprediction::get().backup_data.flags & FL_ONGROUND && localPlayer->m_fFlags() & FL_ONGROUND)
 		slowwalk::get().create_move(cmd, 0.95f + 0.003125f * (16.f - m_clientstate()->m_iChokedCommands));
 
 	if (!cheat.globals.should_recharge)
@@ -229,16 +228,16 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	cheat.globals.aimbot_working = false;
 	cheat.globals.revolver_working = false;
 
-	auto& backup_velocity = cheat.local()->m_vecVelocity();
-	auto& backup_abs_velocity = cheat.local()->m_vecAbsVelocity();
+	auto& backup_velocity = localPlayer->m_vecVelocity();
+	auto& backup_abs_velocity = localPlayer->m_vecAbsVelocity();
 
-	cheat.local()->m_vecVelocity() = engineprediction::get().backup_data.velocity;
-	cheat.local()->m_vecAbsVelocity() = engineprediction::get().backup_data.velocity;
+	localPlayer->m_vecVelocity() = engineprediction::get().backup_data.velocity;
+	localPlayer->m_vecAbsVelocity() = engineprediction::get().backup_data.velocity;
 
 	cheat.globals.weapon->update_accuracy_penality();
 
-	cheat.local()->m_vecVelocity() = backup_velocity;
-	cheat.local()->m_vecAbsVelocity() = backup_abs_velocity;
+	localPlayer->m_vecVelocity() = backup_velocity;
+	localPlayer->m_vecAbsVelocity() = backup_abs_velocity;
 
 	cheat.globals.inaccuracy = cheat.globals.weapon->get_inaccuracy();
 	cheat.globals.spread = cheat.globals.weapon->get_spread();
@@ -292,8 +291,8 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 			if (configs.ragebot.enabled && cheat.globals.weapon->requires_recoil_control())
 			{
-				cmd->m_viewangles.x -= cheat.local()->m_aimPunchAngle().x * weapon_recoil_scale->GetFloat();
-				cmd->m_viewangles.y -= cheat.local()->m_aimPunchAngle().y * weapon_recoil_scale->GetFloat();
+				cmd->m_viewangles.x -= localPlayer->m_aimPunchAngle().x * weapon_recoil_scale->GetFloat();
+				cmd->m_viewangles.y -= localPlayer->m_aimPunchAngle().y * weapon_recoil_scale->GetFloat();
 			}
 
 			if (!cheat.globals.fakeducking)
@@ -394,7 +393,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 
 	cmd->m_buttonsBackup = cmd->m_buttons;
 
-	if (cheat.local()->is_alive())
+	if (localPlayer->is_alive())
 		memory->restoreEntityToPredictedFrame(0, currentPredictedTick);
 
 	if (cheat.globals.loaded_script)
@@ -554,11 +553,11 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	return false;
 }
 
-void __stdcall Hooks::CHLCreateMove(int sequenceNumber, float inputSampleTime, bool active, bool& sendPacket)
+void __stdcall Hooks::CHLCreateMove(int sequenceNumber, float inputSampleTime, bool active, bool& sendPacket) noexcept
 {
-	client_hook.callOriginal<void, 22>(sequenceNumber, inputSampleTime, active);
+	auto result = client_hook.callOriginal<bool, 22>(sequenceNumber, inputSampleTime, active);
 
-	//cheat.globals.in_createmove = false;
+	cheat.globals.in_createmove = false;
 
 	CUserCmd* cmd = m_input()->GetUserCmd(sequenceNumber);
 	CVerifiedUserCmd* verified = m_input()->GetVerifiedUserCmd(sequenceNumber);

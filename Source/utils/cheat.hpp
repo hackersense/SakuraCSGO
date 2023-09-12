@@ -2,6 +2,7 @@
 #include "..\ImGui\imgui.h"
 #include "..\includes.hpp"
 #include "..\javascript\api\api.h"
+#include "..\sdk\LocalPlayer.h"
 #include "crypt_str.h"
 #include "StringUtils.h"
 
@@ -142,6 +143,8 @@ public:
 		bool is_shifting = false;
 		int need_shift_tickbase = 0;
 
+		bool updatingFake = false;
+
 		std::string time = crypt_str("Unknown");
 		
 		Vector original = ZERO;
@@ -165,9 +168,9 @@ public:
 	int64_t timeStamp = INT_MAX;
 	const std::string cheatname = crypt_str("Sakura");
 	const std::string cheatnamelower = crypt_str("sakura");
-	const std::string edition = crypt_str("Development");
+	const std::string edition = crypt_str("Release");
 	const std::string developer = crypt_str("HackerSense Team");
-	const bool isDebugMode = edition == "Development";
+	const bool isDebugMode = edition == crypt_str("Development");
 	std::string last_font_name;
 
 	std::vector<aim_shot> shots;
@@ -188,15 +191,13 @@ public:
 
 	std::string getVersion()
 	{
-		return crypt_str("2.5");
+		return crypt_str("2.76");
 	}
 
 	auto getVersionLong()
 	{
 		return atoll(StringUtils::clearAllSpace(StringUtils::replaceAll(getVersion(), ".", "")).c_str());
 	}
-
-	player_t* local(player_t* e = nullptr, bool init = false);
 
 	duk_context* context_default = duk_create_heap_default();
 };

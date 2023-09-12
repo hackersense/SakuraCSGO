@@ -2,25 +2,73 @@
 #include "..\..\features\serverside\local_animations.h"
 #include "..\..\features\serverside\engine_prediction.h"
 
-bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone_world_out, int max_bones, int bone_mask, float current_time)
+void __fastcall Hooks::setupVelocityHook(void* ecx, void* edx) noexcept
+{
+	static auto original = setupvelocity_hook.getOriginal<void>();
+
+	auto animState = reinterpret_cast<AnimationState*>(ecx);
+
+	auto entity = reinterpret_cast<player_t*>(animState->m_pBaseEntity);
+	if (!entity || !entity->is_alive() || !entity->is_player() || !localPlayer || entity != localPlayer.get())
+		return original(ecx);
+
+	if (cheat.globals.updatingFake)
+		return original(ecx);
+
+	animState->setupVelocity();
+}
+
+void __fastcall Hooks::setupMovementHook(void* ecx, void* edx) noexcept
+{
+	static auto original = setupmovement_hook.getOriginal<void>();
+
+	auto animState = reinterpret_cast<AnimationState*>(ecx);
+
+	auto entity = reinterpret_cast<player_t*>(animState->m_pBaseEntity);
+	if (!entity || !entity->is_alive() || !entity->is_player() || !localPlayer || entity != localPlayer.get())
+		return original(ecx);
+
+	if (cheat.globals.updatingFake)
+		return original(ecx);
+
+	animState->setupMovement();
+}
+
+void __fastcall Hooks::setupAliveloopHook(void* ecx, void* edx) noexcept
+{
+	static auto original = setupaliveloop_hook.getOriginal<void>();
+
+	auto animState = reinterpret_cast<AnimationState*>(ecx);
+
+	auto entity = reinterpret_cast<player_t*>(animState->m_pBaseEntity);
+	if (!entity || !entity->is_alive() || !entity->is_player() || !localPlayer || entity != localPlayer.get())
+		return original(ecx);
+
+	if (cheat.globals.updatingFake)
+		return original(ecx);
+
+	animState->setupAliveLoop();
+}
+
+bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone_world_out, int max_bones, int bone_mask, float current_time) noexcept
 {
 	auto result = true;
 
-	static auto r_jiggle_bones = m_cvar()->FindVar(crypt_str("r_jiggle_bones"));
+	static auto r_jiggle_bones = m_cvar2()->FindVar(crypt_str("r_jiggle_bones"));
 	auto r_jiggle_bones_backup = r_jiggle_bones->GetInt();
 
-	r_jiggle_bones->SetValue(0);
+	r_jiggle_bones->SetValue(!configs.visuals.disable_jiggle_bones);
 
 	if (!ecx)
-		result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
+		result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 	else if (!configs.ragebot.enabled && !configs.legitbot.enabled)
-		result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
+		result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 	else
 	{
 		auto player = reinterpret_cast<player_t*>(uintptr_t(ecx) - 4);
 
 		if (!player->valid(false, false))
-			result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
+			result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 		else
 		{
 			auto animstate = player->get_animation_state();
@@ -30,15 +78,15 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 				animstate->m_pLastBoneSetupWeapon = animstate->m_pActiveWeapon;
 
 			if (cheat.globals.setuping_bones)
-				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
-			else if (configs.legitbot.enabled && player != cheat.local())
-				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
-			else if (!cheat.local()->is_alive())
-				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
-			else if (player == cheat.local())
-				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
+				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
+			else if (configs.legitbot.enabled && player != localPlayer.get())
+				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
+			else if (!localPlayer->is_alive())
+				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
+			else if (player == localPlayer.get())
+				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (!player->m_CachedBoneData().Count())
-				result = ((SetupBonesFn)original_setupbones)(ecx, bone_world_out, max_bones, bone_mask, current_time);
+				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (bone_world_out && max_bones != -1)
 				memcpy(bone_world_out, player->m_CachedBoneData().Base(), player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
 
@@ -51,21 +99,23 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 	return result;
 }
 
-void __fastcall Hooks::hooked_standardblendingrules(player_t* player, int i, CStudioHdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask)
+void __fastcall Hooks::hooked_standardblendingrules(void* ecx, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, float curtime, int boneMask) noexcept
 {
-	auto backup_effects = player->m_fEffects();
+	const auto entity = reinterpret_cast<player_t*>(ecx);
 
-	if (player == cheat.local())
-		player->m_fEffects() |= 8;
+	//auto backup_effects = entity->m_fEffects();
 
-	((StandardBlendingRulesFn)original_standardblendingrules)(player, hdr, pos, q, curtime, boneMask);
+	//if (player == localPlayer)
+	entity->m_fEffects() |= 8;
 
-	if (player == cheat.local())
-		player->m_fEffects() = backup_effects;
-	//player->m_fEffects() &= ~8;
+	standardblendingrules_hook.callOriginal<void, void*>(ecx, hdr, pos, q, curtime, boneMask);
+
+	//if (player == localPlayer)
+	//	player->m_fEffects() = backup_effects;
+	entity->m_fEffects() &= ~8;
 }
 
-void __fastcall Hooks::hooked_doextrabonesprocessing(player_t* player, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context)
+void __fastcall Hooks::hooked_doextrabonesprocessing(void* ecx, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, const matrix3x4_t& matrix, uint8_t* bone_list, void* context) noexcept
 {
 	/*
 if (!player)
@@ -81,83 +131,94 @@ player->get_animation_state()->m_flMovingFraction = 0;
 
 player->get_animation_state()->m_flMovingFraction = backup;
 */
+	return;
 }
 
-void __fastcall Hooks::hooked_updateclientsideanimation(player_t* player, uint32_t i)
+void __fastcall Hooks::hooked_updateclientsideanimation(void* ecx, void* edx) noexcept
 {
 	if (cheat.globals.updating_skins)
 		return;
 
-	if (cheat.globals.updating_animation)
-		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
-
-	if (player == cheat.local())
-		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
-
-	if (cheat.local() && !cheat.local()->is_alive())
-		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
-
 	if (!configs.ragebot.enabled && !configs.legitbot.enabled)
-		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
+		return updateclientsideanimation_hook.callOriginal<void, void*>(ecx);
 
-	if (!player->valid(false, false))
-		return ((UpdateClientSideAnimationFn)original_updateclientsideanimation)(player);
+	if (cheat.globals.updating_animation)
+		return updateclientsideanimation_hook.callOriginal<void, void*>(ecx);
+
+	auto entity = reinterpret_cast<player_t*>(ecx);
+
+	if (entity == localPlayer.get())
+		return updateclientsideanimation_hook.callOriginal<void, void*>(ecx);
+
+	if (localPlayer && !localPlayer->is_alive())
+		return updateclientsideanimation_hook.callOriginal<void, void*>(ecx);
+
+	if (!entity->valid(false, false))
+		return updateclientsideanimation_hook.callOriginal<void, void*>(ecx);
 }
 
-void __fastcall Hooks::hooked_physicssimulate(player_t* player, void* edx)
+void __fastcall Hooks::hooked_physicssimulate(void* ecx, void* edx) noexcept
 {
-	const int simulation_tick = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(player) + 0x2AC);
+	const auto entity = reinterpret_cast<player_t*>(ecx);
 
-	if (player != cheat.local() || !cheat.local()->is_alive() || m_globals()->m_tickcount == simulation_tick)
-	{
-		((PhysicsSimulateFn)original_physicssimulate)(player);
+	if (entity != localPlayer.get() || !localPlayer->is_alive())
+		return physicssimulate_hook.callOriginal<void, void*>(ecx);
+
+	const int simulation_tick = *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(ecx) + 0x2AC);
+	
+	if (m_globals()->m_tickcount == simulation_tick)
 		return;
-	}
+
+	CommandContext* commandContext = localPlayer->getCommandContext();
+	if (!commandContext || !commandContext->m_bNeedsProcessing)
+		return;
 
 	//engineprediction::get().restore_netvars();
-	((PhysicsSimulateFn)original_physicssimulate)(player);
+	physicssimulate_hook.callOriginal<void, void*>(ecx);
 	engineprediction::get().store_netvars();
 }
 
-void __fastcall Hooks::hooked_modifyeyeposition(c_baseplayeranimationstate* state, void* edx, Vector& position)
+void __fastcall Hooks::hooked_modifyeyeposition(void* ecx, void* edx, unsigned int* position) noexcept
 {
-	if (state && cheat.globals.in_createmove)
-		return ((ModifyEyePositionFn)original_modifyeyeposition)(state, position);
+	if (ecx && cheat.globals.in_createmove)
+		return modifyeyeposition_hook.callOriginal<void, void*>(ecx, position);
 }
 
-void __fastcall Hooks::hooked_calcviewmodelbob(player_t* player, void* edx, Vector& position)
+void __fastcall Hooks::hooked_calcviewmodelbob(void* ecx, void* edx, float eyeOrigin) noexcept
 {
-	if (!configs.visuals.removals[REMOVALS_LANDING_BOB] || player != cheat.local() || !cheat.local()->is_alive())
-		return ((CalcViewmodelBobFn)original_calcviewmodelbob)(player, position);
+	auto entity = reinterpret_cast<player_t*>(ecx);
+
+	if (!configs.visuals.removals[REMOVALS_LANDING_BOB] || !entity || !entity->is_alive() || !entity->is_player() || !localPlayer || entity != localPlayer.get())
+		return calcviewmodelbob_hook.callOriginal<void, void*>(ecx, eyeOrigin);
 }
 
-bool __fastcall Hooks::hooked_tracefilterforheadcollision(void* ecx, void* edx, player_t* player, unsigned int traceParams)
+bool __fastcall Hooks::hooked_tracefilterforheadcollision(void* ecx, void* edx, player_t* player, unsigned int traceParams) noexcept
 {
 	static auto original = tracefilterforheadcollision_hook.getOriginal<bool>(player, traceParams);
 
-	if (!cheat.local() || !cheat.local()->is_alive())
+	if (!localPlayer || !localPlayer->is_alive())
 		return original(ecx, player, traceParams);
 
-	if (!player || !player->is_player() || player == cheat.local())
+	if (!player || !player->is_player() || player == localPlayer.get())
 		return original(ecx, player, traceParams);
 
-	if (fabsf(player->GetAbsOrigin().z - cheat.local()->GetAbsOrigin().z) < 10.0f)
+	if (fabsf(player->GetAbsOrigin().z - localPlayer->GetAbsOrigin().z) < 10.0f)
 		return false;
 
 	return original(ecx, player, traceParams);
 }
 
-bool __fastcall Hooks::hooked_shouldskipanimframe(void* ecx, void* edx)
+bool __fastcall Hooks::hooked_shouldskipanimframe(void* ecx, void* edx) noexcept
 {
 	return false;
 }
 
-int __fastcall Hooks::processinterpolatedlist()
+int __fastcall Hooks::processinterpolatedlist() noexcept
 {
 	static auto allow_extrapolation = *reinterpret_cast<bool**>(util::FindSignature(crypt_str("client.dll"), crypt_str("A2 ? ? ? ? 8B 45 E8")) + 1);
 
 	if (allow_extrapolation)
 		*allow_extrapolation = false;
 
-	return ((ProcessInterpolatedListFn)original_processinterpolatedlist)();
+	return processinterpolatedlist_hook.callOriginal<int>();
 }

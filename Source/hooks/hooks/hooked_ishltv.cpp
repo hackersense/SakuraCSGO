@@ -1,6 +1,6 @@
 #include "..\hooks.hpp"
 
-bool __fastcall Hooks::hooked_ishltv()
+bool __fastcall Hooks::hooked_ishltv() noexcept
 {
 	if (cheat.globals.setuping_bones || cheat.globals.updating_animation)
 		return true;

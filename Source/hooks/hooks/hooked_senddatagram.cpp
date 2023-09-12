@@ -1,22 +1,20 @@
 #include "..\hooks.hpp"
 #include "..\..\features\legitbot\backtrack.h"
 
-using PacketStart_t = void(__thiscall*)(void*, int, int);
-
-void __fastcall Hooks::hooked_packetstart(void* ecx, void* edx, int incoming, int outgoing)
+void __fastcall Hooks::hooked_packetstart(void* ecx, void* edx, int incoming, int outgoing) noexcept
 {
-	static auto original_fn = clientstate_hook->getOriginal<PacketStart_t>(5);
+	static auto original_fn = clientstate_hook.getOriginal<void, 5>(incoming, outgoing);
 
     if (!cheat.available())
         return original_fn(ecx, incoming, outgoing);
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return original_fn(ecx, incoming, outgoing);
    
     if (cheat.globals.commands.empty())
         return original_fn(ecx, incoming, outgoing);
 
-	if (m_gamerules()->m_bIsValveDS() && !configs.misc.anti_untrusted)
+	if (m_gamerules()->m_bIsValveDS() && configs.misc.anti_untrusted)
 		return original_fn(ecx, incoming, outgoing);
 
     for (auto it = cheat.globals.commands.rbegin(); it != cheat.globals.commands.rend(); ++it)
@@ -50,13 +48,17 @@ void __fastcall Hooks::hooked_packetstart(void* ecx, void* edx, int incoming, in
 		original_fn(ecx, incoming, outgoing);
 }
 
-using PacketEnd_t = void(__thiscall*)(void*);
-
-void __fastcall Hooks::hooked_packetend(void* ecx, void* edx)
+void __fastcall Hooks::hooked_packetend(void* ecx, void* edx) noexcept
 {
-	static auto original_fn = clientstate_hook->getOriginal<PacketEnd_t>(6);
+	static auto original_fn = clientstate_hook.getOriginal<void, 6>();
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer)
+	{
+		cheat.globals.data.clear();
+		return original_fn(ecx);
+	}
+
+	if (!localPlayer->is_alive())
 	{
 		cheat.globals.data.clear();
 		return original_fn(ecx);
@@ -76,9 +78,9 @@ void __fastcall Hooks::hooked_packetend(void* ecx, void* edx)
 
 		if (netchannel && correct != cheat.globals.data.end())
 		{
-			if (cheat.globals.last_velocity_modifier > cheat.local()->m_flVelocityModifier() + 0.1f)
+			if (cheat.globals.last_velocity_modifier > localPlayer->m_flVelocityModifier() + 0.1f)
 			{
-				auto weapon = cheat.local()->m_hActiveWeapon().Get();
+				auto weapon = localPlayer->getActiveWeapon();
 
 				if (!weapon || weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && !weapon->is_grenade())
 				{
@@ -98,18 +100,16 @@ void __fastcall Hooks::hooked_packetend(void* ecx, void* edx)
 				}
 			}
 
-			cheat.globals.last_velocity_modifier = cheat.local()->m_flVelocityModifier();
+			cheat.globals.last_velocity_modifier = localPlayer->m_flVelocityModifier();
 		}
 	}
 
 	return original_fn(ecx);
 }
 
-using PacketProcess_t = void(__thiscall*)(void*, void*, bool);
-
-void __fastcall Hooks::hooked_packetprocess(void* ecx, void* edx, void* packet, bool header)
+void __fastcall Hooks::hooked_packetprocess(void* ecx, void* edx, void* packet, bool header) noexcept
 {
-	static auto original_fn = clientstate_hook->getOriginal<PacketProcess_t>(39);
+	static auto original_fn = clientstate_hook.getOriginal<void, 39>(packet, header);
 
 	if (!m_clientstate()->m_pNetChannel)
 		return original_fn(ecx, packet, header);
@@ -127,7 +127,7 @@ void __fastcall Hooks::hooked_packetprocess(void* ecx, void* edx, void* packet, 
 	m_engine()->FireEvents();
 }
 
-int __fastcall Hooks::hooked_senddatagram(INetChannel* network, void* edx, void* datagram)
+int __fastcall Hooks::hooked_senddatagram(INetChannel* network, void* edx, void* datagram) noexcept
 {
 	if (!key_binds::get().get_key_bind_state(key_bind_features::PING_SPIKE) || datagram || !m_engine()->IsInGame())
 		return senddatagram_hook.callOriginal<int, INetChannel*>(network, datagram);
@@ -147,7 +147,7 @@ int __fastcall Hooks::hooked_senddatagram(INetChannel* network, void* edx, void*
 	return result;
 }
 
-int __stdcall Hooks::hooked_getunverifiedfilehashes(void* ecx, void* edx, int maxFiles)
+int __stdcall Hooks::hooked_getunverifiedfilehashes(void* ecx, void* edx, int maxFiles) noexcept
 {
 	if (configs.misc.sv_pure_bypass)
 		return 0;
@@ -155,7 +155,7 @@ int __stdcall Hooks::hooked_getunverifiedfilehashes(void* ecx, void* edx, int ma
 	return filesystem_hook.callOriginal<int, 101>(ecx, maxFiles);
 }
 
-int __fastcall Hooks::hooked_canloadthirdpartyfiles(void* ecx, void* edx)
+int __fastcall Hooks::hooked_canloadthirdpartyfiles(void* ecx, void* edx) noexcept
 {
 	if (configs.misc.sv_pure_bypass)
 		return 1;

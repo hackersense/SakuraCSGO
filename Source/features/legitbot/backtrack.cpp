@@ -15,19 +15,16 @@ float getExtraTicks() noexcept
 
 void backtrack::update() noexcept
 {
-    if (!m_engine()->IsInGame())
-        return;
-
-    if (!configs.backtrack.enabled || !cheat.local() || !cheat.local()->is_alive()) {
+    if (!configs.backtrack.enabled || !localPlayer || !localPlayer->is_alive()) {
         for (auto& record : records)
             record.clear();
         return;
     }
 
-    for (auto i = 1; i < m_globals()->m_maxclients; i++)
+    for (auto i = 1; i < m_engine()->GetMaxClients(); i++)
     {
         auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
-        if (!entity || entity == cheat.local() || entity->IsDormant() || !entity->is_alive() || entity->m_iTeamNum() == cheat.local()->m_iTeamNum() || entity->m_bGunGameImmunity()) {
+        if (!entity || entity == localPlayer.get() || entity->IsDormant() || !entity->is_alive() || entity->m_iTeamNum() == localPlayer->m_iTeamNum() || entity->m_bGunGameImmunity()) {
             records[i].clear();
             continue;
         }
@@ -39,11 +36,10 @@ void backtrack::update() noexcept
        //     continue;
 
         Record record{ };
-        record.ownerIdx = entity->EntIndex();
         record.origin = entity->GetAbsOrigin();
         record.simulationTime = entity->m_flSimulationTime();
 
-        entity->setup_bones_fixed(record.matrix, cheat.local()->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
+        entity->setup_bones_fixed(record.matrix, MAXSTUDIOBONES, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
 
         if (record.matrix)
             record.positions.push_back(record.matrix[8].GetOrigin());
@@ -68,7 +64,7 @@ void backtrack::run(CUserCmd* cmd) noexcept
     if (!(cmd->m_buttons & IN_ATTACK))
         return;
 
-    if (!cheat.local()->is_alive())
+    if (!localPlayer->is_alive())
         return;
 
     //auto bestFov{ configs.backtrack.fov };
@@ -76,15 +72,15 @@ void backtrack::run(CUserCmd* cmd) noexcept
     int bestTargetIndex{ };
     int bestRecord{ };
 
-    const auto& aimPunch = cheat.globals.weapon->requires_recoil_control() ? cheat.local()->m_aimPunchAngle() : ZERO;
+    const auto& aimPunch = cheat.globals.weapon->requires_recoil_control() ? localPlayer->m_aimPunchAngle() : ZERO;
 
     for (int index = 1; index <= m_globals()->m_maxclients; index++) {
         auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(index));
-        if (!entity || entity == cheat.local() || entity->IsDormant() || !entity->is_alive()
-            || entity->m_iTeamNum() == cheat.local()->m_iTeamNum())
+        if (!entity || entity == localPlayer.get() || entity->IsDormant() || !entity->is_alive()
+            || entity->m_iTeamNum() == localPlayer->m_iTeamNum())
             continue;
 
-        if (records[index].empty() || (!configs.backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(cheat.globals.eye_pos, entity->GetAbsOrigin(), 1)) || (!configs.backtrack.ignoreFlash && cheat.local()->m_flFlashDuration() > 0))
+        if (records[index].empty() || (!configs.backtrack.ignoreSmoke && memory->lineGoesThroughSmoke(cheat.globals.eye_pos, entity->GetAbsOrigin(), 1)) || (!configs.backtrack.ignoreFlash && localPlayer->m_flFlashDuration() > 0))
             continue;
 
         for (int i = static_cast<int>(records[index].size() - 1U); i >= 0; i--)
@@ -159,10 +155,10 @@ void backtrack::updateIncomingSequences() noexcept
     //if (!key_binds::get().get_key_bind_state(key_bind_features::PING_SPIKE))
     //    return;
 
-    if (!cheat.local())
+    if (!localPlayer)
         return;
 
-    //if (cheat.local()->m_iTeamNum() == TeamID::None)
+    //if (localPlayer->m_iTeamNum() == TeamID::None)
     //    return;
 
     auto network = m_clientstate()->m_pNetChannel;

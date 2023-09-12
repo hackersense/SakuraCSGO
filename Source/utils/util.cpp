@@ -115,9 +115,9 @@ namespace util
 			float up_y = norm_view_up.z * m_pcmd->m_upmove;
 			float up_z = norm_view_up.y * m_pcmd->m_upmove;
 
-			static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
-			static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
-			static auto cl_upspeed = m_cvar()->FindVar(crypt_str("cl_upspeed"));
+			static auto cl_forwardspeed = m_cvar2()->FindVar(crypt_str("cl_forwardspeed"));
+			static auto cl_sidespeed = m_cvar2()->FindVar(crypt_str("cl_sidespeed"));
+			static auto cl_upspeed = m_cvar2()->FindVar(crypt_str("cl_upspeed"));
 
 			m_pcmd->m_forwardmove = math::clamp(((((norm_cmd_fwd.x * side_x) + (norm_cmd_fwd.y * side_y)) + (norm_cmd_fwd.z * side_z))
 				+ (((norm_cmd_fwd.x * forward_x) + (norm_cmd_fwd.y * forward_y)) + (norm_cmd_fwd.z * forward_z)))
@@ -135,7 +135,7 @@ namespace util
 			float delta, len;
 			Vector move_angle;
 
-			if (!(cheat.local()->m_fFlags() & FL_ONGROUND) && m_pcmd->m_viewangles.z != 0 && m_pcmd->m_buttons & IN_ATTACK)
+			if (!(localPlayer->m_fFlags() & FL_ONGROUND) && m_pcmd->m_viewangles.z != 0 && m_pcmd->m_buttons & IN_ATTACK)
 				m_pcmd->m_sidemove = 0;
 
 			move = Vector(m_pcmd->m_forwardmove, m_pcmd->m_sidemove, 0);
@@ -155,7 +155,7 @@ namespace util
 
 			dir *= len;
 
-			if (cheat.local()->get_move_type() == MOVETYPE_LADDER)
+			if (localPlayer->get_move_type() == MOVETYPE_LADDER)
 			{
 				if (m_pcmd->m_viewangles.x >= 45 && origin_angle.x < 45 && std::abs(delta) <= 65)
 					dir.x = -dir.x;
@@ -187,7 +187,7 @@ namespace util
 		}
 	}
 
-	unsigned int find_in_datamap(datamap_t* map, const char *name)
+	std::uintptr_t find_in_datamap(datamap_t* map, const char *name)
 	{
 		while (map)
 		{
@@ -205,7 +205,7 @@ namespace util
 					{
 						unsigned int offset;
 
-						if (offset = find_in_datamap(map->dataDesc[i].td, name))
+						if((offset = find_in_datamap(map->dataDesc[i].td, name)) != 0)
 							return offset;
 					}
 				}
@@ -223,7 +223,7 @@ namespace util
 		if (!collideable)
 			return false;
 
-		auto& m_CoordinateFrame = entity->m_CoordinateFrame();
+		const auto& m_CoordinateFrame = entity->m_CoordinateFrame();
 
 		auto& min = collideable->OBBMins();
 		auto& max = collideable->OBBMaxs();
@@ -254,14 +254,14 @@ namespace util
 		Vector blt;
 		Vector flt;
 
-		auto bFlb = math::world_to_screen(pointsTransformed[3], flb);
-		auto bBrt = math::world_to_screen(pointsTransformed[5], brt);
-		auto bBlb = math::world_to_screen(pointsTransformed[0], blb);
-		auto bFrt = math::world_to_screen(pointsTransformed[4], frt);
-		auto bFrb = math::world_to_screen(pointsTransformed[2], frb);
-		auto bBrb = math::world_to_screen(pointsTransformed[1], brb);
-		auto bBlt = math::world_to_screen(pointsTransformed[6], blt);
-		auto bFlt = math::world_to_screen(pointsTransformed[7], flt);
+		auto bFlb = math::world_to_screen_pixel_aligned(pointsTransformed[3], flb);
+		auto bBrt = math::world_to_screen_pixel_aligned(pointsTransformed[5], brt);
+		auto bBlb = math::world_to_screen_pixel_aligned(pointsTransformed[0], blb);
+		auto bFrt = math::world_to_screen_pixel_aligned(pointsTransformed[4], frt);
+		auto bFrb = math::world_to_screen_pixel_aligned(pointsTransformed[2], frb);
+		auto bBrb = math::world_to_screen_pixel_aligned(pointsTransformed[1], brb);
+		auto bBlt = math::world_to_screen_pixel_aligned(pointsTransformed[6], blt);
+		auto bFlt = math::world_to_screen_pixel_aligned(pointsTransformed[7], flt);
 
 		if (!bFlb && !bBrt && !bBlb && !bFrt && !bFrb && !bBrb && !bBlt && !bFlt)
 			return false;
@@ -425,6 +425,17 @@ namespace util
 		m_renderview()->SetColorModulation(color[0], color[1], color[2]);
 	}
 
+	void color_modulate(float color[3], IMaterial* material)
+	{
+		auto found = false;
+		auto var = material->FindVar(crypt_str("$envmaptint"), &found);
+
+		if (found)
+			var->set_vec_value(color[0], color[1], color[2]);
+
+		m_renderview()->SetColorModulation(color[0], color[1], color[2]);
+	}
+
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix)
 	{
 		if (!configs.ragebot.enabled && !configs.legitbot.enabled && !configs.backtrack.enabled)
@@ -456,7 +467,7 @@ namespace util
 			auto curtime = m_globals()->m_curtime;
 			auto range = 0.2f;
 
-			if (cheat.local()->is_alive())
+			if (localPlayer->is_alive())
 				curtime = TICKS_TO_TIME(cheat.globals.fixed_tickbase);
 			
 			auto next_record = record + 1;
@@ -491,12 +502,12 @@ namespace util
 		return false;
 	}
 
-	void create_state(c_baseplayeranimationstate* state, player_t* e)
+	void create_state(AnimationState* state, player_t* e)
 	{
 		if (!state || !e)
 			return;
 
-		static auto createAnimState = reinterpret_cast<void(__thiscall*)(c_baseplayeranimationstate*, player_t*)>(memory->createState);
+		static auto createAnimState = reinterpret_cast<void(__thiscall*)(AnimationState*, player_t*)>(memory->createState);
 
 		if (!createAnimState)
 			return;
@@ -504,7 +515,7 @@ namespace util
 		createAnimState(state, e);
 	}
 
-	void update_state(c_baseplayeranimationstate* state, const Vector& angles)
+	void update_state(AnimationState* state, const Vector& angles)
 	{
 		if (!state)
 			return;
@@ -517,12 +528,12 @@ namespace util
 		updateAnimState(state, nullptr, angles.z, angles.y, angles.x, nullptr);
 	}
 
-	void reset_state(c_baseplayeranimationstate* state)
+	void reset_state(AnimationState* state)
 	{
 		if (!state)
 			return;
 
-		static auto resetAnimState = reinterpret_cast<void(__thiscall*)(c_baseplayeranimationstate*)>(memory->resetState);
+		static auto resetAnimState = reinterpret_cast<void(__thiscall*)(AnimationState*)>(memory->resetState);
 
 		if (!resetAnimState)
 			return;
@@ -541,10 +552,10 @@ namespace util
 		delta.x = std::clamp(delta.x, -89.0f, 89.0f);
 		delta.y = std::clamp(delta.y, -180.0f, 180.0f);
 		delta.z = 0.0f;
-		static auto sensitivity = m_cvar()->FindVar("sensitivity");
+		static auto sensitivity = m_cvar2()->FindVar("sensitivity");
 
 		if (delta.x != 0.f) {
-			static auto pitch = m_cvar()->FindVar("m_pitch");
+			static auto pitch = m_cvar2()->FindVar("m_pitch");
 
 			int final_dy = static_cast<int>((delta.x / pitch->GetFloat()) / sensitivity->GetFloat());
 			if (final_dy <= 32767) {
@@ -571,7 +582,7 @@ namespace util
 		}
 
 		if (delta.y != 0.f) {
-			static auto yaw = m_cvar()->FindVar("m_yaw");
+			static auto yaw = m_cvar2()->FindVar("m_yaw");
 
 			int final_dx = static_cast<int>((delta.y / yaw->GetFloat()) / sensitivity->GetFloat());
 			if (final_dx <= 32767) {
@@ -615,7 +626,7 @@ namespace util
 			else if (in_thirdperson && !cheat.globals.in_thirdperson)
 				in_thirdperson = false;
 
-			if (cheat.local()->is_alive() && in_thirdperson && m_clientstate()->m_iDeltaTick > 0)
+			if (localPlayer->is_alive() && in_thirdperson && m_clientstate()->m_iDeltaTick > 0)
 			{
 				auto distance = static_cast<float>(configs.misc.thirdperson_distance);
 
@@ -634,8 +645,8 @@ namespace util
 				CTraceFilterWorldAndPropsOnly filter;
 				CGameTrace trace;
 
-				auto& origin = cheat.local()->GetAbsOrigin();
-				auto eye_pos = fakeducking ? origin + m_gamemovement()->GetPlayerViewOffset(false) : origin + cheat.local()->m_vecViewOffset();
+				Vector origin = localPlayer->GetAbsOrigin();
+				auto eye_pos = fakeducking ? origin + m_gamemovement()->GetPlayerViewOffset(false) : origin + localPlayer->m_vecViewOffset();
 				auto offset = eye_pos + forward * -distance + right + up;
 
 				ray.Init(eye_pos, offset, Vector(-16.0f, -16.0f, -16.0f), Vector(16.0f, 16.0f, 16.0f));
@@ -658,7 +669,7 @@ namespace util
 
 			static auto require_reset = false;
 
-			if (cheat.local()->is_alive())
+			if (localPlayer->is_alive())
 			{
 				require_reset = false;
 				return;
@@ -667,9 +678,9 @@ namespace util
 			if (configs.misc.thirdperson_when_spectating)
 			{
 				if (require_reset)
-					cheat.local()->m_iObserverMode() = OBS_MODE_CHASE;
+					localPlayer->m_iObserverMode() = OBS_MODE_CHASE;
 
-				if (cheat.local()->m_iObserverMode() == OBS_MODE_IN_EYE)
+				if (localPlayer->m_iObserverMode() == OBS_MODE_IN_EYE)
 					require_reset = true;
 			}
 		}
@@ -705,8 +716,8 @@ namespace util
 
 	Vector2D get_max_move()
 	{
-		static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
-		static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
+		static auto cl_forwardspeed = m_cvar2()->FindVar(crypt_str("cl_forwardspeed"));
+		static auto cl_sidespeed = m_cvar2()->FindVar(crypt_str("cl_sidespeed"));
 		return { cl_forwardspeed->GetFloat(), cl_sidespeed->GetFloat() };
 	}
 
@@ -721,7 +732,7 @@ namespace util
 		}
 		else if (!cheat.globals.start_position.IsZero() && autopeek)
 		{
-			auto& current_position = cheat.local()->GetAbsOrigin();
+			auto& current_position = localPlayer->GetAbsOrigin();
 			auto difference = current_position - cheat.globals.start_position;
 
 			if (difference.Length2D() > 5.0f)
@@ -843,13 +854,13 @@ namespace util
 
 	float get_interpolation()
 	{
-		static auto cl_interp = m_cvar()->FindVar(crypt_str("cl_interp"));
-		static auto cl_interp_ratio = m_cvar()->FindVar(crypt_str("cl_interp_ratio"));
-		static auto sv_client_min_interp_ratio = m_cvar()->FindVar(crypt_str("sv_client_min_interp_ratio"));
-		static auto sv_client_max_interp_ratio = m_cvar()->FindVar(crypt_str("sv_client_max_interp_ratio"));
-		static auto cl_updaterate = m_cvar()->FindVar(crypt_str("cl_updaterate"));
-		static auto sv_minupdaterate = m_cvar()->FindVar(crypt_str("sv_minupdaterate"));
-		static auto sv_maxupdaterate = m_cvar()->FindVar(crypt_str("sv_maxupdaterate"));
+		static auto cl_interp = m_cvar2()->FindVar(crypt_str("cl_interp"));
+		static auto cl_interp_ratio = m_cvar2()->FindVar(crypt_str("cl_interp_ratio"));
+		static auto sv_client_min_interp_ratio = m_cvar2()->FindVar(crypt_str("sv_client_min_interp_ratio"));
+		static auto sv_client_max_interp_ratio = m_cvar2()->FindVar(crypt_str("sv_client_max_interp_ratio"));
+		static auto cl_updaterate = m_cvar2()->FindVar(crypt_str("cl_updaterate"));
+		static auto sv_minupdaterate = m_cvar2()->FindVar(crypt_str("sv_minupdaterate"));
+		static auto sv_maxupdaterate = m_cvar2()->FindVar(crypt_str("sv_maxupdaterate"));
 
 		auto ratio = std::clamp(cl_interp_ratio->GetFloat(), sv_client_min_interp_ratio->GetFloat(), sv_client_max_interp_ratio->GetFloat());
 		return max(cl_interp->GetFloat(), (ratio / ((sv_maxupdaterate) ? sv_maxupdaterate->GetFloat() : cl_updaterate->GetFloat())));
@@ -866,7 +877,7 @@ namespace util
 		static CUserCmd* lastCmd;
 
 		if (cmd) {
-			if (cheat.local() && (!lastCmd || lastCmd->m_predicted))
+			if (localPlayer && (!lastCmd || lastCmd->m_predicted))
 				tick = cheat.globals.fixed_tickbase;
 			else
 				tick++;
@@ -889,8 +900,8 @@ namespace util
 
 	GameMode getGameMode()
 	{
-		static auto gameType{ m_cvar()->FindVar("game_type")};
-		static auto gameMode{ m_cvar()->FindVar("game_mode") };
+		static auto gameType{ m_cvar2()->FindVar("game_type")};
+		static auto gameMode{ m_cvar2()->FindVar("game_mode") };
 		switch (gameType->GetInt())
 		{
 		case 0:

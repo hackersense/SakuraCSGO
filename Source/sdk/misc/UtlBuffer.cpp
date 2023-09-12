@@ -255,7 +255,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
         //-----------------------------------------------------------------------------
         // constructors
         //-----------------------------------------------------------------------------
-        CUtlBuffer::CUtlBuffer(int growSize, int initSize, int nFlags) : //-V730
+        CUtlBuffer::CUtlBuffer(int growSize, int initSize, int nFlags) :
             m_Memory(growSize, initSize), m_Error(0)
         {
             m_Get = 0;
@@ -272,7 +272,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
             SetOverflowFuncs(&CUtlBuffer::GetOverflow, &CUtlBuffer::PutOverflow);
         }
 
-        CUtlBuffer::CUtlBuffer(const void *pBuffer, int nSize, int nFlags) : //-V730
+        CUtlBuffer::CUtlBuffer(const void *pBuffer, int nSize, int nFlags) :
             m_Memory((unsigned char*)pBuffer, nSize), m_Error(0)
         {
             assert(nSize != 0);
@@ -533,7 +533,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
                 if(!CheckArbitraryPeekGet(nOffset, nPeekAmount)) {
                     if(nOffset == nStartingOffset)
                         return 0;
-                    return nOffset - nStartingOffset + 1; //-V2007
+                    return nOffset - nStartingOffset + 1;
                 }
 
                 const char *pTest = (const char *)PeekGet(nOffset);
@@ -541,10 +541,10 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
                 for(int i = 0; i < nPeekAmount; ++i) {
                     // The +2 here is so we eat the terminating '\n' and 0
                     if(pTest[i] == '\n' || pTest[i] == '\r')
-                        return (i + nOffset - nStartingOffset + 2); //-V2007
+                        return (i + nOffset - nStartingOffset + 2);
                     // The +1 here is so we eat the terminating 0
                     if(pTest[i] == 0)
-                        return (i + nOffset - nStartingOffset + 1); //-V2007
+                        return (i + nOffset - nStartingOffset + 1);
                 }
 
                 nOffset += nPeekAmount;
@@ -886,7 +886,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
             int nLength;
             char c;
             char* pEnd;
-            while(c = *pFmt++) { //-V559
+            while(c = *pFmt++) {
                 // Stop if we hit the end of the buffer
                 if(m_Get >= TellMaxPut()) {
                     m_Error |= GET_OVERFLOW;
@@ -1034,7 +1034,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
             return numScanned;
         }
 
-#pragma warning ( default : 4706 ) //-V665
+#pragma warning ( default : 4706 )
 
         int CUtlBuffer::Scanf(const char* pFmt, ...)
         {
@@ -1342,7 +1342,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
 
             int nLen = pString ? strlen(pString) : 0;
             for(int i = 0; i < nLen; ++i) {
-                PutDelimitedCharInternal(pConv, pString[i]); //-V1004
+                PutDelimitedCharInternal(pConv, pString[i]);
             }
 
             if(WasLastCharacterCR()) {
@@ -1585,7 +1585,7 @@ END_CUSTOM_CHAR_CONVERSION(CUtlCStringConversion, s_StringCharConversion, "\"", 
         CUtlInplaceBuffer::CUtlInplaceBuffer(int growSize /* = 0 */, int initSize /* = 0 */, int nFlags /* = 0 */) :
             CUtlBuffer(growSize, initSize, nFlags)
         {
-            NULL; //-V606
+            NULL;
         }
 
         bool CUtlInplaceBuffer::InplaceGetLinePtr(char **ppszInBufferPtr, int *pnLineLength)

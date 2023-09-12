@@ -44,9 +44,9 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 		{
 			auto type = ENEMY;
 
-			if (e == cheat.local())
+			if (e == localPlayer.get())
 				type = LOCAL;
-			else if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
+			else if (e->m_iTeamNum() == localPlayer->m_iTeamNum())
 				type = TEAM;
 
 			if (configs.esp.type[type].footsteps)
@@ -196,7 +196,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 
 		if (user_id == m_engine()->GetLocalPlayer())
 			walkbot::get().marker = walkbot::get().prishel = 0;
-		if (cheat.local() && cheat.local()->is_alive() && attacker_id == m_engine()->GetLocalPlayer() && user_id != m_engine()->GetLocalPlayer())
+		if (localPlayer && localPlayer->is_alive() && attacker_id == m_engine()->GetLocalPlayer() && user_id != m_engine()->GetLocalPlayer())
 		{
 			auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(user_id));
 
@@ -217,7 +217,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 			}
 
 			if (configs.esp.enabled && configs.visuals.kill_effect)
-				cheat.local()->m_flHealthShotBoostExpirationTime() = m_globals()->m_curtime + configs.visuals.kill_effect_duration;
+				localPlayer->m_flHealthShotBoostExpirationTime() = m_globals()->m_curtime + configs.visuals.kill_effect_duration;
 
 			if (configs.visuals.killsound && configs.esp.enabled)
 			{
@@ -465,7 +465,7 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 	{
 		auto user_id = m_engine()->GetPlayerForUserID(event->GetInt(crypt_str("userid")));
 
-		if (configs.profileChanger.musickit_stattrak > -1 && cheat.local() && user_id == m_engine()->GetLocalPlayer() && m_gamerules()->m_bIsValveDS())
+		if (configs.profileChanger.musickit_stattrak > -1 && localPlayer && user_id == m_engine()->GetLocalPlayer() && m_gamerules()->m_bIsValveDS())
 		{
 			if (util::getGameMode() == GameMode::Competitive || util::getGameMode() == GameMode::Wingman) {
 				event->SetInt("musickitmvps", configs.profileChanger.musickit_stattrak + 1);

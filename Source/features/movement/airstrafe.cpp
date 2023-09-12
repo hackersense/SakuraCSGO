@@ -5,7 +5,7 @@
 
 void airstrafe::create_move(CUserCmd* m_pcmd, Vector& currentViewAngles)
 {
-	if (cheat.local()->m_fFlags() & FL_ONGROUND || engineprediction::get().backup_data.flags & FL_ONGROUND || cheat.local()->get_move_type() == MOVETYPE_LADDER || cheat.local()->get_move_type() == MOVETYPE_NOCLIP)
+	if (localPlayer->m_fFlags() & FL_ONGROUND || engineprediction::get().backup_data.flags & FL_ONGROUND || localPlayer->get_move_type() == MOVETYPE_LADDER || localPlayer->get_move_type() == MOVETYPE_NOCLIP)
 		return;
 
 	static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
@@ -31,7 +31,7 @@ void airstrafe::create_move(CUserCmd* m_pcmd, Vector& currentViewAngles)
 			else
 				return degree;
 		};
-		auto& velocity = cheat.local()->m_vecVelocity();
+		auto& velocity = localPlayer->m_vecVelocity();
 		velocity.z = .0f;
 		static auto oldYaw = .0f;
 		auto forwardMove = m_pcmd->m_forwardmove;
@@ -161,7 +161,7 @@ void airstrafe::create_move(CUserCmd* m_pcmd, Vector& currentViewAngles)
 		m_pcmd->m_forwardmove = 0.f;
 		m_pcmd->m_sidemove = 0.f;
 
-		const auto delta = math::normalize_yaw(cva.y - RAD2DEG(atan2(cheat.local()->m_vecVelocity().y, cheat.local()->m_vecVelocity().x)));
+		const auto delta = math::normalize_yaw(cva.y - RAD2DEG(atan2(localPlayer->m_vecVelocity().y, localPlayer->m_vecVelocity().x)));
 
 		m_pcmd->m_sidemove = delta > 0.f ? -cl_sidespeed->GetFloat() : cl_sidespeed->GetFloat();
 
@@ -182,10 +182,10 @@ void airstrafe::create_move(CUserCmd* m_pcmd, Vector& currentViewAngles)
 				return tmp;
 		};
 
-		if (cheat.local()->get_move_type() != MOVETYPE_WALK)
+		if (localPlayer->get_move_type() != MOVETYPE_WALK)
 			return;
 
-		auto velocity = cheat.local()->m_vecVelocity();
+		auto velocity = localPlayer->m_vecVelocity();
 		velocity.z = 0.0f;
 
 		auto forwardmove = m_pcmd->m_forwardmove;
@@ -272,7 +272,7 @@ void airstrafe::create_move(CUserCmd* m_pcmd, Vector& currentViewAngles)
 
 		auto yaw = DEG2RAD(normalized_y - viewangles.y + angles_move.y);
 
-		if (normalized_x >= 90.0f || normalized_x <= -90.0f || m_pcmd->m_viewangles.x >= 90.0f && m_pcmd->m_viewangles.x <= 200.0f || m_pcmd->m_viewangles.x <= -90.0f && m_pcmd->m_viewangles.x <= 200.0f) //-V648
+		if (normalized_x >= 90.0f || normalized_x <= -90.0f || m_pcmd->m_viewangles.x >= 90.0f && m_pcmd->m_viewangles.x <= 200.0f || m_pcmd->m_viewangles.x <= -90.0f && m_pcmd->m_viewangles.x <= 200.0f)
 			m_pcmd->m_forwardmove = -cos(yaw) * speed;
 		else
 			m_pcmd->m_forwardmove = cos(yaw) * speed;

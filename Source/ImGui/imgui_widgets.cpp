@@ -4888,7 +4888,7 @@ bool ImGui::ColorEdit4(const char* label, float col[4], int max, ImGuiColorEditF
 	{
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any
 			value_changed = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
@@ -5106,7 +5106,7 @@ bool ImGui::ColorEdit4(const char* label, Color* col, int max, ImGuiColorEditFla
 	{
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any
 			value_changed = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
@@ -5432,7 +5432,7 @@ bool ImGui::ColorEdit4Skeet(const char* label, Color* col, ImGuiColorEditFlags f
 	{
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)col, payload->Data, sizeof(float) * 3); // Preserve alpha if any
 			value_changed = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
@@ -7306,7 +7306,7 @@ bool ImGui::BeginMainMenuBar()
 		End();
 		return false;
 	}
-	return true; //-V1020
+	return true;
 }
 
 void ImGui::EndMainMenuBar()
@@ -11183,7 +11183,7 @@ bool ImGui::ColorEdit4MultiFixed(const char* label, Color* col1, Color* col2, Im
 	{
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)switch_entity_teams[iz] ? &vecColor1.x : &vecColor2.x, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)switch_entity_teams[iz] ? &vecColor1.x : &vecColor2.x, payload->Data, sizeof(float) * 3); // Preserve alpha if any
 			value_changed = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
@@ -11421,7 +11421,7 @@ bool ImGui::ColorEdit4Fix(const char* label, Color* col1, ImGuiColorEditFlags fl
 	{
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
 		{
-			memcpy((float*)&vecColor1.x, payload->Data, sizeof(float) * 3); // Preserve alpha if any //-V512
+			memcpy((float*)&vecColor1.x, payload->Data, sizeof(float) * 3); // Preserve alpha if any
 			value_changed = true;
 		}
 		if (const ImGuiPayload* payload = AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))

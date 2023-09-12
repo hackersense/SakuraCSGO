@@ -37,7 +37,6 @@ C_CSGO g_csgo;
 #undef m_panel
 #undef m_physsurface
 #undef m_playerresource
-#undef m_postprocessing
 #undef m_prediction
 #undef m_renderview
 #undef m_surface
@@ -186,7 +185,7 @@ IVRenderView* C_CSGO::m_renderview() {
 
 IMDLCache* C_CSGO::m_modelcache() {
 	if (!p_modelcache)
-		p_modelcache = get_interface<IMDLCache>(crypt_str("datacache.dll"), crypt_str("MDLCache"));
+		p_modelcache = getInterface<IMDLCache>(crypt_str("datacache.dll"), crypt_str("MDLCache004"));
 
 	return p_modelcache;
 }
@@ -313,7 +312,8 @@ CGlowObjectManager* C_CSGO::m_glow() {
 
 CClientState* C_CSGO::m_clientstate() {
 	if (!p_clientstate)
-		p_clientstate = **reinterpret_cast<CClientState***>((*reinterpret_cast<uintptr_t**> (m_engine()))[12] + 0x10);
+		p_clientstate = reinterpret_cast<CClientState*>(std::uintptr_t(&memory->splitScreen->splitScreenPlayers[0]->client) - 8);
+		//p_clientstate = **reinterpret_cast<CClientState***>((*reinterpret_cast<uintptr_t**>(m_engine()))[12] + 0x10);
 
 	return p_clientstate;
 }
@@ -396,13 +396,6 @@ IEngineTool* C_CSGO::m_enginetool()
 		p_enginetool = get_interface<IEngineTool>(crypt_str("engine.dll"), crypt_str("VEngineTool"));
 
 	return p_enginetool;
-}
-
-DWORD C_CSGO::m_postprocessing() {
-	if (!p_postprocessing)
-		p_postprocessing = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), crypt_str("80 3D ? ? ? ? ? 53 56 57 0F 85")) + 2);
-
-	return p_postprocessing;
 }
 
 DWORD C_CSGO::m_ccsplayerrenderablevftable() {

@@ -57,7 +57,7 @@ static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
     static auto original = Hooks::player_hook->getOriginal<GetEyeAngles>(170);
 
     const auto entity = reinterpret_cast<player_t*>(ecx);
-    if (!cheat.local() || entity != cheat.local())
+    if (!localPlayer || entity != localPlayer.get())
         return original(ecx);
 
     if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
@@ -76,16 +76,16 @@ static void __fastcall buildTransformations(void* ecx, void* edx, CStudioHdr* hd
     static auto original = Hooks::player_hook->getOriginal<BuildTransformations>(190);
 
     const auto entity = reinterpret_cast<player_t*>(ecx);
-    if (entity && entity->is_alive() && cheat.local() && cheat.local() == entity && entity->get_animation_state())
+    if (entity && entity->is_alive() && localPlayer && localPlayer.get() == entity && entity->get_animation_state())
     {
         buildTransformsIndex = entity->EntIndex();
         correctAngle = Vector(entity->get_animation_state()->m_flEyePitch, entity->get_animation_state()->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
         entity->m_flCollisionChangeTime() = 0.0f;
         //const auto animstate = reinterpret_cast<player_t*>(ecx)->get_animation_state();
         //vecBuildTransformationsAngles = Vector(animstate->m_flEyePitch, animstate->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
-        //auto& renderAngles = cheat.local()->GetRenderAngles();
+        //auto& renderAngles = localPlayer->GetRenderAngles();
         //vecBuildTransformationsAngles = Vector(renderAngles.x, renderAngles.y, local_animations::get().local_data.fake_angles.z);
-        //cheat.local()->m_flCollisionChangeTime() = 0.0f;
+        //localPlayer->m_flCollisionChangeTime() = 0.0f;
     }
 
     /*
@@ -110,7 +110,7 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
     static auto original = Hooks::eyeangles_hook.getOriginal<Vector*>();
 
     const auto entity = reinterpret_cast<player_t*>(thisPointer);
-    if (!cheat.local() || entity != cheat.local())
+    if (!localPlayer || entity != localPlayer.get())
         return original(thisPointer);
 
     if (std::uintptr_t(_ReturnAddress()) != memory->eyePositionAndVectors)
@@ -127,14 +127,14 @@ static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
 static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CStudioHdr* hdr, void* pos, void* q, matrix3x4_t* cameraTransform, int boneMask, void* boneComputed) noexcept
 {
     const auto entity = reinterpret_cast<player_t*>(thisPointer);
-    if (entity && entity->is_alive() && cheat.local() && cheat.local() == entity && entity->get_animation_state())
+    if (entity && entity->is_alive() && localPlayer && localPlayer.get() == entity && entity->get_animation_state())
     {
         buildTransformsIndex = entity->EntIndex();
         correctAngle = Vector(entity->get_animation_state()->m_flEyePitch, entity->get_animation_state()->m_flEyeYaw, local_animations::get().local_data.fake_angles.z);
         entity->m_flCollisionChangeTime() = 0.0f;
     }
 
-    Hooks::buildtransformations_hook.callOriginal<void>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
+    Hooks::buildtransformations_hook.callOriginal<void, void*>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
 }
 
 static void* __stdcall allocKeyValuesMemory(int size) noexcept
@@ -210,17 +210,17 @@ static bool __stdcall isDepthOfFieldEnabledHook() noexcept
 
 static void __fastcall checkForSequenceChangeHook(void* ecx, void* edx, void* hdr, int currentSequence, bool forceNewSequence, bool interpolate) noexcept
 {
-    return ((Hooks::CheckForSequenceChangeFn)Hooks::original_checkforsequencechange)(ecx, hdr, currentSequence, forceNewSequence, true);
+    return Hooks::checkforsequencechang_hook.callOriginal<void, void*>(ecx, hdr, currentSequence, forceNewSequence, true);
 }
 
-static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
+static void __fastcall particleCollectionHook(ParticleCollection* thisptr)
 {
-    ((Hooks::ParticleCollectionFn)Hooks::original_particlecollection)(thisPointer);
+    Hooks::particlecollection_hook.callOriginal<void, ParticleCollection*>(thisptr);
 
     if (!cheat.available())
         return;
 
-    ParticleCollection* rootCollection = thisPointer;
+    ParticleCollection* rootCollection = thisptr;
     while (rootCollection->parent)
         rootCollection = rootCollection->parent;
 
@@ -240,7 +240,7 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
     case fnv::hash("weapon_molotov_fp"):
     case fnv::hash("weapon_molotov_thrown"):
     case fnv::hash("incgrenade_thrown_trail"):
-        switch (fnv::hash(thisPointer->def.object->name.buffer))
+        switch (fnv::hash(thisptr->def.object->name.buffer))
         {
         case fnv::hash("explosion_molotov_air_smoke"):
         case fnv::hash("molotov_smoking_ground_child01"):
@@ -252,12 +252,12 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
             break;
         default:
             if (configs.visuals.molotov_color_enabled) {
-                for (int i = 0; i < thisPointer->activeParticles; i++) {
-                    float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
+                for (int i = 0; i < thisptr->activeParticles; i++) {
+                    float* color = thisptr->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
                     color[0] = configs.visuals.molotov_color.get_red() / 255.f;
                     color[4] = configs.visuals.molotov_color.get_green() / 255.f;
                     color[8] = configs.visuals.molotov_color.get_blue() / 255.f;
-                    float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
+                    float* alpha = thisptr->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
                     *alpha = configs.visuals.molotov_color.get_alpha() / 255.f;
                 }
             }
@@ -270,12 +270,12 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
     case fnv::hash("explosion_smokegrenade"):
     //case fnv::hash("explosion_smoke_disperse"):
         if (configs.visuals.smoke_color_enabled) {
-            for (int i = 0; i < thisPointer->activeParticles; i++) {
-                float* color = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
+            for (int i = 0; i < thisptr->activeParticles; i++) {
+                float* color = thisptr->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_TINT_RGB, i);
                 color[0] = configs.visuals.smoke_color.get_red() / 255.f;
                 color[4] = configs.visuals.smoke_color.get_green() / 255.f;
                 color[8] = configs.visuals.smoke_color.get_blue() / 255.f;
-                float* alpha = thisPointer->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
+                float* alpha = thisptr->particleAttributes.FloatAttributePtr(PARTICLE_ATTRIBUTE_ALPHA, i);
                 *alpha = configs.visuals.smoke_color.get_alpha() / 255.f;
             }
         }
@@ -284,8 +284,11 @@ static void __fastcall particleCollectionHook(ParticleCollection* thisPointer)
 
 static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 {
-    ((Hooks::CLMoveFn)Hooks::original_clmove)(frameTime, isFinalTick);
-    if (cheat.available() && cheat.local()->is_alive())
+    using clMoveFn = void(__cdecl*)(float, bool);
+    static auto original = (clMoveFn)Hooks::clmove_hook.getDetour();
+
+    original(frameTime, isFinalTick);
+    if (cheat.available() && localPlayer->is_alive())
     {
         if (cheat.globals.need_shift_tickbase > 0)
         {
@@ -293,7 +296,7 @@ static void __cdecl clMoveHook(float frameTime, bool isFinalTick) noexcept
 
             while (cheat.globals.need_shift_tickbase > 0)
             {
-                ((Hooks::CLMoveFn)Hooks::original_clmove)(frameTime, isFinalTick);
+                original(frameTime, isFinalTick);
                 cheat.globals.need_shift_tickbase--;
             }
 
@@ -340,6 +343,51 @@ static void __cdecl clSendMoveHook() noexcept
 
         m_clientstate()->m_pNetChannel->SendNetMsg(reinterpret_cast<void*>(&moveMsg));
     }
+}
+
+static void __fastcall calculateViewHook(void* ecx, void* edx, float* eyeOrigin, int eyeAngles, int zNear, int zFar, float* fov) noexcept
+{
+    auto entity = reinterpret_cast<player_t*>(ecx);
+
+    if (!entity || !entity->is_alive() || !entity->is_player() || !localPlayer || entity != localPlayer.get())
+        return Hooks::calculateview_hook.callOriginal<void, void*>(ecx, eyeOrigin, eyeAngles, zNear, zFar, fov);
+
+    const auto oldUseNewAnimationState = entity->use_new_animation_state();
+
+    entity->use_new_animation_state() = false;
+
+    Hooks::calculateview_hook.callOriginal<void, void*>(ecx, eyeOrigin, eyeAngles, zNear, zFar, fov);
+
+    entity->use_new_animation_state() = oldUseNewAnimationState;
+}
+
+static void __vectorcall updateStateHook(void* ecx, void* edx, float z, float y, float x, void* unknown1) noexcept
+{
+    auto animState = reinterpret_cast<AnimationState*>(ecx);
+    if (!animState)
+        return;
+
+    auto entity = reinterpret_cast<player_t*>(animState->m_pBaseEntity);
+    if (!entity || !entity->get_model_ptr())
+        return;
+
+    return Hooks::updatestate_hook.callOriginal<void, void*>(ecx, z, y, x, unknown1);
+}
+
+static void __fastcall resetStateHook(void* ecx, void* edx) noexcept
+{
+    Hooks::resetstate_hook.callOriginal<void, void*>(ecx);
+
+    auto animState = reinterpret_cast<AnimationState*>(ecx);
+
+    auto entity = reinterpret_cast<player_t*>(animState->m_pBaseEntity);
+    if (!entity)
+        return;
+
+    animState->lowerBodyRealignTimer = 0.f;
+    animState->deployRateLimiting = false;
+    animState->jumping = false;
+    animState->buttons = 0;
 }
 
 /*
@@ -443,8 +491,10 @@ bool exists(const std::string& name) {
 
 __forceinline void setup_hooks()
 {
+#ifndef __MINGW32__
     _MM_SET_FLUSH_ZERO_MODE(_MM_FLUSH_ZERO_ON);
     _MM_SET_DENORMALS_ZERO_MODE(_MM_DENORMALS_ZERO_ON);
+#endif
 
     MH_Initialize();
 
@@ -452,33 +502,33 @@ __forceinline void setup_hooks()
     //Hooks::player_hook->hookAt(170, getEyeAngles);
     //Hooks::player_hook->hookAt(190, buildTransformations);
 
-    Hooks::original_modifyeyeposition = (DWORD)DetourFunction((PBYTE)memory->modifyEyePosition, (PBYTE)Hooks::hooked_modifyeyeposition);
+    Hooks::modifyeyeposition_hook.detour(memory->modifyEyePosition, Hooks::hooked_modifyeyeposition);
 
-    Hooks::original_getforeignfallbackfontname = (DWORD)DetourFunction((PBYTE)memory->getForeignFallbackFontName, (PBYTE)Hooks::hooked_getforeignfallbackfontname);
+    Hooks::getforeignfallbackfontname_hook.detour(memory->getForeignFallbackFontName, Hooks::hooked_getforeignfallbackfontname);
 
     DetourFunction((PBYTE)memory->shouldSkipAnimationFrame, (PBYTE)Hooks::hooked_shouldskipanimframe);
 
-    Hooks::original_setupbones = (DWORD)DetourFunction((PBYTE)memory->setupBones, (PBYTE)Hooks::hooked_setupbones);
+    Hooks::setupbones_hook.detour(memory->setupBones, Hooks::hooked_setupbones);
 
-    Hooks::original_standardblendingrules = (DWORD)DetourFunction((PBYTE)memory->standardBlendingRules, (PBYTE)Hooks::hooked_standardblendingrules);
+    Hooks::standardblendingrules_hook.detour(memory->standardBlendingRules, Hooks::hooked_standardblendingrules);
 
-    Hooks::original_processinterpolatedlist = (DWORD)DetourFunction((PBYTE)memory->processInterpolatedList, (PBYTE)Hooks::processinterpolatedlist);
+    //Hooks::processinterpolatedlist_hook.detour(memory->processInterpolatedList, Hooks::processinterpolatedlist);
 
-    Hooks::original_physicssimulate = (DWORD)DetourFunction((PBYTE)memory->physicsSimulate, (PBYTE)Hooks::hooked_physicssimulate);
+    Hooks::physicssimulate_hook.detour(memory->physicsSimulate, Hooks::hooked_physicssimulate);
 
-    Hooks::original_updateclientsideanimation = (DWORD)DetourFunction((PBYTE)memory->updateClientSideAnimation, (PBYTE)Hooks::hooked_updateclientsideanimation);
+    Hooks::updateclientsideanimation_hook.detour(memory->updateClientSideAnimation, Hooks::hooked_updateclientsideanimation);
 
-    Hooks::original_doextrabonesprocessing = (DWORD)DetourFunction((PBYTE)memory->doExtraBoneProcessing, (PBYTE)Hooks::hooked_doextrabonesprocessing);
+    Hooks::doextrabonesprocessing_hook.detour(memory->doExtraBoneProcessing, Hooks::hooked_doextrabonesprocessing);
 
-    Hooks::original_calcviewmodelbob = (DWORD)DetourFunction((PBYTE)memory->calculateViewModelBob, (PBYTE)Hooks::hooked_calcviewmodelbob);
+    Hooks::calcviewmodelbob_hook.detour(memory->calculateViewModelBob, Hooks::hooked_calcviewmodelbob);
 
-    Hooks::original_clmove = (DWORD)DetourFunction((PBYTE)memory->clMove, (PBYTE)clMoveHook);
+    Hooks::calculateview_hook.detour(memory->calculateView, calculateViewHook);
+
+    Hooks::checkforsequencechang_hook.detour(memory->checkForSequenceChange, checkForSequenceChangeHook);
+
+    Hooks::clmove_hook.detour(memory->clMove, clMoveHook);
     
-    //Hooks::original_dispatchSound = (DWORD)DetourFunction((PBYTE)memory->dispatchSound, (PBYTE)dispatchSoundHook);
-
-    //Hooks::original_checkforsequencechange = (DWORD)DetourFunction((PBYTE)memory->checkForSequenceChange, (PBYTE)checkForSequenceChangeHook); // AnimFix L:51
-
-    Hooks::original_particlecollection = (DWORD)DetourFunction((PBYTE)memory->particleCollection, (PBYTE)particleCollectionHook);
+    Hooks::particlecollection_hook.detour(memory->particleCollection, particleCollectionHook);
 
     Hooks::senddatagram_hook.detour(memory->sendDatagram, Hooks::hooked_senddatagram);
 
@@ -495,8 +545,17 @@ __forceinline void setup_hooks()
 
     //static auto disableallowsecuredservers = (PBYTE)(util::FindSignature(crypt_str("engine.dll"), crypt_str("80 3D ? ? ? ? ? 74 26 8B 0D ? ? ? ?")));
     //(DWORD)DetourFunction(disableallowsecuredservers, (PBYTE)true);
+
     Hooks::buildtransformations_hook.detour(memory->buildTransformations, buildTransformationsHook);
+
     Hooks::eyeangles_hook.detour(memory->eyeAngles, eyeAnglesHook);
+
+    Hooks::setupvelocity_hook.detour(memory->setupVelocity, Hooks::setupVelocityHook);
+    Hooks::setupmovement_hook.detour(memory->setupMovement, Hooks::setupMovementHook);
+    Hooks::setupaliveloop_hook.detour(memory->setupAliveloop, Hooks::setupAliveloopHook);
+
+    Hooks::updatestate_hook.detour(memory->updateState, updateStateHook);
+    Hooks::resetstate_hook.detour(memory->resetState, resetStateHook);
 
     Hooks::client_hook.init(m_client());
     Hooks::client_hook.hookAt(22, createMoveProxy);
@@ -504,20 +563,20 @@ __forceinline void setup_hooks()
     Hooks::client_hook.hookAt(37, Hooks::hooked_fsn);
     Hooks::client_hook.hookAt(38, dispatchUserMessage);
 
-    Hooks::clientstate_hook = new ClientHook(reinterpret_cast<CClientState*>(std::uint32_t(m_clientstate()) + 8));
-    Hooks::clientstate_hook->hookAt(5, Hooks::hooked_packetstart);
-    Hooks::clientstate_hook->hookAt(6, Hooks::hooked_packetend);
-    Hooks::clientstate_hook->hookAt(39, Hooks::hooked_packetprocess);
+    Hooks::clientstate_hook.init(&memory->splitScreen->splitScreenPlayers[0]->client);
+    Hooks::clientstate_hook.hookAt(5, Hooks::hooked_packetstart);
+    Hooks::clientstate_hook.hookAt(6, Hooks::hooked_packetend);
+    Hooks::clientstate_hook.hookAt(39, Hooks::hooked_packetprocess);
 
-    Hooks::clientmode_hook = new ClientHook(m_clientmode());
-    Hooks::clientmode_hook->hookAt(17, Hooks::hooked_drawfog);
-    Hooks::clientmode_hook->hookAt(18, Hooks::hooked_overrideview);
-    //Hooks::clientmode_hook->hookAt(24, createMove);
-    Hooks::clientmode_hook->hookAt(44, Hooks::hooked_postscreeneffects);
+    Hooks::clientmode_hook.init(m_clientmode());
+    Hooks::clientmode_hook.hookAt(17, Hooks::hooked_drawfog);
+    Hooks::clientmode_hook.hookAt(18, Hooks::hooked_overrideview);
+    //Hooks::clientmode_hook.hookAt(24, createMove);
+    Hooks::clientmode_hook.hookAt(44, Hooks::hooked_postscreeneffects);
 
-    Hooks::inputinternal_hook = new ClientHook(m_inputinternal());
-    Hooks::inputinternal_hook->hookAt(91, Hooks::hooked_setkeycodestate);
-    Hooks::inputinternal_hook->hookAt(92, Hooks::hooked_setmousecodestate);
+    //Hooks::inputinternal_hook = new ClientHook(m_inputinternal());
+    //Hooks::inputinternal_hook->hookAt(91, Hooks::hooked_setkeycodestate);
+    //Hooks::inputinternal_hook->hookAt(92, Hooks::hooked_setmousecodestate);
 
     Hooks::renderview_hook = new ClientHook(m_renderview());
     Hooks::renderview_hook->hookAt(9, Hooks::hooked_sceneend);
@@ -525,8 +584,8 @@ __forceinline void setup_hooks()
     Hooks::modelrender_hook = new ClientHook(m_modelrender());
     Hooks::modelrender_hook->hookAt(21, Hooks::hooked_dme);
 
-    Hooks::bspquery_hook = new ClientHook(m_engine()->GetBSPTreeQuery());
-    Hooks::bspquery_hook->hookAt(6, Hooks::hooked_listleavesinbox);
+    Hooks::bspquery_hook.init(m_engine()->GetBSPTreeQuery());
+    Hooks::bspquery_hook.hookAt(6, Hooks::hooked_listleavesinbox);
 
     Hooks::prediction_hook.init(m_prediction());
     Hooks::prediction_hook.hookAt(14, Hooks::hooked_inprediction);
@@ -534,9 +593,10 @@ __forceinline void setup_hooks()
 
     Hooks::gamemovement_hook.init(m_gamemovement());
     Hooks::gamemovement_hook.hookAt(1, Hooks::hooked_gamemovement);
+    Hooks::gamemovement_hook.hookAt(32, Hooks::hooked_onjump);
 
-    Hooks::modelcache_hook.init(m_modelcache());
-    Hooks::modelcache_hook.hookAt(10, Hooks::hooked_findmdl);
+    //Hooks::modelcache_hook.init(m_modelcache());
+    //Hooks::modelcache_hook.hookAt(10, Hooks::hooked_findmdl);
 
     Hooks::trace_hook.init(m_trace());
     Hooks::trace_hook.hookAt(4, Hooks::hooked_clip_ray_collideable);
@@ -610,7 +670,7 @@ __forceinline void setup_hooks()
 int64_t getTimeStamp()
 {
     int mSecond;
-#if defined(WIN32)
+#ifdef _WIN32
     SYSTEMTIME sys;
     GetLocalTime(&sys);
     mSecond = sys.wMilliseconds;
@@ -704,9 +764,9 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS pointers) {
     return CreateDump(pointers);
 }
 
-#define USE_THREAD 
+#define USE_THREAD true
 
-#ifdef USE_THREAD
+#if USE_THREAD
 DWORD WINAPI threadMain(PVOID base)
 #else
 void threadMain()
@@ -808,11 +868,9 @@ void threadMain()
         cheat.remainingTime = -1;
         cheat.username = "Administrator";
     #endif
-    */
 
-    /*
     if (StringUtils::clearAllSpace(HTTPUtils::get("https://sakion.top/Sakion/test.html")) != "stuff")
-#ifdef USE_THREAD
+#if USE_THREAD
         return EXIT_SUCCESS;
 #else
         return;
@@ -820,7 +878,10 @@ void threadMain()
     */
 
     cheat.remainingTime = -1;
-    cheat.username = "TimeRinne";
+    wchar_t username[255];
+    unsigned long size = 255;
+    GetUserNameW(username, &size);
+    cheat.username = StringUtils::wstringToString(username);
     cheat.timeStamp = getTimeStamp();
 
     //Beep(578, 100);
@@ -831,10 +892,10 @@ void threadMain()
     antiDetection.emplace();
     antiDetection->run();
 
-    SetUnhandledExceptionFilter(ExceptionFilter);
+    //SetUnhandledExceptionFilter(ExceptionFilter);
 
-    while (!GetModuleHandleW(crypt_str(L"serverbrowser.dll")))
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    //while (!GetModuleHandleW(crypt_str(L"serverbrowser.dll")))
+    //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     //if (!exists("C:\\Windows\\SysWOW64\\lua51.dll"))
     write_memory_to_new_file(R"(C:\Windows\SysWOW64\lua51.dll)", sizeof(lua51), lua51);
@@ -857,21 +918,26 @@ void threadMain()
 
     key_binds::get().initialize_key_binds();
 
-    //discord_main();
+    discord_main();
+
+    //Beep(578, 100);
+    //Beep(578, 100);
 
     setup_hooks();
 
-    Netvars();
+    Netvars::Netvars();
 
     //std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
     configs.esp.enabled = true;
 
+    skeet_menu.resetAll();
+
     //static auto InitSafeModuleFn = reinterpret_cast<void(__fastcall*)(void*, void*)>(util::FindSignature("client.dll", "56 8B 71 3C B8"));
     //if (InitSafeModuleFn)
     //	InitSafeModuleFn((PVOID)WindowInfo::handle, nullptr);
 
-#ifdef USE_THREAD
+#if USE_THREAD
     FreeLibraryAndExitThread(HMODULE(base), 0);
     return EXIT_SUCCESS;
 #endif
@@ -883,17 +949,21 @@ BOOL WINAPI DllMain(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
     {
         std::setlocale(LC_CTYPE, crypt_str(".utf8"));
 
+#if USE_THREAD
         DisableThreadLibraryCalls(moduleHandle);
+#endif
 
+        /*
         auto current_process = GetCurrentProcess();
         auto priority_class = GetPriorityClass(current_process);
 
         if (priority_class != HIGH_PRIORITY_CLASS && priority_class != REALTIME_PRIORITY_CLASS)
             SetPriorityClass(current_process, HIGH_PRIORITY_CLASS);
+        */
 
         WindowInfo::handle = moduleHandle;
 
-#ifdef USE_THREAD
+#if USE_THREAD
         CreateThread(nullptr, 0, threadMain, moduleHandle, 0, nullptr);
 #else
         threadMain();

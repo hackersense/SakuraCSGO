@@ -29,13 +29,13 @@ public:
     std::byte   pad[172];
     void*       csm;
     float       fov;
-    float       viewmodel_fov;
+    std::byte   pad1[4];
     Vector      origin;
     Vector      angles;
-    std::byte   pad1[4];
-    float       far_z;
-    std::byte   pad2[8];
-    float       aspect_ratio;
+    std::byte   pad2[4];
+    float       farZ;
+    std::byte   pad3[8];
+    float       aspectRatio;
 };
 
 class IClientMode

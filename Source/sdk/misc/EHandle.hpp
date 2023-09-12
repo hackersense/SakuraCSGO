@@ -7,8 +7,8 @@
 // Game-code CBaseHandle implementation.
 // -------------------------------------------------------------------------------------------------- //
 
-inline IHandleEntity* CBaseHandle::Get( ) const {
-	return g_csgo.m_entitylist()->GetClientEntityFromHandle( *this );
+inline IHandleEntity* CBaseHandle::Get() const {
+	return g_csgo.m_entitylist()->GetClientEntityFromHandle(*this);
 }
 
 // -------------------------------------------------------------------------------------------------- //

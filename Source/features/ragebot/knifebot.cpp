@@ -65,12 +65,12 @@ void knifebot::fire(CUserCmd* cmd)
 
 	auto& vecOrigin = final_target.record->player->m_vecOrigin();
 
-	auto bestDistance = cheat.local()->m_vecOrigin().DistTo(vecOrigin);
+	auto bestDistance = localPlayer->m_vecOrigin().DistTo(vecOrigin);
 
 	if (bestDistance > 75.0f)
 		return;
 
-	const auto angle{ math::calculate_relative_angle(cheat.globals.eye_pos, final_target.record->player->bone_position(7), cmd->m_viewangles + cheat.local()->m_aimPunchAngle()) };
+	const auto angle{ math::calculate_relative_angle(cheat.globals.eye_pos, final_target.record->player->bone_position(7), cmd->m_viewangles + localPlayer->m_aimPunchAngle()) };
 	const bool firstSwing = (cheat.globals.weapon->m_flNextPrimaryAttack() + 0.4) < TICKS_TO_TIME(cheat.globals.fixed_tickbase);
 
 	bool backStab = false;
@@ -79,7 +79,7 @@ void knifebot::fire(CUserCmd* cmd)
 	math::angle_vectors(final_target.record->player->GetAbsAngles(), targetForward);
 	targetForward.z = 0;
 
-	Vector vecLOS = (vecOrigin - cheat.local()->m_vecOrigin());
+	Vector vecLOS = (vecOrigin - localPlayer->m_vecOrigin());
 	vecLOS.z = 0;
 	vecLOS.Normalize();
 
@@ -127,7 +127,7 @@ int knifebot::determinate_hit_type(bool stab_type, const Vector& delta)
 	auto end = cheat.globals.eye_pos + delta * minimum_distance;
 
 	CTraceFilter filter;
-	filter.pSkip = cheat.local();
+	filter.pSkip = localPlayer.get();
 
 	CGameTrace trace;
 	Ray_t ray;

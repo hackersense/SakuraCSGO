@@ -91,7 +91,7 @@ void bullettracers::events(IGameEvent* event)
 
 		if (e->valid(false))
 		{
-			if (e == cheat.local())
+			if (e == localPlayer.get())
 			{
 				auto new_record = true;
 				Vector position(event->GetFloat(crypt_str("x")), event->GetFloat(crypt_str("y")), event->GetFloat(crypt_str("z")));
@@ -116,7 +116,7 @@ void bullettracers::events(IGameEvent* event)
 							m_globals()->m_curtime
 						});
 			}
-			else if (e->m_iTeamNum() != cheat.local()->m_iTeamNum())
+			else if (e->m_iTeamNum() != localPlayer->m_iTeamNum())
 			{
 				auto new_record = true;
 				Vector position(event->GetFloat(crypt_str("x")), event->GetFloat(crypt_str("y")), event->GetFloat(crypt_str("z")));
@@ -174,7 +174,7 @@ void bullettracers::draw_beams()
 		{
 			auto color = configs.visuals.enemy_bullet_tracer_color;
 
-			if (impacts.begin()->e == cheat.local())
+			if (impacts.begin()->e == localPlayer.get())
 			{
 				if (!configs.visuals.bullet_tracer)
 				{
@@ -190,7 +190,7 @@ void bullettracers::draw_beams()
 				continue;
 			}
 
-			draw_beam(impacts.begin()->e == cheat.local(), impacts.begin()->e == cheat.local() ? ragebot::get().last_shoot_position : impacts.begin()->e->get_eye_position(), impacts.begin()->impact_position, color);
+			draw_beam(impacts.begin()->e == localPlayer.get(), impacts.begin()->e == localPlayer.get() ? ragebot::get().last_shoot_position : impacts.begin()->e->get_eye_position(), impacts.begin()->impact_position, color);
 			impacts.erase(impacts.begin());
 			continue;
 		}

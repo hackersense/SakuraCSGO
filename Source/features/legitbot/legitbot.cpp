@@ -14,20 +14,20 @@ void legitbot::run(CUserCmd* cmd)
 
     auto server_time = util::server_time();
 
-    if (cheat.local()->m_flNextAttack() > server_time || cheat.local()->m_bIsDefusing() || cheat.local()->m_bWaitForNoAttack())
+    if (localPlayer->m_flNextAttack() > server_time || localPlayer->m_bIsDefusing() || localPlayer->m_bWaitForNoAttack())
         return;
 
     const auto& activeWeapon = cheat.globals.weapon;
     if (!activeWeapon || !activeWeapon->m_iClip() || activeWeapon->is_non_aim())
         return;
 
-    if (!(cheat.local()->m_fFlags() & FL_ONGROUND) && configs.legitbot.jump_check)
+    if (!(localPlayer->m_fFlags() & FL_ONGROUND) && configs.legitbot.jump_check)
         return;
 
     if (!configs.legitbot.weapon[cheat.globals.current_weapon].between_shots && activeWeapon->m_flNextPrimaryAttack() > server_time)
         return;
 
-    if (!configs.legitbot.ignore_flash && cheat.local()->m_flFlashDuration() > 0)
+    if (!configs.legitbot.ignore_flash && localPlayer->m_flFlashDuration() > 0)
         return;
 
     if (cmd->m_buttons & IN_ATTACK || configs.legitbot.weapon[cheat.globals.current_weapon].aimlock)
@@ -35,22 +35,22 @@ void legitbot::run(CUserCmd* cmd)
         if ((int)(activeWeapon->get_inaccuracy() + activeWeapon->get_spread()) > configs.legitbot.weapon[cheat.globals.current_weapon].maxAimInaccuracy)
             return;
 
-        if (configs.legitbot.sniper_scope_only && activeWeapon->is_sniper() && !cheat.local()->m_bIsScoped())
+        if (configs.legitbot.sniper_scope_only && activeWeapon->is_sniper() && !localPlayer->m_bIsScoped())
             return;
 
         auto bestFov = configs.legitbot.weapon[cheat.globals.current_weapon].fov;
         Vector bestTarget{ };
         player_t* bestEntity{ };
-        const auto localPlayerEyePosition = cheat.local()->get_eye_position();
+        const auto localPlayerEyePosition = localPlayer->get_eye_position();
 
         static auto weapon_recoil_scale = m_cvar()->FindVar(crypt_str("weapon_recoil_scale"));
 
-        const auto aimPunch = activeWeapon->requires_recoil_control() ? cheat.local()->m_aimPunchAngle() * weapon_recoil_scale->GetFloat() : ZERO;
+        const auto aimPunch = activeWeapon->requires_recoil_control() ? localPlayer->m_aimPunchAngle() * weapon_recoil_scale->GetFloat() : ZERO;
 
         if (configs.legitbot.weapon[cheat.globals.current_weapon].standaloneRCS && (configs.legitbot.weapon[cheat.globals.current_weapon].recoilControlHorizontal > 0.f || configs.legitbot.weapon[cheat.globals.current_weapon].recoilControlVertical > 0.f) && activeWeapon->requires_recoil_control())
         {
             static Vector lastAimPunch{ };
-            if (cheat.local()->m_iShotsFired() > configs.legitbot.weapon[cheat.globals.current_weapon].shotsFired)
+            if (localPlayer->m_iShotsFired() > configs.legitbot.weapon[cheat.globals.current_weapon].shotsFired)
             {
                 if (configs.legitbot.weapon[cheat.globals.current_weapon].randomRCS)
                     math::random_seed(*memory->predictionRandomSeed);
@@ -150,7 +150,7 @@ void legitbot::run(CUserCmd* cmd)
             if (configs.legitbot.weapon[cheat.globals.current_weapon].autostop)
                 cmd->m_forwardmove = cmd->m_sidemove = 0;
 
-            if (configs.legitbot.autoscope && activeWeapon->m_flNextPrimaryAttack() <= server_time && activeWeapon->is_sniper() && !cheat.local()->m_bIsScoped())
+            if (configs.legitbot.autoscope && activeWeapon->m_flNextPrimaryAttack() <= server_time && activeWeapon->is_sniper() && !localPlayer->m_bIsScoped())
                 cmd->m_buttons |= IN_ZOOM;
 
             if (clamped)

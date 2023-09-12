@@ -141,7 +141,7 @@ public:
 		flags = player->m_fFlags();
 		bone_count = player->m_CachedBoneData().Count();
 
-		last_shot_time = player->m_hActiveWeapon() ? player->m_hActiveWeapon()->m_fLastShotTime() : 0.f;
+		last_shot_time = player->getActiveWeapon() ? player->getActiveWeapon()->m_fLastShotTime() : 0.f;
 		simulation_time = player->m_flSimulationTime();
 		duck_amount = player->m_flDuckAmount();
 		lby = player->m_flLowerBodyYawTarget();
@@ -218,7 +218,7 @@ public:
 
 		auto correct = math::clamp(outgoing + incoming + util::get_interpolation(), 0.0f, sv_maxunlag->GetFloat());
 
-		auto curtime = cheat.local()->is_alive() ? TICKS_TO_TIME(cheat.globals.fixed_tickbase) : m_globals()->m_curtime;
+		auto curtime = localPlayer->is_alive() ? TICKS_TO_TIME(cheat.globals.fixed_tickbase) : m_globals()->m_curtime;
 		auto delta_time = correct - (curtime - simulation_time);
 
 		if (fabs(delta_time) > 0.2f)

@@ -2,7 +2,7 @@
 
 void slowwalk::create_move(CUserCmd* m_pcmd, float custom_speed)
 {
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		return;
 
 	auto weapon_info = cheat.globals.weapon->get_weapon_info();
@@ -25,7 +25,7 @@ void slowwalk::create_move(CUserCmd* m_pcmd, float custom_speed)
 
 		if (move_length > max_speed)
 		{
-			if (max_speed + 1.0f < cheat.local()->m_vecVelocity().Length2D())
+			if (max_speed + 1.0f < localPlayer->m_vecVelocity().Length2D())
 			{
 				m_pcmd->m_forwardmove = 0.0f;
 				m_pcmd->m_sidemove = 0.0f;

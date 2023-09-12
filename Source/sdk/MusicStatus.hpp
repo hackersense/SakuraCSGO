@@ -12,6 +12,7 @@ enum class MusicPlayerType
 	YesPlayMusic,
 	HyPlayer
 };
+
 static const char* MusicPlayerTypeStr[] =
 {
 	"None",

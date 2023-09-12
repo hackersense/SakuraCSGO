@@ -23,7 +23,7 @@ void walkbot::move(CUserCmd* cmd) {
 	if (dots.size() < 2)
 		return;
 
-	if (!cheat.local() || !cheat.local()->is_alive())
+	if (!localPlayer || !localPlayer->is_alive())
 		return;
 
 	if (marker > dots.size() - 1) {
@@ -43,10 +43,10 @@ void walkbot::move(CUserCmd* cmd) {
 	cmd->m_viewangles = lookat;
 	cmd->m_forwardmove = 450;
 
-	if (cheat.local()->m_vecVelocity().Length2D() < 25 && !(marker == 0 || marker == dots.size() - 1))
+	if (localPlayer->m_vecVelocity().Length2D() < 25 && !(marker == 0 || marker == dots.size() - 1))
 		cmd->m_buttons |= IN_JUMP;
 
-	float dist3D = distancemeters(cheat.local()->m_vecOrigin(), target);
+	float dist3D = distancemeters(localPlayer->m_vecOrigin(), target);
 	if (dist3D <= 0.5f) {
 		if (configs.misc.walkbot[WALKBOT_SOUND]) m_engine()->ExecuteClientCmd(crypt_str("play buttons\\light_power_on_switch_01"));
 		if (configs.misc.walkbot[WALKBOT_CYCLE])
@@ -84,7 +84,7 @@ void walkbot::update(bool showdebug) {
 	}
 
 	int oldteamnum = teamnum;
-	teamnum = cheat.local()->m_iTeamNum();
+	teamnum = localPlayer->m_iTeamNum();
 	if (oldteamnum != teamnum) {
 		//refresh(mapname, dots, configs.visuals.walksave);
 		marker = 0;
@@ -92,7 +92,7 @@ void walkbot::update(bool showdebug) {
 		return;
 	}
 
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
 	int w, h, cX, cY;
@@ -106,7 +106,7 @@ void walkbot::update(bool showdebug) {
 		Vector spot = dots.at(i);
 		Color c = colorDefault;
 
-		float dist3D = distancemeters(cheat.local()->GetAbsOrigin(), spot);
+		float dist3D = distancemeters(localPlayer->GetAbsOrigin(), spot);
 		if (dist3D <= 1) c = colorclose;
 
 		Vector pos2d;
@@ -132,7 +132,7 @@ void walkbot::update(bool showdebug) {
 
 		Ray_t ray; CGameTrace tr; CTraceFilter filter;
 		ray.Init(cheat.globals.eye_pos, spot);
-		filter.pSkip = cheat.local();
+		filter.pSkip = localPlayer.get();
 		m_trace()->TraceRay(ray, 0x46004003, &filter, &tr);
 
 		bool isvisible = tr.IsVisible();
@@ -166,7 +166,7 @@ void walkbot::update(bool showdebug) {
 			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 10, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("x = ") + std::to_string(spot.x)).c_str());
 			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 25, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("y = ") + std::to_string(spot.y)).c_str());
 			render::get().text(fonts[NAME], pos2d.x, pos2d.y + 40, Color(255, 255, 255, 220), HFONT_CENTERED_Y, (crypt_str("z = ") + std::to_string(spot.z)).c_str());
-			render::get().text(fonts[NAME], 100, 100, Color(255, 255, 0, 220), HFONT_CENTERED_Y, (crypt_str("velocity: ") + std::to_string(cheat.local()->m_vecVelocity().Length2D())).c_str());
+			render::get().text(fonts[NAME], 100, 100, Color(255, 255, 0, 220), HFONT_CENTERED_Y, (crypt_str("velocity: ") + std::to_string(localPlayer->m_vecVelocity().Length2D())).c_str());
 		}
 	}
 
@@ -183,7 +183,7 @@ void walkbot::update(bool showdebug) {
 
 		Ray_t ray; CGameTrace tr; CTraceFilter filter;
 		ray.Init(tracestart, traceend);
-		filter.pSkip = cheat.local();
+		filter.pSkip = localPlayer.get();
 
 		m_trace()->TraceRay(ray, 0x46004003, &filter, &tr);
 
@@ -201,8 +201,8 @@ void walkbot::file(std::string addictive_name, int todo)
 	for (size_t i = 0; i < mapname.size(); ++i)
 		if (mapname[i] != '\\') levelNameFixed += mapname[i];
 
-	if (cheat.local()->m_iTeamNum() != TeamID::None)
-		levelNameFixed += std::to_string(static_cast<int>(cheat.local()->m_iTeamNum()));
+	if (localPlayer->m_iTeamNum() != TeamID::None)
+		levelNameFixed += std::to_string(static_cast<int>(localPlayer->m_iTeamNum()));
 
 	levelNameFixed += addictive_name;
 
@@ -257,8 +257,8 @@ void walkbot::refresh(std::string levelName, std::vector<Vector> spots, bool sav
 	for (size_t i = 0; i < mapname.size(); ++i)
 		if (levelName[i] != '\\') levelNameFixed += levelName[i];
 
-	if (cheat.local()->m_iTeamNum() != TeamID::None)
-		levelNameFixed += std::to_string(static_cast<int>(cheat.local()->m_iTeamNum()));
+	if (localPlayer->m_iTeamNum() != TeamID::None)
+		levelNameFixed += std::to_string(static_cast<int>(localPlayer->m_iTeamNum()));
 
 	std::string file = cfg_manager->get_folder_path(PathType::Walkbot) + levelNameFixed + ".ini";
 

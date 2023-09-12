@@ -569,7 +569,7 @@
 //-----------------------------------------------------------------------------
 
 // need macro for constant expression
-#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) )  //-V1003
+#define ALIGN_VALUE( val, alignment ) ( ( val + alignment - 1 ) & ~( alignment - 1 ) )
 
 // Force a function call site -not- to inlined. (useful for profiling)
 #define DONT_INLINE(a) (((int)(a)+1)?(a):(a))
@@ -878,7 +878,7 @@ inline void SwapFloat(float *pOut, const float *pIn) { SafeSwapFloat(pOut, pIn);
 
 #endif
 
-inline uint32_t LoadLittleDWord(uint32_t *base, unsigned int dwordIndex) //-V2009
+inline uint32_t LoadLittleDWord(uint32_t *base, unsigned int dwordIndex)
 {
     return LittleDWord(base[dwordIndex]);
 }

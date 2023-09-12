@@ -288,7 +288,7 @@ bool CanBeAnimated(player_t* player)
 	if (!*(bool*)((uintptr_t)player + custom_player) || !player->get_animation_state())
 		return false;
 
-	auto weapon = player->m_hActiveWeapon().Get();
+	auto weapon = player->getActiveWeapon();
 
 	if (!weapon)
 		return false;
@@ -296,7 +296,7 @@ bool CanBeAnimated(player_t* player)
 	auto world_model = (player_t*)weapon->m_hWeaponWorldModel().Get();
 
 	if (!world_model || *(short*)(std::uintptr_t(world_model) + 0x26E) == -1)
-		return player == cheat.local();
+		return player == localPlayer.get();
 
 	return true;
 }
@@ -345,7 +345,7 @@ void CSetupBones::get_skeleton()
 	char tmp_buffer[4208];
 	auto world_ik = (CIKContext*)tmp_buffer;
 
-	auto weapon = m_animating->m_hActiveWeapon().Get();
+	auto weapon = m_animating->getActiveWeapon();
 
 	if (CanBeAnimated(m_animating) && weapon)
 	{
@@ -379,7 +379,7 @@ void CSetupBones::get_skeleton()
 
 					if (layer && layer->m_iSequence > 1 && layer->m_flWeight > 0.0f)
 					{
-						if (m_bShouldDispatch && m_animating == cheat.local())
+						if (m_bShouldDispatch && m_animating == localPlayer.get())
 						{
 							VirtualMethod::call<void, 247>(m_animating, layer, world_hdr, layer->m_iSequence);
 						}

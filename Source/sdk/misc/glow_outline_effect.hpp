@@ -40,7 +40,7 @@ public:
 		m_nFirstFreeSlot = nGlowObjectHandle;
 	}
 
-	int HasGlowEffect(entity_t *pEntity) const { //-V2009
+	int HasGlowEffect(entity_t *pEntity) const {
 		for (int i = 0; i < m_GlowObjectDefinitions.Count(); ++i) {
 			if (!m_GlowObjectDefinitions[i].IsUnused() && m_GlowObjectDefinitions[i].m_hEntity == pEntity) {
 				return i;

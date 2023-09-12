@@ -5,7 +5,7 @@ std::string HTTPUtils::get(std::string url)
 {
 	HINTERNET hINet, hHttpFile;
 
-	char szSizeBuffer[32];
+	char szSizeBuffer[32] = { 0 };
 
 	DWORD dwLengthSizeBuffer = sizeof(szSizeBuffer);
 

@@ -1,6 +1,6 @@
 #include "..\hooks.hpp"
 
-bool __stdcall Hooks::hooked_isconnected()
+bool __stdcall Hooks::hooked_isconnected() noexcept
 {
 	if (configs.misc.inventory_access && m_engine()->IsInGame() && std::uintptr_t(_ReturnAddress()) == memory->inventoryAccess)
 		return false;
@@ -8,7 +8,7 @@ bool __stdcall Hooks::hooked_isconnected()
 	return engine_hook.callOriginal<bool, 27>();
 }
 
-float __stdcall Hooks::hooked_getscreenaspectratio(int width, int height)
+float __stdcall Hooks::hooked_getscreenaspectratio(int width, int height) noexcept
 {
 	if (configs.misc.aspect_ratio)
 		return configs.misc.aspect_ratio;

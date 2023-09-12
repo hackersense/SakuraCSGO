@@ -49,13 +49,13 @@ bool calculation_skeleton(BoxInfo& info, player_t* e, matrix3x4_t matrix[MAXSTUD
 	if (!studio_model)
 		return false;
 
-	auto get_bone_position = [&](int bone) -> Vector
+	auto getBonePosition = [&](int bone) -> Vector
 	{
 		return Vector(matrix[bone][0][3], matrix[bone][1][3], matrix[bone][2][3]);
 	};
 
-	//auto upper_direction = get_bone_position(7) - get_bone_position(6);
-	//auto breast_bone = get_bone_position(6) + upper_direction * 0.5f;
+	auto upper_direction = getBonePosition(7) - getBonePosition(6);
+	auto breast_bone = getBonePosition(6) + upper_direction * 0.5f;
 
 	for (int i = 0; i < studio_model->numBones; i++)
 	{
@@ -63,20 +63,20 @@ bool calculation_skeleton(BoxInfo& info, player_t* e, matrix3x4_t matrix[MAXSTUD
 
 		if (bone && (bone->flags & BONE_USED_BY_HITBOX) && (bone->parent != -1))
 		{
-			auto child = get_bone_position(i);
-			auto parent = get_bone_position(bone->parent);
+			auto child = getBonePosition(i);
+			auto parent = getBonePosition(bone->parent);
 
-			//auto delta_child = child - breast_bone;
-			//auto delta_parent = parent - breast_bone;
+			auto delta_child = child - breast_bone;
+			auto delta_parent = parent - breast_bone;
 
-			//if (delta_parent.Length() < 9.0f && delta_child.Length() < 9.0f)
-			//	parent = breast_bone;
+			if (delta_parent.Length() < 9.0f && delta_child.Length() < 9.0f)
+				parent = breast_bone;
 
-			//if (i == 5)
-			//	child = breast_bone;
+			if (i == 5)
+				child = breast_bone;
 
-			//if ((fabs(delta_child.z) < 5.0f && delta_parent.Length() < 5.0f && delta_child.Length() < 5.0f) || i == 6)
-			//	continue;
+			if ((fabs(delta_child.z) < 5.0f && delta_parent.Length() < 5.0f && delta_child.Length() < 5.0f) || i == 6)
+				continue;
 
 			info.child[i] = child;
 			info.parent[i] = parent;
@@ -88,13 +88,19 @@ bool calculation_skeleton(BoxInfo& info, player_t* e, matrix3x4_t matrix[MAXSTUD
 
 void BBData::update()
 {
-	if (!cheat.available())
-		return;
-
 	static int lastFrame;
 	if (lastFrame == m_globals()->m_framecount)
 		return;
+
 	lastFrame = m_globals()->m_framecount;
+
+	if (!m_engine()->IsInGame() || !m_engine()->IsConnected() || !localPlayer)
+	{
+		for (int i = 1; i < 65; i++)
+			player_info[i] = BoxInfo{};
+		//*player_info = {};
+		return;
+	}
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
@@ -105,23 +111,21 @@ void BBData::update()
 	const auto radar_base = std::uintptr_t(memory->findHudElement(memory->hud, "CCSGO_HudRadar"));
 	const auto hud_radar = reinterpret_cast<CCSGO_HudRadar*>(radar_base - 0x14);
 
-	for (int i = 1; i < m_globals()->m_maxclients; i++)
+	for (int i = 1; i < 65; i++)
 	{
 		auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
 
-		BoxInfo& info = player_info[i];
-
 		if (!entity->valid(false, false))
 		{
-			info.NoValid();
+			player_info[i] = BoxInfo{};
 			continue;
 		}
 
 		auto valid_dormant = false;
 		auto backup_flags = entity->m_fFlags();
-		auto& backup_origin = entity->GetAbsOrigin();
+		Vector backup_origin = entity->GetAbsOrigin();
 
-		if (entity->IsDormant() && cheat.local()->is_alive())
+		if (entity->IsDormant() && localPlayer->is_alive())
 			valid_dormant = c_dormant_esp::get().adjust_sound(entity);
 		else
 		{
@@ -129,7 +133,7 @@ void BBData::update()
 			c_dormant_esp::get().m_cSoundPlayers[i].reset(true, entity->GetAbsOrigin(), entity->m_fFlags());
 		}
 
-		if (radar_base && hud_radar && entity->IsDormant() && entity->m_iTeamNum() != cheat.local()->m_iTeamNum() && entity->m_bSpotted())
+		if (radar_base && hud_radar && entity->IsDormant() && entity->m_iTeamNum() != localPlayer->m_iTeamNum() && entity->m_bSpotted())
 			playeresp::get().health[i] = hud_radar->radar_info[i].health;
 
 		if (!playeresp::get().health[i])
@@ -140,7 +144,7 @@ void BBData::update()
 				entity->set_abs_origin(backup_origin);
 			}
 
-			info.NoValid();
+			player_info[i] = BoxInfo{};
 
 			continue;
 		}
@@ -150,7 +154,7 @@ void BBData::update()
 
 		if (entity->IsDormant())
 		{
-			auto& origin = entity->GetAbsOrigin();
+			Vector origin = entity->GetAbsOrigin();
 
 			if (origin == ZERO)
 				playeresp::get().esp_alpha_fade[i] = 0.0f;
@@ -164,36 +168,34 @@ void BBData::update()
 
 		playeresp::get().esp_alpha_fade[i] = math::clamp(playeresp::get().esp_alpha_fade[i], 0.0f, 1.0f);
 
-		if (entity == cheat.local() && !cheat.local()->is_alive())
-			info.NoValid();
+		if (entity == localPlayer.get() && !localPlayer->is_alive())
+			player_info[i] = BoxInfo{};
 		else
 		{
-			info.player = entity;
+			player_info[i].player = entity;
 
 			if (!entity->IsDormant())
 			{
-				/*
 				auto records = &player_records[i];
-				if (!records->empty() && cheat.local()->is_alive())
+				if (!records->empty() && localPlayer->is_alive())
 				{
 					auto record = &records->front();
 					if (record->valid() && (configs.ragebot.enabled || configs.legitbot.enabled))
-						info.skeletonValid = calculation_skeleton(info, entity, record->matrixes_data.main);
+						player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, record->matrixes_data.main);
 					else
-						info.skeletonValid = calculation_skeleton(info, entity, entity->m_CachedBoneData().Base());
+						player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().Base());
 				}
 				else
-				*/
-					info.skeletonValid = calculation_skeleton(info, entity, entity->m_CachedBoneData().Base());
+					player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().Base());
 			}
 			else
 			{
-				info.ResetSkeleton();
+				player_info[i].ResetSkeleton();
 			}
 
-			info.absOrigin = entity->GetAbsOrigin();
-			info.renderOrigin = entity->GetRenderOrigin();
-			info.valid = util::get_bbox(entity, info.box);
+			player_info[i].absOrigin = entity->GetAbsOrigin();
+			player_info[i].renderOrigin = entity->GetRenderOrigin();
+			player_info[i].valid = util::get_bbox(entity, player_info[i].box);
 		}
 
 		if (entity->IsDormant())
@@ -204,12 +206,18 @@ void BBData::update()
 	}
 }
 
-BoxInfo& BBData::getBox(int index)
+BoxInfo BBData::getBox(int index)
 {
 	if (index < 65 && index > 0)
 		return player_info[index];
 	else
 		return BoxInfo{};
+}
+
+void BBData::setBox(int index, BoxInfo box)
+{
+	if (index < 65 && index > 0)
+		player_info[index] = box;
 }
 
 void BBData::reset(int index)

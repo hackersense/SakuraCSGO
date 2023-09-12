@@ -84,7 +84,6 @@
 #define m_panel g_csgo.m_panel
 #define m_physsurface g_csgo.m_physsurface
 #define m_playerresource g_csgo.m_playerresource
-#define m_postprocessing g_csgo.m_postprocessing
 #define m_prediction g_csgo.m_prediction
 #define m_renderview g_csgo.m_renderview
 #define m_surface g_csgo.m_surface

@@ -869,7 +869,7 @@ namespace ns_indicator
 {
 	void add_indicator(std::string& text, Color color)
 	{
-		if (!cheat.available() || !cheat.local()->is_alive())
+		if (!cheat.available() || !localPlayer->is_alive())
 			return;
 
 		otheresp::get().m_indicators.insert(otheresp::get().m_indicators.begin(), m_indicator(text, color));
@@ -877,7 +877,7 @@ namespace ns_indicator
 
 	void add_indicator_with_pos(std::string& text, Color color, int pos)
 	{
-		if (!cheat.available() || !cheat.local()->is_alive())
+		if (!cheat.available() || !localPlayer->is_alive())
 			return;
 
 		if (otheresp::get().m_indicators.empty())
@@ -1128,7 +1128,7 @@ namespace ns_entitylist
 		if (!player.value())
 			return sol::optional<weapon_t*>(sol::nullopt);
 
-		return player.value()->m_hActiveWeapon().Get();
+		return player.value()->getActiveWeapon();
 	}
 
 }

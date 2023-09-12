@@ -1,7 +1,8 @@
 #include "..\hooks.hpp"
 #include "..\..\features\serverside\engine_prediction.h"
 
-void __fastcall Hooks::hooked_emitsound(SoundParams_t params) {
+void __stdcall Hooks::hooked_emitsound(SoundParams_t params) noexcept
+{
 	//if (engineprediction::get().isInPrediction())
 	//	return;
 

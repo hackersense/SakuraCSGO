@@ -1,6 +1,5 @@
 #pragma once
 
-#include "../math/QAngle.hpp"
 #include "../misc/CUserCmd.hpp"
 #include "IMoveHelper.hpp"
 

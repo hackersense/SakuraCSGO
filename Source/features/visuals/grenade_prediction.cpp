@@ -73,7 +73,7 @@ void setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	Vector vForward, vRight, vUp;
 	AngleVectors(angThrow, &vForward, &vRight, &vUp);
 
-	vecSrc = cheat.local()->get_eye_position();
+	vecSrc = localPlayer->get_eye_position();
 	float off = (power[grenade_act] * 12.0f) - 12.0f;
 	vecSrc.z += off;
 
@@ -87,7 +87,7 @@ void setup(Vector& vecSrc, Vector& vecThrow, Vector viewangles)
 	vecSrc = tr.endpos;
 	vecSrc -= vecBack;
 
-	vecThrow = cheat.local()->m_vecVelocity(); vecThrow *= 1.25f;
+	vecThrow = localPlayer->m_vecVelocity(); vecThrow *= 1.25f;
 	vecThrow += vForward * flVel;
 }
 
@@ -284,7 +284,7 @@ void grenade_prediction::run(CUserCmd* cmd)
 	screenPoints.clear();
 	endPoints.clear();
 
-	if (!configs.visuals.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
+	if (!configs.visuals.grenade_prediction || !localPlayer || !localPlayer->is_alive() || !m_engine()->IsInGame())
 	{
 		renderMutex.unlock();
 		return;
@@ -364,7 +364,7 @@ void grenade_prediction::run(CUserCmd* cmd)
 
 void grenade_prediction::draw()
 {
-	if (!configs.visuals.grenade_prediction || !cheat.local() || !cheat.local()->is_alive() || !m_engine()->IsInGame())
+	if (!configs.visuals.grenade_prediction || !localPlayer || !localPlayer->is_alive() || !m_engine()->IsInGame())
 		return;
 
 	if (renderMutex.try_lock())

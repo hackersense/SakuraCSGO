@@ -27,7 +27,7 @@ public:
 class Vector
 {
 public:
-    __inline Vector(void)
+    __inline Vector()
     {
         Invalidate();
     }

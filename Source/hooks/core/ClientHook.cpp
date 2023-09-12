@@ -72,6 +72,12 @@ void ClientHook::restore()
 
 DWORD ClientHook::calculateVmtLength(PDWORD pdwVMT)
 {
+	std::size_t length = 0;
+	MEMORY_BASIC_INFORMATION memoryInfo;
+	while (VirtualQuery(LPCVOID(pdwVMT[length]), &memoryInfo, sizeof(memoryInfo)) && memoryInfo.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY))
+		++length;
+	return length;
+	/*
 	DWORD dwIndex = NULL;
 
 	for (dwIndex = NULL; pdwVMT[dwIndex]; dwIndex++)
@@ -79,4 +85,5 @@ DWORD ClientHook::calculateVmtLength(PDWORD pdwVMT)
 			break;
 
 	return dwIndex;
+	*/
 }

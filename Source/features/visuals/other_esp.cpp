@@ -19,7 +19,7 @@ bool can_penetrate(weapon_t* weapon)
 	math::angle_vectors(view_angles, direction);
 
 	CGameTrace trace;
-	m_trace()->trace_entity(cheat.globals.eye_pos, (cheat.globals.eye_pos + direction * weapon_info->flRange), MASK_SHOT_HULL | CONTENTS_HITBOX, cheat.local(), &trace);
+	m_trace()->trace_entity(cheat.globals.eye_pos, (cheat.globals.eye_pos + direction * weapon_info->flRange), MASK_SHOT_HULL | CONTENTS_HITBOX, localPlayer.get(), &trace);
 
 	if (trace.fraction == 1.0f)
 		return false;
@@ -43,7 +43,7 @@ void otheresp::penetration_reticle()
 	if (!configs.visuals.penetration_reticle)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	auto weapon = cheat.globals.weapon;
@@ -65,7 +65,7 @@ void otheresp::penetration_reticle()
 
 void otheresp::indicators()
 {
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	auto weapon = cheat.globals.weapon;
@@ -76,12 +76,12 @@ void otheresp::indicators()
 	if (configs.visuals.indicators[INDICATOR_FAKE] && (antiaim::get().type == ANTIAIM_LEGIT || configs.antiaim.type[antiaim::get().type].desync))
 	{
 		auto color = Color(130, 20, 20);
-		auto animstate = cheat.local()->get_animation_state();
+		auto animstate = localPlayer->get_animation_state();
 
 		if (animstate && local_animations::get().local_data.animstate)
 		{
 			auto delta = fabs(math::normalize_yaw(animstate->m_flGoalFeetYaw - local_animations::get().local_data.animstate->m_flGoalFeetYaw));
-			auto desync_delta = max(cheat.local()->get_max_desync_delta(), 58.0f);
+			auto desync_delta = max(localPlayer->get_max_desync_delta(), 58.0f);
 
 			color = Color(130, 20 + (int)(min(delta / desync_delta, 1.0f) * 150.0f), 20);
 		}
@@ -107,15 +107,15 @@ void otheresp::indicators()
 		choke_indicator = true;
 	}
 
-	if (configs.visuals.indicators[INDICATOR_LC] && cheat.local() && cheat.local()->is_alive() && cheat.local()->m_vecVelocity().Length2D() > 251) {
+	if (configs.visuals.indicators[INDICATOR_LC] && localPlayer && localPlayer->is_alive() && localPlayer->m_vecVelocity().Length2D() > 251) {
 		static auto is_breaking_lagcomp = false;
 		if (!m_clientstate()->m_iChokedCommands)
 		{
-			static auto& last_origin = cheat.local()->m_vecOrigin();
-			if (cheat.local()->m_vecOrigin() != last_origin)
+			static auto& last_origin = localPlayer->m_vecOrigin();
+			if (localPlayer->m_vecOrigin() != last_origin)
 			{
-				is_breaking_lagcomp = (last_origin.Length2DSqr() - cheat.local()->m_vecOrigin().Length2DSqr()) > 4096.f;
-				last_origin = cheat.local()->m_vecOrigin();
+				is_breaking_lagcomp = (last_origin.Length2DSqr() - localPlayer->m_vecOrigin().Length2DSqr()) > 4096.f;
+				last_origin = localPlayer->m_vecOrigin();
 			}
 		}
 
@@ -149,15 +149,15 @@ void otheresp::indicators()
 		return;
 
 	if (configs.visuals.indicators[INDICATOR_DT] && configs.ragebot.double_tap && configs.ragebot.double_tap_key.key > KEY_NONE && configs.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key)
-		m_indicators.push_back(m_indicator("DT", !cheat.local()->m_bGunGameImmunity() && !(cheat.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !weapon->is_grenade() && weapon->m_iItemDefinitionIndex() != WEAPON_TASER && weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && weapon->can_fire(false) ? Color::White : Color(130, 20, 20)));
+		m_indicators.push_back(m_indicator("DT", !localPlayer->m_bGunGameImmunity() && !(localPlayer->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().double_tap_enabled && !weapon->is_grenade() && weapon->m_iItemDefinitionIndex() != WEAPON_TASER && weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER && weapon->can_fire(false) ? Color::White : Color(130, 20, 20)));
 
 	if (configs.visuals.indicators[INDICATOR_HS] && configs.ragebot.hide_shots && configs.ragebot.hide_shots_key.key > KEY_NONE && configs.ragebot.hide_shots_key.key < KEY_MAX && misc::get().hide_shots_key)
-		m_indicators.push_back(m_indicator("HS", !cheat.local()->m_bGunGameImmunity() && !(cheat.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled ? Color(130, 170, 20) : Color(130, 20, 20)));
+		m_indicators.push_back(m_indicator("HS", !localPlayer->m_bGunGameImmunity() && !(localPlayer->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && misc::get().hide_shots_enabled ? Color(130, 170, 20) : Color(130, 20, 20)));
 	}
 
 void otheresp::draw_indicators()
 {
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	static int width, height;
@@ -183,7 +183,7 @@ void otheresp::hitmarker_paint()
 		return;
 	}
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 	{
 		hitmarker.hurt_time = FLT_MIN;
 		hitmarker.point = ZERO;
@@ -255,7 +255,7 @@ void otheresp::spread_crosshair()
 	if (!configs.visuals.show_spread)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	auto weapon = cheat.globals.weapon;

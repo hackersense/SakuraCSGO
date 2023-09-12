@@ -30,11 +30,11 @@ void autowall::scale_damage(player_t* e, CGameTrace& enterTrace, weapon_info_t* 
 		return false;
 	};
 
-	static auto mp_damage_scale_ct_head = m_cvar()->FindVar(crypt_str("mp_damage_scale_ct_head"));
-	static auto mp_damage_scale_t_head = m_cvar()->FindVar(crypt_str("mp_damage_scale_t_head"));
+	static auto mp_damage_scale_ct_head = m_cvar2()->FindVar(crypt_str("mp_damage_scale_ct_head"));
+	static auto mp_damage_scale_t_head = m_cvar2()->FindVar(crypt_str("mp_damage_scale_t_head"));
 
-	static auto mp_damage_scale_ct_body = m_cvar()->FindVar(crypt_str("mp_damage_scale_ct_body"));
-	static auto mp_damage_scale_t_body = m_cvar()->FindVar(crypt_str("mp_damage_scale_t_body"));
+	static auto mp_damage_scale_ct_body = m_cvar2()->FindVar(crypt_str("mp_damage_scale_ct_body"));
+	static auto mp_damage_scale_t_body = m_cvar2()->FindVar(crypt_str("mp_damage_scale_t_body"));
 
 	auto head_scale = e->m_iTeamNum() == TeamID::CT ? mp_damage_scale_ct_head->GetFloat() : mp_damage_scale_t_head->GetFloat();
 	auto body_scale = e->m_iTeamNum() == TeamID::CT ? mp_damage_scale_ct_body->GetFloat() : mp_damage_scale_t_body->GetFloat();
@@ -286,7 +286,7 @@ bool autowall::handle_bullet_penetration(weapon_info_t* weaponData, CGameTrace& 
 	}
 	else if (contents_grate || surf_nodraw)
 		combined_penetration_modifier = 1.0f;
-	else if (enter_material == CHAR_TEX_FLESH && reinterpret_cast<player_t*>(enterTrace.entity)->m_iTeamNum() == cheat.local()->m_iTeamNum() && !ff_damage_reduction_bullets)
+	else if (enter_material == CHAR_TEX_FLESH && reinterpret_cast<player_t*>(enterTrace.entity)->m_iTeamNum() == localPlayer->m_iTeamNum() && !ff_damage_reduction_bullets)
 	{
 		if (!ff_damage_bullet_penetration)
 			return false;
@@ -351,7 +351,7 @@ bool autowall::fire_bullet(weapon_t* weapon, Vector& direction, bool& visible, f
 		maxRange -= currentDistance;
 		auto end = eyePosition + direction * maxRange;
 
-		m_trace()->trace_entity(eyePosition, end, MASK_SHOT_HULL | CONTENTS_HITBOX, cheat.local(), &enterTrace);
+		m_trace()->trace_entity(eyePosition, end, MASK_SHOT_HULL | CONTENTS_HITBOX, localPlayer.get(), &enterTrace);
 		util::clip_trace_to_players(e, eyePosition, end + direction * 40.0f, MASK_SHOT_HULL | CONTENTS_HITBOX, &enterTrace);
 
 		auto enterSurfaceData = m_physsurface()->GetSurfaceData(enterTrace.surface.surfaceProps);
@@ -369,7 +369,7 @@ bool autowall::fire_bullet(weapon_t* weapon, Vector& direction, bool& visible, f
 
 		auto canDoDamage = enterTrace.hitgroup != HITGROUP_GEAR && enterTrace.hitgroup != HITGROUP_GENERIC;
 		auto isPlayer = reinterpret_cast<player_t*>(enterTrace.entity)->is_player();
-		auto isEnemy = reinterpret_cast<player_t*>(enterTrace.entity)->m_iTeamNum() != cheat.local()->m_iTeamNum();
+		auto isEnemy = reinterpret_cast<player_t*>(enterTrace.entity)->m_iTeamNum() != localPlayer->m_iTeamNum();
 
 		if (canDoDamage && isPlayer && isEnemy)
 		{
@@ -381,8 +381,8 @@ bool autowall::fire_bullet(weapon_t* weapon, Vector& direction, bool& visible, f
 		if (!possibleHitsRemaining)
 			break;
 
-		static auto damageReductionBullets = m_cvar()->FindVar(crypt_str("ff_damage_reduction_bullets"));
-		static auto damageBulletPenetration = m_cvar()->FindVar(crypt_str("ff_damage_bullet_penetration"));
+		static auto damageReductionBullets = m_cvar2()->FindVar(crypt_str("ff_damage_reduction_bullets"));
+		static auto damageBulletPenetration = m_cvar2()->FindVar(crypt_str("ff_damage_bullet_penetration"));
 
 		if (!handle_bullet_penetration(weaponData, enterTrace, eyePosition, direction, possibleHitsRemaining, currentDamage, penetrationPower, damageReductionBullets->GetFloat(), damageBulletPenetration->GetFloat(), !e))
 			break;

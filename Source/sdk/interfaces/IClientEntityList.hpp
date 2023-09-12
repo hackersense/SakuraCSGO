@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../misc/IHandleEntity.hpp"
+#include "../VirtualMethod.h"
 
 class IClientNetworkable;
 class IClientEntity;

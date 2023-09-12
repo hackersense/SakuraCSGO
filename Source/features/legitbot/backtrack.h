@@ -8,7 +8,6 @@
 struct Record
 {
     std::deque<Vector> positions;
-    int ownerIdx;
     Vector origin;
     float simulationTime;
     matrix3x4_t matrix[MAXSTUDIOBONES];

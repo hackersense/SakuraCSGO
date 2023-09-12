@@ -4,21 +4,27 @@
 #include <unordered_map>
 
 #define NETVAR(type, name, table, netvar)                                               \
-[[nodiscard]] std::add_lvalue_reference_t<type> name() const                            \
+[[nodiscard]] std::add_lvalue_reference_t<type> name() noexcept                         \
 {                                                                                       \
-    static int result = netvars::get().get_offset(table, netvar);                       \
-    return *reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + result);       \
+    static const auto netvarOffset = netvars::get().get_offset(table, netvar);          \
+    return *reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + netvarOffset); \
 }
 
 #define PNETVAR(type, name, table, netvar)                                              \
-[[nodiscard]] auto name() const                                                         \
+[[nodiscard]] auto name() noexcept                                                      \
 {                                                                                       \
-    static int result = netvars::get().get_offset(table, netvar);                       \
-    return reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + result);        \
+    static const auto netvarOffset = netvars::get().get_offset(table, netvar);          \
+    return reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + netvarOffset);  \
+}
+
+#define POFFSET(type, name, offset)                                                      \
+[[nodiscard]] std::add_lvalue_reference_t<type> name() noexcept                         \
+{                                                                                       \
+    return reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + offset);        \
 }
 
 #define OFFSET(type, name, offset)                                                      \
-[[nodiscard]] std::add_lvalue_reference_t<type> name() const                            \
+[[nodiscard]] std::add_lvalue_reference_t<type> name() noexcept                         \
 {                                                                                       \
     return *reinterpret_cast<std::add_pointer_t<type>>(uintptr_t(this) + offset);       \
 }

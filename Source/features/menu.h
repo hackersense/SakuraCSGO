@@ -164,6 +164,7 @@ class menu {
 public:
 	ImFont* icons;
 	LPDIRECT3DTEXTURE9 steam_image();
+	void resetAll();
 	void initialize(IDirect3DDevice9* pDevice);
 	void draw();
 	LPDIRECT3DTEXTURE9 image;

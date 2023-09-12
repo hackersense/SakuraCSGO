@@ -12,8 +12,9 @@ class matrix3x4_t;
 class IClientEntity;
 class CGameTrace;
 class NEWMaterial;
+class IMaterial;
 class CTraceFilter;
-class c_baseplayeranimationstate;
+class AnimationState;
 
 struct datamap_t;
 
@@ -71,10 +72,11 @@ namespace util
 	unsigned int find_in_datamap(datamap_t* map, const char* name);
 	void convex_hull(std::vector<ImVec2>& points);
 	void color_modulate(float color[3], NEWMaterial* material);
+	void color_modulate(float color[3], IMaterial* material);
 	bool get_backtrack_matrix(player_t* e, matrix3x4_t* matrix);
-	void create_state(c_baseplayeranimationstate* state, player_t* e);
-	void update_state(c_baseplayeranimationstate* state, const Vector& angles);
-	void reset_state(c_baseplayeranimationstate* state);
+	void create_state(AnimationState* state, player_t* e);
+	void update_state(AnimationState* state, const Vector& angles);
+	void reset_state(AnimationState* state);
 	void fix_mouse_delta(CUserCmd* cmd);
 	void thirdperson(bool fakeducking);
 	Vector2D get_speed_move(CUserCmd* cmd);

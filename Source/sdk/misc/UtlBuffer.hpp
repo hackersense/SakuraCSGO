@@ -192,7 +192,7 @@ public:
         // Are we already the correct endienness? ( or are we swapping 1 uint8_t items? )
         if(!m_bSwapBytes || (sizeof(T) == 1)) {
             // If we were just going to swap in place then return.
-            if(!inputBuffer) //-V547
+            if(!inputBuffer)
                 return;
 
             // Otherwise copy the inputBuffer to the outputBuffer:
@@ -1205,4 +1205,4 @@ inline void CUtlBuffer::Purge()
     m_Error = 0;
     m_Memory.Purge();
 }
-#pragma warning(default:4127) //conditional operation is constant //-V665
+#pragma warning(default:4127) //conditional operation is constant

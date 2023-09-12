@@ -15,7 +15,7 @@ void playeresp::render()
 	static auto alpha = 1.0f;
 	//c_dormant_esp::get().start();
 
-	if (configs.esp.arrows && cheat.local()->is_alive())
+	if (configs.esp.arrows && localPlayer->is_alive())
 	{
 		static auto switch_alpha = false;
 
@@ -27,7 +27,8 @@ void playeresp::render()
 	}
 
 	//for (auto i = 1; i < 65; i++)
-	for (int i = 1; i < m_globals()->m_maxclients; i++)
+	//const auto HighestEntityIndex = m_entitylist()->GetHighestEntityIndex();
+	for (int i = 1; i < 65; i++)
 	{
 		//auto e = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
 
@@ -46,9 +47,9 @@ void playeresp::render()
 
 		type = ENEMY;
 
-		if (e == cheat.local())
+		if (e == localPlayer.get())
 			type = LOCAL;
-		else if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
+		else if (e->m_iTeamNum() == localPlayer->m_iTeamNum())
 			type = TEAM;
 
 		if (type == LOCAL && !m_input()->m_bCameraInThirdPerson)
@@ -57,7 +58,7 @@ void playeresp::render()
 		/*
 		auto valid_dormant = false;
 		auto backup_flags = e->m_fFlags();
-		auto& backup_origin = e->GetAbsOrigin();
+		Vector backup_origin = e->GetAbsOrigin();
 
 		if (e->IsDormant())
 			valid_dormant = c_dormant_esp::get().adjust_sound(e);
@@ -67,7 +68,7 @@ void playeresp::render()
 			c_dormant_esp::get().m_cSoundPlayers[i].reset(true, e->GetAbsOrigin(), e->m_fFlags());
 		}
 
-		if (radar_base && hud_radar && e->IsDormant() && e->m_iTeamNum() != cheat.local()->m_iTeamNum() && e->m_bSpotted())
+		if (radar_base && hud_radar && e->IsDormant() && e->m_iTeamNum() != localPlayer->m_iTeamNum() && e->m_bSpotted())
 			health[i] = hud_radar->radar_info[i].health;
 
 		if (!health[i])
@@ -86,7 +87,7 @@ void playeresp::render()
 
 		if (e->IsDormant())
 		{
-			auto& origin = e->GetAbsOrigin();
+			Vector origin = e->GetAbsOrigin();
 
 			if (origin == ZERO)
 				esp_alpha_fade[i] = 0.0f;
@@ -111,7 +112,7 @@ void playeresp::render()
 
 			/*
 			auto records = &player_records[i];
-			if (!records->empty() && cheat.local()->is_alive())
+			if (!records->empty() && localPlayer->is_alive())
 			{
 				auto record = &records->front();
 				if (record->matrixes_data.main)
@@ -120,12 +121,12 @@ void playeresp::render()
 					draw_skeleton(e, color, e->m_CachedBoneData().Base());
 			}
 			else*/
-			if (cheat.local()->is_alive() || cheat.local()->m_iObserverMode() != ObserverType_t::OBS_MODE_IN_EYE || cheat.local()->m_hObserverTarget() != e)
+			if (localPlayer->is_alive() || localPlayer->m_iObserverMode() != ObserverType_t::OBS_MODE_IN_EYE || localPlayer->m_hObserverTarget().Get() != e)
 				draw_skeleton(boxInfo, color); // , e->m_CachedBoneData().Base()
 			/*
 						auto records = &player_records[i];
 
-			if (!records->empty() && cheat.local()->is_alive() && !e->IsDormant())
+			if (!records->empty() && localPlayer->is_alive() && !e->IsDormant())
 			{
 				auto record = &records->front();
 
@@ -198,7 +199,7 @@ void playeresp::render()
 
 			if (type == ENEMY)
 			{
-				if (configs.esp.arrows && cheat.local()->is_alive())
+				if (configs.esp.arrows && localPlayer->is_alive())
 				{
 					auto color = configs.esp.arrows_color;
 					color.SetAlpha((int)(min(255.0f * esp_alpha_fade[i] * alpha, color.a())));
@@ -372,7 +373,7 @@ bool playeresp::draw_ammobar(player_t* m_entity, const Box& box)
 	if (!configs.esp.type[type].ammo)
 		return false;
 
-	auto weapon = m_entity->m_hActiveWeapon().Get();
+	auto weapon = m_entity->getActiveWeapon();
 
 	if (weapon->is_non_aim())
 		return false;
@@ -470,7 +471,7 @@ void playeresp::draw_weapon(player_t* m_entity, const Box& box, bool space)
 	if (!configs.esp.type[type].weapon[WEAPON_ICON] && !configs.esp.type[type].weapon[WEAPON_TEXT])
 		return;
 
-	auto weapon = m_entity->m_hActiveWeapon().Get();
+	auto weapon = m_entity->getActiveWeapon();
 
 	if (!weapon)
 		return;
@@ -502,7 +503,7 @@ void playeresp::draw_weapon(player_t* m_entity, const Box& box, bool space)
 
 void playeresp::draw_flags(player_t* e, const Box& box)
 {
-	auto weapon = e->m_hActiveWeapon().Get();
+	auto weapon = e->getActiveWeapon();
 
 	if (!weapon)
 		return;
@@ -553,7 +554,7 @@ void playeresp::draw_flags(player_t* e, const Box& box)
 	{
 		auto scoped = e->m_bIsScoped();
 
-		if (e == cheat.local())
+		if (e == localPlayer.get())
 			scoped = cheat.globals.scoped;
 
 		if (scoped)
@@ -596,7 +597,7 @@ void playeresp::draw_flags(player_t* e, const Box& box)
 				return false;
 			};
 
-			if (fakeducking() && e->m_fFlags() & FL_ONGROUND && !animstate->m_bInHitGroundAnimation)
+			if (fakeducking() && e->m_fFlags() & FL_ONGROUND && !animstate->m_bOnLanding)
 			{
 				auto color = e->IsDormant() ? Color(130, 130, 130, 130) : Color(215, 20, 20);
 				color.SetAlpha(255.0f * esp_alpha_fade[e->EntIndex()]);
@@ -659,7 +660,7 @@ void playeresp::draw_lines(player_t* e, Vector origin)
 	if (!configs.esp.type[type].snap_lines)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	static int width, height;
@@ -684,16 +685,16 @@ void playeresp::draw_multi_points(player_t* e)
 	if (!configs.esp.show_multi_points)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
-	if (cheat.local()->get_move_type() == MOVETYPE_NOCLIP)
+	if (localPlayer->get_move_type() == MOVETYPE_NOCLIP)
 		return;
 
 	if (cheat.globals.current_weapon == -1)
 		return;
 
-	auto weapon = cheat.local()->m_hActiveWeapon().Get();
+	auto weapon = localPlayer->getActiveWeapon();
 
 	if (weapon->is_non_aim())
 		return;

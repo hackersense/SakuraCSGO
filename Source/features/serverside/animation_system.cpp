@@ -5,10 +5,10 @@ std::deque<adjust_data> player_records[65] = { };
 
 void animation_system::init()
 {
-	//static auto threadedBoneSetup = m_cvar()->FindVar("cl_threaded_bone_setup");
-	//threadedBoneSetup->setValue(1);
+	static auto threadedBoneSetup = m_cvar2()->FindVar("cl_threaded_bone_setup");
+	threadedBoneSetup->SetValue(1);
 
-	static auto extrapolate = m_cvar()->FindVar("cl_extrapolate");
+	static auto extrapolate = m_cvar2()->FindVar("cl_extrapolate");
 	extrapolate->SetValue(0);
 }
 
@@ -30,14 +30,17 @@ void animation_system::run(ClientFrameStage_t stage)
 	if (m_engine()->IsHLTV())
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer)
+		return;
+
+	if (!localPlayer->is_alive())
 		return;
 
 	for (auto i = 1; i < m_globals()->m_maxclients; i++)
 	{
 		auto e = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
 
-		if (e == cheat.local())
+		if (e == localPlayer.get())
 			continue;
 
 		if (!valid(i, e))
@@ -95,7 +98,7 @@ bool animation_system::valid(int i, player_t* e)
 	if (!e)
 		return false;
 
-	if ((!configs.ragebot.enabled && !configs.legitbot.enabled) || !e->valid(false, !configs.ragebot.dormant) || e == cheat.local())
+	if ((!configs.ragebot.enabled && !configs.legitbot.enabled) || !e->valid(false, !configs.ragebot.dormant) || e == localPlayer.get())
 	{
 		if (!e->is_alive())
 		{
@@ -131,7 +134,7 @@ void animation_system::update_player_animations(player_t* e)
 
 	adjust_data* previous_record = nullptr;
 
-	if (records->size() > 1 && cheat.local()->is_alive())
+	if (records->size() > 1 && localPlayer->is_alive())
 		previous_record = &records->at(1);
 
 	auto record = &records->front();
@@ -174,7 +177,7 @@ void animation_system::update_player_animations(player_t* e)
 
 			if (e->m_fFlags() & FL_ONGROUND && animlayers[ANIMATION_LAYER_ALIVELOOP].m_flWeight > 0.0f && animlayers[ANIMATION_LAYER_ALIVELOOP].m_flWeight < 1.0f && animlayers[ANIMATION_LAYER_ALIVELOOP].m_flCycle > previous_record->layers[ANIMATION_LAYER_ALIVELOOP].m_flCycle)
 			{
-				auto weapon = e->m_hActiveWeapon().Get();
+				auto weapon = e->getActiveWeapon();
 
 				if (weapon)
 				{
@@ -239,23 +242,29 @@ void animation_system::update_player_animations(player_t* e)
 		record->shot = (record->last_shot_time == record->simulation_time);
 	}
 
-	/*
 	auto chokedPackets = -1;
 
-	if (previous_record && record->simulation_time != e->m_flSimulationTime())
+	if (previous_record)
 	{
-		const auto simDifference = fabsf(e->m_flSimulationTime() - record->simulation_time);
+		memcpy(e->get_animlayers(), previous_record->layers, e->animlayer_count() * sizeof(AnimationLayer));
 
-		chokedPackets = std::clamp(record->simulation_time != e->m_flSimulationTime() ?
-			static_cast<int>(simDifference / m_globals()->m_intervalpertick) - 1 : 0, 0, 17);
+		if (previous_record->simulation_time != e->m_flSimulationTime())
+		{
+			auto simDifference = fabsf(e->m_flSimulationTime() - previous_record->simulation_time);
 
+			chokedPackets = std::clamp(previous_record->simulation_time != e->m_flSimulationTime() ?
+				static_cast<int>(simDifference / m_globals()->m_intervalpertick) - 1 : 0, 0, 17);
+		}
+		/*
 		if (!record->origin.IsZero())
 		{
 			previous_record->velocity = record->velocity;
 			record->velocity = (e->m_vecOrigin() - record->origin) * (1.0f / simDifference);
 		}
+		*/
 	}
 
+	/*
 	if (chokedPackets > 0)
 	{
 		for (int i = 1; i <= chokedPackets + 1; i++)
@@ -282,18 +291,20 @@ void animation_system::update_player_animations(player_t* e)
 		e->m_flDuckAmount() = record->duck_amount;
 	}
 	else
-	{*/
+	{
+	*/
+	//cheat.globals.updating_animation = true;
 	e->m_iEFlags() &= ~0x1000;
 	if (e->m_fFlags() & FL_ONGROUND && e->m_vecVelocity().Length() > 0.0f && animlayers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight <= 0.0f)
 		e->m_vecVelocity().Zero();
 	e->m_vecAbsVelocity() = e->m_vecVelocity();
 	//e->m_bClientSideAnimation() = true;
 	e->update_clientside_animation();
+	//cheat.globals.updating_animation = false;
 	//}
 
-	/*
 	//Fix jump pose
-	if (!(e->m_fFlags() & FL_ONGROUND) && !previous_record)// && entity->moveType() != MoveType::NOCLIP)
+	if (!(e->m_fFlags() & FL_ONGROUND) && previous_record && e->get_move_type() != MOVETYPE_NOCLIP)
 	{
 		const auto currentActivity = animstate->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
 		if (currentActivity == ACT_CSGO_FALL || currentActivity == ACT_CSGO_JUMP)
@@ -336,7 +347,6 @@ void animation_system::update_player_animations(player_t* e)
 			animstate->poseParamMappings[PLAYER_POSE_PARAM_JUMP_FALL].setValue(e, std::clamp(math::smooth_step_bounds(0.72f, 1.52f, animstate->m_flDurationInAir), 0.f, 1.f));
 		}
 	}
-	*/
 
 	if (is_dormant[e->EntIndex()])
 	{
@@ -345,7 +355,7 @@ void animation_system::update_player_animations(player_t* e)
 		if (e->m_fFlags() & FL_ONGROUND)
 		{
 			animstate->m_bOnGround = true;
-			animstate->m_bInHitGroundAnimation = false;
+			animstate->m_bOnLanding = false;
 		}
 
 		animstate->m_flDurationInAir = 0.0f;
@@ -354,21 +364,12 @@ void animation_system::update_player_animations(player_t* e)
 
 	auto updated_animations = false;
 
-	c_baseplayeranimationstate state;
-	memcpy(&state, animstate, sizeof(c_baseplayeranimationstate));
-
-	auto ticks_chocked = 1;
+	AnimationState state;
+	memcpy(&state, animstate, sizeof(AnimationState));
 
 	if (previous_record)
 	{
-		memcpy(e->get_animlayers(), previous_record->layers, e->animlayer_count() * sizeof(AnimationLayer));
-
-		auto simulation_ticks = TIME_TO_TICKS(e->m_flSimulationTime() - previous_record->simulation_time);
-
-		if (simulation_ticks > 0 && simulation_ticks < 17) // 31
-			ticks_chocked = simulation_ticks;
-
-		if (ticks_chocked > 1)
+		if (chokedPackets > 1)
 		{
 			auto land_time = 0.0f;
 			auto land_in_cycle = false;
@@ -381,16 +382,16 @@ void animation_system::update_player_animations(player_t* e)
 				land_in_cycle = land_time >= previous_record->simulation_time;
 			}
 
-			auto duck_amount_per_tick = (e->m_flDuckAmount() - previous_record->duck_amount) / ticks_chocked;
+			auto duck_amount_per_tick = (e->m_flDuckAmount() - previous_record->duck_amount) / chokedPackets;
 
-			for (auto i = 0; i < ticks_chocked; i++)
+			for (auto i = 0; i < chokedPackets; i++)
 			{
 				/*
 				auto lby_delta = fabs(math::normalize_yaw(e->m_flLowerBodyYawTarget() - previous_record->lby));
 
 				if (lby_delta > 0.0f && e->m_vecVelocity().Length() < 5.0f)
 				{
-					auto delta = ticks_chocked - i;
+					auto delta = chokedPackets - i;
 					auto use_new_lby = true;
 
 					if (lby_delta < 1.0f)
@@ -457,7 +458,7 @@ void animation_system::update_player_animations(player_t* e)
 		cheat.globals.updating_animation = false;
 	}
 
-	memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+	memcpy(animstate, &state, sizeof(AnimationState));
 
 	auto setup_matrix = [&](player_t* e, AnimationLayer* layers, const int& matrix) -> void
 	{
@@ -491,7 +492,7 @@ void animation_system::update_player_animations(player_t* e)
 	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(e->EntIndex(), &player_info);
 
-	if (!player_info.fakeplayer && cheat.local()->is_alive() && e->is_alive() && e->m_iTeamNum() != cheat.local()->m_iTeamNum() && !configs.legitbot.enabled)
+	if (!player_info.fakeplayer && localPlayer->is_alive() && e->is_alive() && e->m_iTeamNum() != localPlayer->m_iTeamNum() && !configs.legitbot.enabled)
 	{
 		float backup_yaw = animstate->m_flGoalFeetYaw;
 		animstate->m_flGoalFeetYaw = previous_goal_feet_yaw[e->EntIndex()];
@@ -501,7 +502,7 @@ void animation_system::update_player_animations(player_t* e)
 		cheat.globals.updating_animation = false;
 
 		previous_goal_feet_yaw[e->EntIndex()] = backup_yaw;
-		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+		memcpy(animstate, &state, sizeof(AnimationState));
 
 		animstate->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y);
 
@@ -510,7 +511,7 @@ void animation_system::update_player_animations(player_t* e)
 		cheat.globals.updating_animation = false;
 
 		setup_matrix(e, animlayers, NONE);
-		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+		memcpy(animstate, &state, sizeof(AnimationState));
 		player_resolver[e->EntIndex()].zero_goal_feet_yaw = animstate->m_flGoalFeetYaw;
 
 		animstate->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y + e->get_max_desync_delta());
@@ -520,7 +521,7 @@ void animation_system::update_player_animations(player_t* e)
 		cheat.globals.updating_animation = false;
 
 		setup_matrix(e, animlayers, FIRST);
-		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+		memcpy(animstate, &state, sizeof(AnimationState));
 		player_resolver[e->EntIndex()].first_goal_feet_yaw = animstate->m_flGoalFeetYaw;
 
 		animstate->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y - e->get_max_desync_delta());
@@ -530,7 +531,7 @@ void animation_system::update_player_animations(player_t* e)
 		cheat.globals.updating_animation = false;
 
 		setup_matrix(e, animlayers, SECOND);
-		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+		memcpy(animstate, &state, sizeof(AnimationState));
 		player_resolver[e->EntIndex()].second_goal_feet_yaw = animstate->m_flGoalFeetYaw;
 
 		animstate->m_flGoalFeetYaw = previous_goal_feet_yaw[e->EntIndex()];
@@ -539,7 +540,7 @@ void animation_system::update_player_animations(player_t* e)
 		e->update_clientside_animation();
 		cheat.globals.updating_animation = false;
 
-		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
+		memcpy(animstate, &state, sizeof(AnimationState));
 
 		player_resolver[e->EntIndex()].initialize(e, record, previous_goal_feet_yaw[e->EntIndex()]);
 		player_resolver[e->EntIndex()].resolve_yaw();

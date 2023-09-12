@@ -2,45 +2,52 @@
 
 void engineprediction::store_netvars()
 {
-	const int tickbase = cheat.local()->m_nTickBase();
+	const int tickbase = localPlayer->m_nTickBase();
 
-	auto data = &netvars_data[tickbase % MULTIPLAYER_BACKUP];// m_clientstate()->m_iCommandAck
+	//auto data = &netvarData.at(tickbase % MULTIPLAYER_BACKUP);// m_clientstate()->m_iCommandAck
 
-	data->tickbase = tickbase;
+	Netvars_data netvars{ };
 
-	data->aimPunchAngle = cheat.local()->m_aimPunchAngle();
-	data->aimPunchAngleVelocity = cheat.local()->m_aimPunchAngleVel();
-	data->baseVelocity = cheat.local()->m_vecBaseVelocity();
-	data->duckAmount = cheat.local()->m_flDuckAmount();
-	data->duckSpeed = cheat.local()->m_flDuckSpeed();
-	data->fallVelocity = cheat.local()->m_flFallVelocity();
-	data->thirdPersonRecoil = cheat.local()->m_flThirdpersonRecoil();
-	data->velocity = cheat.local()->m_vecVelocity();
-	data->velocityModifier = cheat.local()->m_flVelocityModifier();
-	data->viewPunchAngle = cheat.local()->m_viewPunchAngle();
-	data->viewOffset = cheat.local()->m_vecViewOffset();
+	netvars.tickbase = tickbase;
+
+	netvars.aimPunchAngle = localPlayer->m_aimPunchAngle();
+	netvars.aimPunchAngleVelocity = localPlayer->m_aimPunchAngleVel();
+	netvars.baseVelocity = localPlayer->m_vecBaseVelocity();
+	netvars.duckAmount = localPlayer->m_flDuckAmount();
+	netvars.duckSpeed = localPlayer->m_flDuckSpeed();
+	netvars.fallVelocity = localPlayer->m_flFallVelocity();
+	netvars.thirdPersonRecoil = localPlayer->m_flThirdpersonRecoil();
+	netvars.velocity = localPlayer->m_vecVelocity();
+	netvars.velocityModifier = localPlayer->m_flVelocityModifier();
+	netvars.viewPunchAngle = localPlayer->m_viewPunchAngle();
+	netvars.viewOffset = localPlayer->m_vecViewOffset();
+
+	netvarData.at(tickbase % MULTIPLAYER_BACKUP) = netvars;
 }
 
 void engineprediction::restore_netvars()
 {
-	const int tickbase = cheat.local()->m_nTickBase();
+	const int tickbase = localPlayer->m_nTickBase();
 
-	auto data = &netvars_data[tickbase % MULTIPLAYER_BACKUP];// (m_clientstate()->m_iCommandAck - 1)
+	const auto netvars = netvarData.at(tickbase % MULTIPLAYER_BACKUP);// (m_clientstate()->m_iCommandAck - 1)
 
-	if (!data || data->tickbase != tickbase)
+	if (!&netvars)
 		return;
 
-	cheat.local()->m_aimPunchAngle() = checkDifference(cheat.local()->m_aimPunchAngle(), data->aimPunchAngle);
-	cheat.local()->m_aimPunchAngleVel() = checkDifference(cheat.local()->m_aimPunchAngleVel(), data->aimPunchAngleVelocity);
-	cheat.local()->m_vecBaseVelocity() = checkDifference(cheat.local()->m_vecBaseVelocity(), data->baseVelocity);
-	cheat.local()->m_flDuckAmount() = std::clamp(checkDifference(cheat.local()->m_flDuckAmount(), data->duckAmount), 0.0f, 1.0f);
-	cheat.local()->m_flDuckSpeed() = checkDifference(cheat.local()->m_flDuckSpeed(), data->duckSpeed);
-	cheat.local()->m_flFallVelocity() = checkDifference(cheat.local()->m_flFallVelocity(), data->fallVelocity);
-	cheat.local()->m_flThirdpersonRecoil() = checkDifference(cheat.local()->m_flThirdpersonRecoil(), data->thirdPersonRecoil);
-	cheat.local()->m_vecVelocity() = checkDifference(cheat.local()->m_vecVelocity(), data->velocity);
-	cheat.local()->m_flVelocityModifier() = checkDifference(cheat.local()->m_flVelocityModifier(), data->velocityModifier);
-	cheat.local()->m_viewPunchAngle() = checkDifference(cheat.local()->m_viewPunchAngle(), data->viewPunchAngle);
-	cheat.local()->m_vecViewOffset() = checkDifference(cheat.local()->m_vecViewOffset(), data->viewOffset);
+	if (netvars.tickbase != tickbase)
+		return;
+
+	localPlayer->m_aimPunchAngle() = checkDifference(localPlayer->m_aimPunchAngle(), netvars.aimPunchAngle);
+	localPlayer->m_aimPunchAngleVel() = checkDifference(localPlayer->m_aimPunchAngleVel(), netvars.aimPunchAngleVelocity);
+	localPlayer->m_vecBaseVelocity() = checkDifference(localPlayer->m_vecBaseVelocity(), netvars.baseVelocity);
+	localPlayer->m_flDuckAmount() = std::clamp(checkDifference(localPlayer->m_flDuckAmount(), netvars.duckAmount), 0.0f, 1.0f);
+	localPlayer->m_flDuckSpeed() = checkDifference(localPlayer->m_flDuckSpeed(), netvars.duckSpeed);
+	localPlayer->m_flFallVelocity() = checkDifference(localPlayer->m_flFallVelocity(), netvars.fallVelocity);
+	localPlayer->m_flThirdpersonRecoil() = checkDifference(localPlayer->m_flThirdpersonRecoil(), netvars.thirdPersonRecoil);
+	localPlayer->m_vecVelocity() = checkDifference(localPlayer->m_vecVelocity(), netvars.velocity);
+	localPlayer->m_flVelocityModifier() = checkDifference(localPlayer->m_flVelocityModifier(), netvars.velocityModifier);
+	localPlayer->m_viewPunchAngle() = checkDifference(localPlayer->m_viewPunchAngle(), netvars.viewPunchAngle);
+	localPlayer->m_vecViewOffset() = checkDifference(localPlayer->m_vecViewOffset(), netvars.viewOffset);
 }
 
 /*
@@ -51,10 +58,10 @@ void engineprediction::update_vel()
 
 	if (m_iLastCmdAck != m_clientstate()->m_nLastCommandAck || m_flNextCmdTime != m_clientstate()->m_flNextCmdTime)
 	{
-		if (cheat.globals.last_velocity_modifier != cheat.local()->m_flVelocityModifier())
+		if (cheat.globals.last_velocity_modifier != localPlayer->m_flVelocityModifier())
 		{
 			m_prediction()->m_bPreviousAckHadErrors = true;
-			cheat.globals.last_velocity_modifier = cheat.local()->m_flVelocityModifier();
+			cheat.globals.last_velocity_modifier = localPlayer->m_flVelocityModifier();
 		}
 
 		m_iLastCmdAck = m_clientstate()->m_nLastCommandAck;
@@ -67,12 +74,12 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 {
 	//if (m_clientstate()->m_iDeltaTick > 0)
 	m_prediction()->Update(m_clientstate()->m_iDeltaTick, m_clientstate()->m_iDeltaTick > 0, m_clientstate()->m_nLastCommandAck, m_clientstate()->m_nLastOutgoingCommand + m_clientstate()->m_iChokedCommands);
-	
-	backup_data.flags = cheat.local()->m_fFlags();
-	backup_data.velocity = cheat.local()->m_vecVelocity();
+
+	backup_data.flags = localPlayer->m_fFlags();
+	backup_data.velocity = localPlayer->m_vecVelocity();
 
 	*memory->predictionRandomSeed = MD5_PseudoRandom(m_pcmd->m_command_number) & INT_MAX;
-	*memory->predictionPlayer = reinterpret_cast<int>(cheat.local());
+	*memory->predictionPlayer = reinterpret_cast<int>(localPlayer.get());
 
 	prediction_data.old_curtime = m_globals()->m_curtime;
 	prediction_data.old_frametime = m_globals()->m_frametime;
@@ -87,20 +94,20 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	//m_prediction()->split->m_bIsFirstTimePredicted = false;
 
 	if (m_pcmd->m_impulse)
-		cheat.local()->m_nImpulse() = m_pcmd->m_impulse;
+		*reinterpret_cast<uint32_t*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x320C) = m_pcmd->m_impulse;
 
-	m_pcmd->m_buttons |= *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3344);
-	m_pcmd->m_buttons &= ~(*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(cheat.local()) + 0x3340));
+	m_pcmd->m_buttons |= *reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x3344);
+	m_pcmd->m_buttons &= ~(*reinterpret_cast<int*>(reinterpret_cast<uintptr_t>(localPlayer.get()) + 0x3340));
 
-	cheat.local()->updateButtonState(m_pcmd->m_buttons);
+	localPlayer->updateButtonState(m_pcmd->m_buttons);
 
-	m_gamemovement()->StartTrackPredictionErrors(cheat.local());
-	m_prediction()->CheckMovingGround(cheat.local(), m_globals()->m_frametime);
+	m_gamemovement()->StartTrackPredictionErrors(localPlayer.get());
+	m_prediction()->CheckMovingGround(localPlayer.get(), m_globals()->m_frametime);
 
-	cheat.local()->runPreThink();
-	cheat.local()->runThink();
+	localPlayer->runPreThink();
+	localPlayer->runThink();
 
-	m_movehelper()->SetHost(cheat.local());
+	m_movehelper()->SetHost(localPlayer.get());
 
 	//CMoveData move_data;
 	//move_data.m_flForwardMove = m_pcmd->m_forwardmove;
@@ -112,14 +119,14 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	//move_data.m_nImpulseCommand = m_pcmd->m_impulse;
 	//memset(&move_data, 0, sizeof(CMoveData));
 
-	m_prediction()->SetupMove(cheat.local(), m_pcmd, m_movehelper(), m_movedata());
-	m_gamemovement()->ProcessMovement(cheat.local(), m_movedata());
-	m_prediction()->FinishMove(cheat.local(), m_pcmd, m_movedata());
+	m_prediction()->SetupMove(localPlayer.get(), m_pcmd, m_movehelper(), m_movedata());
+	m_gamemovement()->ProcessMovement(localPlayer.get(), m_movedata());
+	m_prediction()->FinishMove(localPlayer.get(), m_pcmd, m_movedata());
 	m_movehelper()->ProcessImpacts();
 
-	cheat.local()->runPostThink();
+	localPlayer->runPostThink();
 
-	m_gamemovement()->FinishTrackPredictionErrors(cheat.local());
+	m_gamemovement()->FinishTrackPredictionErrors(localPlayer.get());
 	m_movehelper()->SetHost(nullptr);
 	m_gamemovement()->Reset();
 
@@ -133,7 +140,7 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	m_prediction()->m_bInPrediction = prediction_data.old_in_prediction;
 
 	/*
-	auto viewmodel = cheat.local()->m_hViewModel().Get();
+	auto viewmodel = localPlayer->m_hViewModel().Get();
 
 	if (viewmodel)
 	{

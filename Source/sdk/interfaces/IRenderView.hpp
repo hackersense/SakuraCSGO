@@ -96,7 +96,7 @@ typedef VPlane Frustum[FRUSTUM_NUMPLANES];
 //-----------------------------------------------------------------------------
 // Vertex format for brush models
 //-----------------------------------------------------------------------------
-struct BrushVertex_t //-V690
+struct BrushVertex_t
 {
     Vector        m_Pos;
     Vector        m_Normal;

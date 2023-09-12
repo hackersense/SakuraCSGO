@@ -34,10 +34,37 @@ namespace math
 			0.0f);
 	}
 
+	float bias(float x, float biasAmt)
+	{
+		static float lastAmt = -1;
+		static float lastExponent = 0;
+		if (lastAmt != biasAmt)
+		{
+			lastExponent = log(biasAmt) * -1.4427f;
+		}
+		return pow(x, lastExponent);
+	}
+
 	float smooth_step_bounds(float edge0, float edge1, float x)
 	{
 		x = std::clamp((x - edge0) / (edge1 - edge0), 0.f, 1.f);
 		return x * x * (3 - 2 * x);
+	}
+
+	float clamp_cycle(float clycle)
+	{
+		clycle -= (float)(int)clycle;
+
+		if (clycle < 0.0f)
+		{
+			clycle += 1.0f;
+		}
+		else if (clycle > 1.0f)
+		{
+			clycle -= 1.0f;
+		}
+
+		return clycle;
 	}
 
 	float angle_distance(float firstangle, float secondangle)
@@ -94,6 +121,35 @@ namespace math
 	float angle_mod(float angle)
 	{
 		return ((360.0f / 65536.0f) * ((int32_t)(angle * (65536.0f / 360.0f)) & 65530));
+	}
+
+	float approach(float target, float value, float speed)
+	{
+		float delta = target - value;
+
+		if (delta > speed)
+			value += speed;
+		else if (delta < -speed)
+			value -= speed;
+		else
+			value = target;
+
+		return value;
+	}
+
+	Vector approach(Vector target, Vector value, float speed)
+	{
+		Vector diff = (target - value);
+
+		float delta = diff.Length();
+		if (delta > speed)
+			value += diff.Normalized() * speed;
+		else if (delta < -speed)
+			value -= diff.Normalized() * speed;
+		else
+			value = target;
+
+		return value;
 	}
 
 	float approach_angle(float target, float value, float speed)
@@ -180,6 +236,19 @@ namespace math
 		else if (angles.z < -180.0f)
 			angles.z = -180.0f;
 	}
+
+	float angleNormalize(float angle)
+	{
+		angle = fmodf(angle, 360.0f);
+
+		if (angle > 180.f)
+			angle -= 360.f;
+
+		if (angle < -180.f)
+			angle += 360.f;
+
+		return angle;
+	}
 	//--------------------------------------------------------------------------------
 	void vector_transform(const Vector& in1, const matrix3x4_t& in2, Vector& out)
 	{
@@ -224,6 +293,47 @@ namespace math
 		return min(sqrtf(powf(delta.x, 2.0f) + powf(delta.y, 2.0f)), 180.0f);
 	}
 	//--------------------------------------------------------------------------------
+	void angle_to_vector(const Vector& angle, Vector* out)
+	{
+		if (out)
+		{
+			out->x = std::cos(DEG2RAD(angle.x)) * std::cos(DEG2RAD(angle.y));
+			out->y = std::cos(DEG2RAD(angle.x)) * std::sin(DEG2RAD(angle.y));
+			out->z = -std::sin(DEG2RAD(angle.x));
+		}
+	}
+
+	void angle_to_vector_all(const Vector& angle, Vector* forward, Vector* right, Vector* up)
+	{
+		float sr = std::sin(DEG2RAD(angle.z))
+			, sp = std::sin(DEG2RAD(angle.x))
+			, sy = std::sin(DEG2RAD(angle.y))
+			, cr = std::cos(DEG2RAD(angle.z))
+			, cp = std::cos(DEG2RAD(angle.x))
+			, cy = std::cos(DEG2RAD(angle.y));
+
+		if (forward)
+		{
+			forward->x = cp * cy;
+			forward->y = cp * sy;
+			forward->z = -sp;
+		}
+
+		if (right)
+		{
+			right->x = (-1 * sr * sp * cy + -1 * cr * -sy);
+			right->y = (-1 * sr * sp * sy + -1 * cr * cy);
+			right->z = -1 * sr * cp;
+		}
+
+		if (up)
+		{
+			up->x = (cr * sp * cy + -sr * -sy);
+			up->y = (cr * sp * sy + -sr * cy);
+			up->z = cr * cp;
+		}
+	}
+
 	void angle_vectors(const Vector& angles, Vector& forward)
 	{
 		float sp, sy, cp, cy;
@@ -275,6 +385,13 @@ namespace math
 		}
 	}
 	//--------------------------------------------------------------------------------
+	Vector vector_to_angles(const Vector vector)
+	{
+		return Vector{ RAD2DEG(std::atan2(-vector.z, std::hypot(vector.x, vector.y))),
+					   RAD2DEG(std::atan2(vector.y, vector.x)),
+					   0.0f };
+	}
+
 	void vector_angles(const Vector& forward, Vector& angles)
 	{
 		Vector view;
@@ -372,7 +489,7 @@ namespace math
 	//--------------------------------------------------------------------------------
 	bool screen_transform(const Vector& in, Vector& out)
 	{
-		const auto& w2s_matrix = BBData::viewMatrix; // world_to_screen_matrix()
+		const auto w2s_matrix = BBData::viewMatrix; // world_to_screen_matrix()
 
 		out.x = w2s_matrix[0][0] * in.x + w2s_matrix[0][1] * in.y + w2s_matrix[0][2] * in.z + w2s_matrix[0][3];
 		out.y = w2s_matrix[1][0] * in.x + w2s_matrix[1][1] * in.y + w2s_matrix[1][2] * in.z + w2s_matrix[1][3];
@@ -788,7 +905,7 @@ namespace math
 	//--------------------------------------------------------------------------------
 	float simple_spline_remap_val_clamped(float value, float a, float b, float c, float d)
 	{
-		if (a == b) //-V550
+		if (a == b)
 			return value >= b ? d : c;
 
 		auto c_value = math::clamp((value - a) / (b - a), 0.0f, 1.0f);

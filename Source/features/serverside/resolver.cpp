@@ -57,9 +57,9 @@ bool resolver::isRoll(player_t* entity)
 	CGameTrace tone, ttwo, ttree;
 	CTraceFilter fl;
 	fl.pSkip = entity;
-	one.Init(cheat.local()->get_eye_position(), first);
-	two.Init(cheat.local()->get_eye_position(), second);
-	three.Init(cheat.local()->get_eye_position(), third);
+	one.Init(localPlayer->get_eye_position(), first);
+	two.Init(localPlayer->get_eye_position(), second);
+	three.Init(localPlayer->get_eye_position(), third);
 	m_trace()->TraceRay(one, MASK_PLAYERSOLID, &fl, &tone);
 	m_trace()->TraceRay(two, MASK_PLAYERSOLID, &fl, &ttwo);
 	m_trace()->TraceRay(three, MASK_PLAYERSOLID, &fl, &ttree);
@@ -157,13 +157,13 @@ void resolver::test(player_t* e)
 void resolver::test(player_t* e)
 {
 	auto state = e->get_animation_state();
-	float velocity = std::floor(std::sqrt(std::pow(state->m_flVelocityX, 2) + std::pow(state->m_flVelocityY, 2)) + 0.5f);
+	float velocity = std::floor(std::sqrt(std::pow(state->m_vecVelocity.x, 2) + std::pow(state->m_vecVelocity.y, 2)) + 0.5f);
 	bool act_move = velocity >= 3 && (e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight * 1000);
 	bool act_stand = velocity < 3 && (e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight < 1);
 
 	state->m_flFeetCycle = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flCycle;
 	state->m_flFeetYawRate = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight;
-	state->m_flWeight() = e->get_animlayer(ANIMATION_LAYER_LEAN)->m_flWeight;
+	state->m_flAccelerationWeight = e->get_animlayer(ANIMATION_LAYER_LEAN)->m_flWeight;
 	float delta = 0.0f;
 	int m_side = 0;
 
@@ -220,19 +220,17 @@ void resolver::resolve_yaw()
 		return;
 
 	if (player_record->shot && fabs(player->m_angEyeAngles().x) < 30.f) {
-		/*
-		if (AngleDiff(player->m_angEyeAngles().y, animstate->m_flGoalFeetYaw) > 35.0f)
+		if (math::angle_difference(player->m_angEyeAngles().y, animstate->m_flGoalFeetYaw) > 35.0f)
 		{
 			player->get_animation_state()->m_flGoalFeetYaw = player_record->eye_position.y + player->get_max_desync_delta();
 		}
-		else if (AngleDiff(player->m_angEyeAngles().y, animstate->m_flGoalFeetYaw) < -35.0f)
+		else if (math::angle_difference(player->m_angEyeAngles().y, animstate->m_flGoalFeetYaw) < -35.0f)
 		{
 			player->get_animation_state()->m_flGoalFeetYaw = player_record->eye_position.y + player->get_min_desync_delta();
 		}
 		else {
-		*/
-		player->get_animation_state()->m_flGoalFeetYaw = player_record->eye_position.y;
-		//}
+			player->get_animation_state()->m_flGoalFeetYaw = player_record->eye_position.y;
+		}
 
 		return;
 	}
@@ -242,7 +240,7 @@ void resolver::resolve_yaw()
 	auto delta = math::normalize_yaw(player->m_angEyeAngles().y - zero_goal_feet_yaw);
 	auto valid_lby = true;
 
-	if (animstate->m_flVelocity > 0.1f || fabsf(animstate->m_flUpVelocity) > 100.f)
+	if (animstate->m_flVelocityLengthXY > 0.1f || fabsf(animstate->m_flVelocityLengthZ) > 100.f)
 		valid_lby = animstate->m_flTimeSinceStartedMoving < 0.22f;
 
 	if (player_record->layers[ANIMATION_LAYER_ADJUST].m_flWeight == 0.f && player_record->layers[ANIMATION_LAYER_ADJUST].m_flCycle == 0.f && player_record->layers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight == 0.f)

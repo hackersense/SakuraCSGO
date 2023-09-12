@@ -2,11 +2,11 @@
 
 using SceneEnd_t = void(__thiscall*)(void*);
 
-void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
+void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx) noexcept
 {
 	static auto original_fn = renderview_hook->getOriginal<SceneEnd_t>(9);
 
-	if (!cheat.local())
+	if (!localPlayer)
 		return original_fn(ecx);
 
 	if (!configs.esp.type[ENEMY].ragdoll_chams && !configs.esp.type[TEAM].ragdoll_chams)
@@ -33,7 +33,7 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx)
 
 		auto type = ENEMY;
 
-		if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
+		if (e->m_iTeamNum() == localPlayer->m_iTeamNum())
 			type = TEAM;
 		
 		if (!configs.esp.type[type].ragdoll_chams)

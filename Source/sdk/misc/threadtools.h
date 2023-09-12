@@ -38,7 +38,7 @@ inline unsigned ThreadInterlockedExchangeSubtract( UINT32 volatile *p, UINT32 va
 inline unsigned ThreadInterlockedIncrement( UINT32 volatile *p ) { return ThreadInterlockedIncrement( ( INT32 volatile * )p ); }
 inline unsigned ThreadInterlockedDecrement( UINT32 volatile *p ) { return ThreadInterlockedDecrement( ( INT32 volatile * )p ); }
 inline unsigned ThreadInterlockedExchange( UINT32 volatile *p, UINT32 value ) { return ThreadInterlockedExchange( ( INT32 volatile * )p, value ); }
-inline unsigned ThreadInterlockedExchangeAdd( UINT32 volatile *p, UINT32 value ) { return ThreadInterlockedExchangeAdd( ( INT32 volatile * )p, value ); } //-V524
+inline unsigned ThreadInterlockedExchangeAdd( UINT32 volatile *p, UINT32 value ) { return ThreadInterlockedExchangeAdd( ( INT32 volatile * )p, value ); }
 inline unsigned ThreadInterlockedCompareExchange( UINT32 volatile *p, UINT32 value, UINT32 comperand ) { return ThreadInterlockedCompareExchange( ( INT32 volatile * )p, value, comperand ); }
 inline bool ThreadInterlockedAssignIf( UINT32 volatile *p, UINT32 value, UINT32 comperand ) { return ThreadInterlockedAssignIf( ( INT32 volatile * )p, value, comperand ); }
 

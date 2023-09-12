@@ -149,10 +149,8 @@ void remove_molotov()
 	}
 }
 
-void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
+void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage) noexcept
 {
-	cheat.local(reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(m_engine()->GetLocalPlayer())), true);
-
 	animation_system::get().init();
 
 	if (stage == FRAME_RENDER_START)
@@ -161,22 +159,22 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().color_console();
 	}
 
-	if (!cheat.available())
+	if (stage == FRAME_START)
+	{
+		if (localPlayer && configs.profileChanger.musickit)
+			m_playerresource()->m_nMusicID(localPlayer->EntIndex()) = configs.profileChanger.musickit;
+
+		BBData::update();
+		key_binds::get().update_key_binds();
+	}
+
+	if (!localPlayer)
 	{
 		nightmode::get().clear_stored_materials();
 		return client_hook.callOriginal<void, 37>(stage);
 	}
 
 	misc::get().draw_server_hitboxes();
-
-	if (stage == FRAME_START)
-	{
-		if (configs.profileChanger.musickit)
-			m_playerresource()->m_nMusicID(cheat.local()->EntIndex()) = configs.profileChanger.musickit;
-
-		BBData::update();
-		key_binds::get().update_key_binds();
-	}
 
 	aim_punch = nullptr;
 	view_punch = nullptr;
@@ -190,7 +188,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 	SkinChanger::run(stage);
 	local_animations::get().run(stage);
 
-	if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START && cheat.local()->is_alive())
+	if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START && localPlayer->is_alive())
 	{
 		/*
 		static auto old_next_cmd_time = 0.0f;
@@ -201,7 +199,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 		if (old_next_cmd_time != next_cmd_time || old_last_command_ack != last_command_ack)
 		{
-			auto velocity_modifier = cheat.local()->m_flVelocityModifier();
+			auto velocity_modifier = localPlayer->m_flVelocityModifier();
 
 			if (cheat.globals.last_velocity_modifier != velocity_modifier)
 			{
@@ -215,7 +213,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 			old_last_command_ack = last_command_ack;
 		}
 
-		auto viewmodel = cheat.local()->m_hViewModel().Get();
+		auto viewmodel = localPlayer->m_hViewModel().Get();
 
 		if (viewmodel && engineprediction::get().viewmodel_data.weapon == viewmodel->m_hWeapon().Get() && engineprediction::get().viewmodel_data.sequence == viewmodel->m_nSequence() && engineprediction::get().viewmodel_data.animation_parity == viewmodel->m_nAnimationParity())
 		{
@@ -230,7 +228,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		if (configs.visuals.client_bullet_impacts)
 		{
 			static auto last_count = 0;
-			auto& client_impact_list = *reinterpret_cast<CUtlVector<client_hit_verify_t>*>(uintptr_t(cheat.local()) + 0x11C50);
+			auto& client_impact_list = *reinterpret_cast<CUtlVector<client_hit_verify_t>*>(uintptr_t(localPlayer.get()) + 0x11C50);
 
 			for (auto i = client_impact_list.Count(); i > last_count; --i)
 				m_debugoverlay()->AddBoxOverlay(client_impact_list[i - 1].position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.visuals.client_bullet_impacts_color.r(), configs.visuals.client_bullet_impacts_color.g(), configs.visuals.client_bullet_impacts_color.b(), configs.visuals.client_bullet_impacts_color.a(), 4.0f);
@@ -250,16 +248,16 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		misc::get().anti_exploit();
 		misc::get().color_console();
 
-		if (configs.visuals.removals[REMOVALS_FLASH] && cheat.local()->m_flFlashDuration() && configs.esp.enabled)
-			cheat.local()->m_flFlashDuration() = 0.0f;
+		if (configs.visuals.removals[REMOVALS_FLASH] && localPlayer->m_flFlashDuration() && configs.esp.enabled)
+			localPlayer->m_flFlashDuration() = 0.0f;
 
-		if (*reinterpret_cast<bool*>(m_postprocessing()) != (configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure)))
-			*reinterpret_cast<bool*>(m_postprocessing()) = configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure);
+		if (*memory->disablePostProcessing != (configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure)))
+			*memory->disablePostProcessing = configs.esp.enabled && configs.visuals.removals[REMOVALS_POSTPROCESSING] && (!configs.visuals.world_modulation || !configs.visuals.exposure);
 
 		if (configs.visuals.removals[REMOVALS_RECOIL] && configs.esp.enabled)
 		{
-			aim_punch = &cheat.local()->m_aimPunchAngle();
-			view_punch = &cheat.local()->m_viewPunchAngle();
+			aim_punch = &localPlayer->m_aimPunchAngle();
+			view_punch = &localPlayer->m_viewPunchAngle();
 
 			backup_aim_punch = *aim_punch;
 			backup_view_punch = *view_punch;
@@ -270,26 +268,26 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 		auto get_original_scope = false;
 
-		if (cheat.local()->is_alive())
+		if (localPlayer->is_alive())
 		{
 			cheat.globals.in_thirdperson = key_binds::get().get_key_bind_state(key_bind_features::THIRD_PERSON);
 
 			if (configs.esp.enabled && configs.visuals.removals[REMOVALS_SCOPE])
 			{
-				auto weapon = cheat.local()->m_hActiveWeapon().Get();
+				auto weapon = localPlayer->getActiveWeapon();
 
 				if (weapon)
 				{
 					get_original_scope = true;
 
-					cheat.globals.scoped = cheat.local()->m_bIsScoped() && weapon->m_zoomLevel();
-					cheat.local()->m_bIsScoped() = weapon->m_zoomLevel();
+					cheat.globals.scoped = localPlayer->m_bIsScoped() && weapon->m_zoomLevel();
+					localPlayer->m_bIsScoped() = weapon->m_zoomLevel();
 				}
 			}
 		}
 
 		if (!get_original_scope)
-			cheat.globals.scoped = cheat.local()->m_bIsScoped();
+			cheat.globals.scoped = localPlayer->m_bIsScoped();
 	}
 
 	if (stage == FRAME_NET_UPDATE_END)
@@ -315,7 +313,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		configs.player_list.refreshing = true;
 		configs.player_list.players.clear();
 
-		for (auto i = 1; i < m_globals()->m_maxclients; i++)
+		for (auto i = 1; i < 65; i++)
 		{
 			auto e = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
 
@@ -328,7 +326,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 				continue;
 			}
 
-			if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
+			if (e->m_iTeamNum() == localPlayer->m_iTeamNum())
 			{
 				configs.player_list.white_list[i] = false;
 				configs.player_list.high_priority[i] = false;
@@ -348,10 +346,10 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	if (stage == FRAME_RENDER_END)
 	{
-		static auto r_drawspecificstaticprop = m_cvar()->FindVar(crypt_str("r_DrawSpecificStaticProp"));
+		//static auto r_drawspecificstaticprop = m_cvar2()->FindVar(crypt_str("r_DrawSpecificStaticProp"));
 
-		if (r_drawspecificstaticprop->GetInt() != 0)
-			r_drawspecificstaticprop->SetValue(0);
+		//if (r_drawspecificstaticprop->GetInt() != 0)
+		//	r_drawspecificstaticprop->SetValue(0);
 
 		if (cheat.globals.change_materials)
 		{
@@ -373,14 +371,14 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 		//if (cl_foot_contact_shadows->GetBool())
 		//	cl_foot_contact_shadows->SetValue(false);
 
-		static auto zoom_sensitivity_ratio_mouse = m_cvar()->FindVar(crypt_str("zoom_sensitivity_ratio_mouse"));
+		static auto zoom_sensitivity_ratio_mouse = m_cvar2()->FindVar(crypt_str("zoom_sensitivity_ratio_mouse"));
 
 		if (configs.esp.enabled && configs.visuals.removals[REMOVALS_ZOOM] && configs.visuals.fix_zoom_sensivity && zoom_sensitivity_ratio_mouse->GetFloat() == 1.0f)
 			zoom_sensitivity_ratio_mouse->SetValue(0);
 		else if ((!configs.esp.enabled || !configs.visuals.removals[REMOVALS_ZOOM] || !configs.visuals.fix_zoom_sensivity) && !zoom_sensitivity_ratio_mouse->GetFloat())
 			zoom_sensitivity_ratio_mouse->SetValue(1);
 
-		static auto r_modelAmbientMin = m_cvar()->FindVar(crypt_str("r_modelAmbientMin"));
+		static auto r_modelAmbientMin = m_cvar2()->FindVar(crypt_str("r_modelAmbientMin"));
 
 		if (configs.visuals.world_modulation && configs.visuals.ambient && r_modelAmbientMin->GetFloat() != configs.visuals.ambient * 0.05f)
 			r_modelAmbientMin->SetValue(configs.visuals.ambient * 0.05f);
@@ -490,7 +488,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage)
 
 	engineprediction::get().restore_netvars();
 
-	if (configs.esp.enabled && configs.visuals.removals[REMOVALS_RECOIL] && cheat.local()->is_alive() && aim_punch && view_punch)
+	if (configs.esp.enabled && configs.visuals.removals[REMOVALS_RECOIL] && localPlayer->is_alive() && aim_punch && view_punch)
 	{
 		*aim_punch = backup_aim_punch;
 		*view_punch = backup_view_punch;

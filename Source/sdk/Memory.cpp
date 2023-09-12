@@ -20,6 +20,12 @@ Memory::Memory() noexcept
     //    reset = present + 60;
     //}
 
+    splitScreen = *reinterpret_cast<CSplitScreen**>(findPattern(crypt_str("engine"), "\x79\x23\xA1") + 3);
+    setupVelocity = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF8\x83\xEC\x30\x56\x57\x8B\x3D");
+    setupMovement = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x56\x57\x8B\x3D????\x8B\xF1");
+    setupAliveloop = findPattern(crypt_str("client"), "\x55\x8B\xEC\x51\x53\x56\x57\x8B\xF9\x8B\x77\x60");
+
+    getSequenceActivity = reinterpret_cast<decltype(getSequenceActivity)>(findPattern(crypt_str("client"), "\x55\x8B\xEC\x53\x8B\x5D\x08\x56\x8B\xF1\x83"));
     auto temp = reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("client"), "\xB9????\xE8????\x8B\x5D\x08") + 1);
     hud = *temp;
     findHudElement = relativeToAbsolute<decltype(findHudElement)>(reinterpret_cast<uintptr_t>(temp) + 5);
@@ -30,6 +36,7 @@ Memory::Memory() noexcept
     demoFileEndReached = findPattern(crypt_str("client"), "\x8B\xC8\x85\xC9\x74\x1F\x80\x79\x10");
     demoOrHLTV = findPattern(crypt_str("client"), "\x84\xC0\x75\x09\x38\x05");
     money = findPattern(crypt_str("client"), "\x84\xC0\x75\x0C\x5B");
+    disablePostProcessing = *reinterpret_cast<bool**>(findPattern(crypt_str("client"), "\x83\xEC\x4C\x80\x3D") + 5);
     inventoryAccess = findPattern(crypt_str("client"), "\x84\xC0\x75\x05\xB0\x01\x5F");
     clearHudWeapon = relativeToAbsolute<decltype(clearHudWeapon)>(findPattern(crypt_str("client"), crypt_str("\xE8????\x8B\xF0\xC6\x44\x24??\xC6\x44\x24")) + 1);
     itemSystem = relativeToAbsolute<decltype(itemSystem)>(findPattern(crypt_str("client"), crypt_str("\xE8????\x0F\xB7\x0F")) + 1);
@@ -52,7 +59,13 @@ Memory::Memory() noexcept
     isDepthOfFieldEnabled = findPattern(crypt_str("client"), "\x8B\x0D????\x56\x8B\x01\xFF\x50\x34\x8B\xF0\x85\xF6\x75\x04");
     cameraThink = findPattern(crypt_str("client"), "\x85\xC0\x75\x30\x38\x87");
     sendDatagram = findPattern(crypt_str("engine"), "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x57\x8B\xF9\x89\x7C\x24\x14");
+    studioSetPoseParameter = relativeToAbsolute<decltype(studioSetPoseParameter)>(findPattern(crypt_str("client"), "\xE8????\x0F\x28\xD8\x83\xC4\x04") + 1);
+    lookUpPoseParameter = relativeToAbsolute<decltype(lookUpPoseParameter)>(findPattern(crypt_str("client"), "\xE8????\x85\xC0\x79\x08") + 1);
     getFirstSequenceAnimTag = relativeToAbsolute<decltype(getFirstSequenceAnimTag)>(findPattern(crypt_str("client"), "\xE8????\xF3\x0F\x11\x86????\x0F\x57\xDB") + 1);
+    getSequenceLinearMotion = relativeToAbsolute<decltype(getSequenceLinearMotion)>(findPattern(crypt_str("client"), "\xE8????\xF3\x0F\x10\x4D?\x83\xC4\x08\xF3\x0F\x10\x45?\xF3\x0F\x59\xC0") + 1);
+    getWeaponPrefix = reinterpret_cast<decltype(getWeaponPrefix)>(findPattern(crypt_str("client"), "\x53\x56\x57\x8B\xF9\x33\xF6\x8B\x4F\x60\x8B\x01\xFF"));
+    getLayerActivity = reinterpret_cast<decltype(getLayerActivity)>(findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xEC\x08\x53\x56\x8B\x35????\x57\x8B\xF9\x8B\xCE\x8B\x06\xFF\x90????\x8B\x7F\x60\x83"));
+    lookUpSequence = relativeToAbsolute<decltype(lookUpSequence)>(findPattern(crypt_str("client"), "\xE8????\x5E\x83\xF8\xFF") + 1);
     fakePrime = reinterpret_cast<std::uint8_t*>(findPattern(crypt_str("client"), "??????\x85\xC9\x75\x04\x33\xC0\xEB\x1E"));
     sequenceDuration = relativeToAbsolute<decltype(sequenceDuration)>(findPattern(crypt_str("client"), "\xE8????\xF3\x0F\x11\x86????\x51") + 1);
     clSendMove = findPattern(crypt_str("engine"), "\x55\x8B\xEC\x8B\x4D\x04\x81\xEC????");
@@ -69,7 +82,6 @@ Memory::Memory() noexcept
     physicsSimulate = findPattern(crypt_str("client"), "\x56\x8B\xF1\x8B?????\x83\xF9\xFF\x74\x23");
     getForeignFallbackFontName = findPattern(crypt_str("vguimatsurface"), "\x80\x3D?????\x74\x06\xB8");
     processInterpolatedList = findPattern(crypt_str("client"), "\x53\x0F\xB7\x1D????\x56");
-    dispatchSound = findPattern(crypt_str("engine"), "\x55\x8B\xEC\x81\xEC????\x56\x8B\xF1\x8D\x4D\x98\xE8");
     //standardBlendingRules = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF0\xB8????\xE8????\x56\x8B\x75\x08\x57\x8B\xF9\x85\xF6");
     standardBlendingRules = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF0\xB8\xF8\x10");
     doExtraBoneProcessing = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF8\x81\xEC????\x53\x56\x8B\xF1\x57\x89\x74\x24\x1C\x80");
@@ -85,6 +97,7 @@ Memory::Memory() noexcept
     invalidateBoneCache = findPattern(crypt_str("client"), "\x80\x3D?????\x74\x16\xA1????\x48\xC7\x81");
     relayCluster = *reinterpret_cast<std::string**>(findPattern(crypt_str("steamnetworkingsockets"), "\xB8????\xB9????\x0F\x43") + 1);
     lookUpBone = reinterpret_cast<decltype(lookUpBone)>(findPattern(crypt_str("client"), "\x55\x8B\xEC\x53\x56\x8B\xF1\x57\x83\xBE?????\x75\x14"));
+    getBonePos = relativeToAbsolute<decltype(getBonePos)>(findPattern(crypt_str("client"), "\xE8????\x8D\x14\x24") + 1);
     setupBones = findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xE4\xF0\xB8\xD8");
     restoreEntityToPredictedFrame = reinterpret_cast<decltype(restoreEntityToPredictedFrame)>(findPattern(crypt_str("client"), "\x55\x8B\xEC\x8B\x4D?\x56\xE8????\x8B\x75"));
     physicsRunThink = reinterpret_cast<decltype(physicsRunThink)>(findPattern(crypt_str("client"), "\x55\x8B\xEC\x83\xEC\x10\x53\x56\x57\x8B\xF9\x8B\x87"));
@@ -117,7 +130,7 @@ Memory::Memory() noexcept
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleW(L"tier0"), "g_pMemAlloc"));
     SteamClient* steamClient = ((SteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleW(L"steam_api"), "SteamClient"))();
     steamGameCoordinator = (SteamGameCoordinator*)steamClient->getGenericInterface((void*)1, (void*)1, "SteamGameCoordinator001");
-    //cheat.local(reinterpret_cast<player_t*>(findPattern(crypt_str("client"), crypt_str("\xA1????\x89\x45\xBC\x85\xC0")) + 1));
+    localPlayer.init(*reinterpret_cast<player_t***>(findPattern(crypt_str("client"), crypt_str("\xA1????\x89\x45\xBC\x85\xC0")) + 1));
 
     createSimpleThread = reinterpret_cast<decltype(createSimpleThread)>(GetProcAddress(GetModuleHandleW(L"tier0.dll"), "CreateSimpleThread"));
     releaseThreadHandle = reinterpret_cast<decltype(releaseThreadHandle)>(GetProcAddress(GetModuleHandleW(L"tier0.dll"), "ReleaseThreadHandle"));

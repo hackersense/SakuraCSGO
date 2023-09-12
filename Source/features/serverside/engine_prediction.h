@@ -56,7 +56,7 @@ class engineprediction : public singleton<engineprediction>
 		float animation_time = 0.0f;
 	};
 public:
-	Netvars_data netvars_data[MULTIPLAYER_BACKUP];
+	std::array<Netvars_data, MULTIPLAYER_BACKUP> netvarData;
 	Backup_data backup_data;
 	Prediction_data prediction_data;
 	Viewmodel_data viewmodel_data;

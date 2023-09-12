@@ -4,8 +4,8 @@ struct Local_data
 {
 	bool visualize_lag = false;
 
-	c_baseplayeranimationstate* prediction_animstate = nullptr;
-	c_baseplayeranimationstate* animstate = nullptr;
+	AnimationState* prediction_animstate = nullptr;
+	AnimationState* animstate = nullptr;
 
 	Vector stored_real_angles = ZERO;
 	Vector real_angles = ZERO;
@@ -30,7 +30,7 @@ class local_animations : public singleton<local_animations>
 	AnimationLayer layers[15];
 
 	void update_fake_animations();
-	void update_local_animations(c_baseplayeranimationstate* animstate);
+	void update_local_animations(AnimationState* animstate);
 public:
 	Local_data local_data;
 

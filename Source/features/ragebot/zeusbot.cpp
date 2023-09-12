@@ -46,7 +46,7 @@ static bool compare_records(const adjust_data& first, const adjust_data& second)
 	else if (first.duck_amount != second.duck_amount)
 		return first.duck_amount < second.duck_amount;
 	else if (first.origin != second.origin)
-		return first.origin.DistTo(cheat.local()->GetAbsOrigin()) < second.origin.DistTo(cheat.local()->GetAbsOrigin());
+		return first.origin.DistTo(localPlayer->GetAbsOrigin()) < second.origin.DistTo(localPlayer->GetAbsOrigin());
 
 	return first.simulation_time > second.simulation_time;
 }
@@ -318,7 +318,7 @@ int zeusbot::hitchance(const Vector& aim_angle)
 
 	auto inaccuracy = weapon_info->flInaccuracyStand;
 
-	if (cheat.local()->m_fFlags() & FL_DUCKING)
+	if (localPlayer->m_fFlags() & FL_DUCKING)
 		inaccuracy = weapon_info->flInaccuracyCrouch;
 
 	if (cheat.globals.inaccuracy - 0.000001f < inaccuracy)

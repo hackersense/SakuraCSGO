@@ -3,7 +3,7 @@
 
 typedef float vec_t;
 // 3D Vector4D
-class Vector4D //-V690
+class Vector4D
 {
 public:
     // Members

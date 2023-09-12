@@ -149,9 +149,9 @@ static int get_new_animation(const uint32_t model, const int sequence) noexcept
 
 static void viewModelSequence(recvProxyData& data, void* arg2, void* arg3) noexcept
 {
-	if (cheat.local())
+	if (localPlayer)
 	{
-		if (const auto &activeWeapon = cheat.local()->m_hActiveWeapon())
+		if (const auto& activeWeapon = localPlayer->getActiveWeapon())
 		{
 			if (const auto weapon_info = game_data::get_weapon_info(activeWeapon->m_iItemDefinitionIndex()))
 				data.value._int = get_new_animation(fnv::hashRuntime(weapon_info->viewModel), data.value._int);
@@ -173,8 +173,8 @@ static void spottedHook(recvProxyData& data, void* outStruct, void* arg3) noexce
 	if (configs.misc.radar_hack) {
 		data.value._int = 1;
 
-		if (cheat.local())
-			if (const auto index = cheat.local()->EntIndex(); index > 0 && index <= 32)
+		if (localPlayer)
+			if (const auto index = localPlayer->EntIndex(); index > 0 && index <= 32)
 				entity->m_bSpottedByMask() |= 1 << (index - 1);
 	}
 

@@ -17,7 +17,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 			return;
 		}
 
-		if (cheat.local()->m_fFlags() & FL_ONGROUND && !(engineprediction::get().backup_data.flags & FL_ONGROUND))
+		if (localPlayer->m_fFlags() & FL_ONGROUND && !(engineprediction::get().backup_data.flags & FL_ONGROUND))
 		{
 			force_choke = true;
 			cheat.send_packet = false;
@@ -65,7 +65,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 		max_choke = fluctuate_ticks;
 		break;
 	case 4:
-		auto currentSpeed = cheat.local()->m_vecVelocity().Length2D();
+		auto currentSpeed = localPlayer->m_vecVelocity().Length2D();
 		auto extrapolatePerTick = currentSpeed * m_globals()->m_intervalpertick;
 		int chokeReq = std::ceilf(64.f / extrapolatePerTick);
 		max_choke = max(chokeReq, configs.fakelag.amount);
@@ -78,13 +78,13 @@ void fakelag::run(CUserCmd* m_pcmd)
 	if (misc::get().recharging_double_tap)
 		max_choke = cheat.globals.weapon->get_max_tickbase_shift();
 
-	//if (cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND && key_binds::get().get_key_bind_state(key_bind_features::FAKE_DUCK)) // && !m_gamerules()->m_bIsValveDS()&&
+	//if (localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND && key_binds::get().get_key_bind_state(key_bind_features::FAKE_DUCK)) // && !m_gamerules()->m_bIsValveDS()&&
 	//{
 	//	max_choke = 14;
 	//	cheat.send_packet = choked >= max_choke;
 	//}
 	//else
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND) || !(engineprediction::get().backup_data.flags & FL_ONGROUND) || !key_binds::get().get_key_bind_state(key_bind_features::FAKE_DUCK)) // && !m_gamerules()->m_bIsValveDS()&&
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND) || !(engineprediction::get().backup_data.flags & FL_ONGROUND) || !key_binds::get().get_key_bind_state(key_bind_features::FAKE_DUCK)) // && !m_gamerules()->m_bIsValveDS()&&
 	{
 		if (configs.ragebot.enabled && cheat.globals.current_weapon != -1 && !cheat.globals.exploits && configs.fakelag.enabled && configs.fakelag.enablers[FAKELAG_PEEK] && configs.fakelag.triggers_amount > 6 && !started_peeking && velocity >= 5.0f)
 		{
@@ -160,7 +160,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 				cheat.send_packet = true;
 			}
 		}
-		else if (!cheat.globals.exploits && configs.fakelag.enabled && velocity >= 5.0f && !cheat.globals.slowwalking && cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND && configs.fakelag.enablers[FAKELAG_MOVE])
+		else if (!cheat.globals.exploits && configs.fakelag.enabled && velocity >= 5.0f && !cheat.globals.slowwalking && localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND && configs.fakelag.enablers[FAKELAG_MOVE])
 		{
 			if (choked < max_choke)
 				cheat.send_packet = false;
@@ -175,7 +175,7 @@ void fakelag::run(CUserCmd* m_pcmd)
 				cheat.send_packet = true;
 			}
 		}
-		else if (!cheat.globals.exploits && configs.fakelag.enabled && !cheat.globals.slowwalking && !(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND) && configs.fakelag.enablers[FAKELAG_AIR])
+		else if (!cheat.globals.exploits && configs.fakelag.enabled && !cheat.globals.slowwalking && !(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND) && configs.fakelag.enablers[FAKELAG_AIR])
 		{
 			if (choked < max_choke)
 				cheat.send_packet = false;
@@ -242,7 +242,7 @@ bool fakelag::fakelag_condition(CUserCmd* m_pcmd)
 {
 	condition = false;
 
-	if (cheat.local()->m_bGunGameImmunity() || cheat.local()->m_fFlags() & FL_FROZEN)
+	if (localPlayer->m_bGunGameImmunity() || localPlayer->m_fFlags() & FL_FROZEN)
 		condition = true;
 
 	if ((antiaim::get().freeze_check || antiaim::get().cs_match_win) && !misc::get().double_tap_enabled && !misc::get().hide_shots_enabled)

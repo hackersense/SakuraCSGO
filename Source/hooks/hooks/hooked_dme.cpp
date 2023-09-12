@@ -18,10 +18,10 @@ NEWMaterial* CreateMaterial(bool lit, const std::string& material_data)
 
 using DrawModelExecute_t = void(__thiscall*)(IVModelRender*, IMatRenderContext*, const DrawModelState_t&, const ModelRenderInfo_t&, matrix3x4_t*);
 
-void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone_to_world)
+void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone_to_world) noexcept
 {
 	static auto original_fn = modelrender_hook->getOriginal<DrawModelExecute_t>(21);
-	
+
 	if (!configs.esp.enabled)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
@@ -31,7 +31,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	if (!info.pModel)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
-	auto model_entity = static_cast<player_t *>(m_entitylist()->GetClientEntity(info.entity_index));
+	auto model_entity = static_cast<player_t*>(m_entitylist()->GetClientEntity(info.entity_index));
 	auto name = m_modelinfo()->GetModelName(info.pModel);
 
 	auto is_player = strstr(name, "models/player") && model_entity->is_alive() && (configs.esp.type[ENEMY].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.type[TEAM].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.type[LOCAL].chams[PLAYER_CHAMS_VISIBLE] || configs.esp.fake_chams_enabled || configs.esp.backtrack_chams);
@@ -146,9 +146,9 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 	{
 		auto type = ENEMY;
 
-		if (model_entity == cheat.local())
+		if (model_entity == localPlayer.get())
 			type = LOCAL;
-		else if (model_entity->m_iTeamNum() == cheat.local()->m_iTeamNum())
+		else if (model_entity->m_iTeamNum() == localPlayer->m_iTeamNum())
 			type = TEAM;
 
 		if (type == ENEMY)
@@ -212,7 +212,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					m_modelrender()->ForcedMaterialOverride(material);
 					original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 					m_modelrender()->ForcedMaterialOverride(nullptr);
-					
+
 					alpha = (float)configs.esp.type[ENEMY].chams_color.a() / 255.0f;
 
 					float normal_color[3] =
@@ -235,7 +235,7 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 					if (configs.esp.type[ENEMY].animated_material)
 					{
 						auto animated_material = materials[9];
-						
+
 						if (animated_material)
 						{
 							alpha = (float)configs.esp.type[ENEMY].animated_material_color.a() / 255.0f;

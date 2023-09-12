@@ -4,7 +4,7 @@
 
 void antiaim::create_move(CUserCmd* m_pcmd)
 {
-	auto velocity = cheat.local()->m_vecVelocity().Length();
+	auto velocity = localPlayer->m_vecVelocity().Length();
 
 	type = ANTIAIM_STAND;
 
@@ -12,15 +12,15 @@ void antiaim::create_move(CUserCmd* m_pcmd)
 		type = ANTIAIM_LEGIT;
 	//else if (velocity >= 5.0f && cheat.globals.slowwalking)
 	//	type = ANTIAIM_SLOW_WALK;
-	else if (velocity >= 5.0f && cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND)
+	else if (velocity >= 5.0f && localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND)
 		type = ANTIAIM_MOVE;
-	else if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	else if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		type = ANTIAIM_AIR;
 
 	if (!configs.ragebot.enabled && type != ANTIAIM_LEGIT)
 		return;
 
-	if (condition(m_pcmd) || cheat.local()->m_fFlags() & FL_ATCONTROLS)
+	if (condition(m_pcmd) || localPlayer->m_fFlags() & FL_ATCONTROLS)
 		return;
 
 	/*
@@ -47,7 +47,7 @@ void antiaim::create_move(CUserCmd* m_pcmd)
 
 	m_pcmd->m_viewangles.y = get_yaw(m_pcmd);
 
-	if (type != ANTIAIM_LEGIT && (cheat.local()->m_vecVelocity().Length2D() < 1.3f))
+	if (type != ANTIAIM_LEGIT && (localPlayer->m_vecVelocity().Length2D() < 1.3f))
 		m_pcmd->m_viewangles.z = max(min(configs.antiaim.type[type].roll, 50), -50);
 	else if (type == ANTIAIM_LEGIT)
 		m_pcmd->m_viewangles.z = 0.0f;
@@ -78,7 +78,7 @@ bool antiaim::anti_brute(bool flip)
 		if (!e->valid(true))
 			continue;
 
-		auto weapon = e->m_hActiveWeapon().Get();
+		auto weapon = e->getActiveWeapon();
 		if (!weapon)
 			continue;
 
@@ -128,7 +128,7 @@ void antiaim::jitter_move(CUserCmd* m_pcmd)
 	auto tickrate = static_cast<int>(1.0f / m_globals()->m_intervalpertick);
 	const auto speed_per_tick = 5.0f / tickrate;
 
-	if (!configs.antiaim.jitter_move || (cheat.local()->m_fFlags() & FL_FROZEN) || cheat.local()->m_bGunGameImmunity())
+	if (!configs.antiaim.jitter_move || (localPlayer->m_fFlags() & FL_FROZEN) || localPlayer->m_bGunGameImmunity())
 		return;
 
 	const float move_length = Vector(forwardmove, sidemove, upmove).Length();
@@ -140,7 +140,7 @@ void antiaim::jitter_move(CUserCmd* m_pcmd)
 		else
 			accelerationSpeed = 100.0;
 
-	const float origin_velocity = (accelerationSpeed / 100.0) * cheat.local()->get_max_player_speed();
+	const float origin_velocity = (accelerationSpeed / 100.0) * localPlayer->get_max_player_speed();
 	if (origin_velocity <= 0.0f || move_length < 10.0 || move_length < origin_velocity)
 		return;
 
@@ -232,7 +232,7 @@ float antiaim::get_yaw(CUserCmd* m_pcmd)
 	if (cheat.send_packet)
 		invert_jitter = !invert_jitter;
 
-	auto max_desync_delta = cheat.local()->get_max_desync_delta();
+	auto max_desync_delta = localPlayer->get_max_desync_delta();
 
 	auto yaw = 0.0f;
 	auto lby_type = 0;
@@ -253,7 +253,7 @@ float antiaim::get_yaw(CUserCmd* m_pcmd)
 
 		desync_angle = max_desync_delta;
 
-		if (configs.antiaim.legit_lby_type && cheat.local()->m_vecVelocity().Length() < 5.0f && cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND)
+		if (configs.antiaim.legit_lby_type && localPlayer->m_vecVelocity().Length() < 5.0f && localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND)
 			desync_angle *= 2.f;
 
 		if (flip)
@@ -497,13 +497,13 @@ bool antiaim::condition(CUserCmd* m_pcmd, bool dynamic_check)
 	if (!configs.antiaim.enabled)
 		return true;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return true;
 
-	if (cheat.local()->m_bGunGameImmunity() || cheat.local()->m_fFlags() & FL_FROZEN)
+	if (localPlayer->m_bGunGameImmunity() || localPlayer->m_fFlags() & FL_FROZEN)
 		return true;
 
-	if (cheat.local()->get_move_type() == MOVETYPE_NOCLIP || cheat.local()->get_move_type() == MOVETYPE_LADDER)
+	if (localPlayer->get_move_type() == MOVETYPE_NOCLIP || localPlayer->get_move_type() == MOVETYPE_LADDER)
 		return true;
 
 	if (cheat.globals.aimbot_working)
@@ -542,13 +542,13 @@ bool antiaim::should_break_lby(CUserCmd* m_pcmd)
 	//	fakelag::get().started_peeking = false;
 	//}
 
-	//if (cheat.local()->m_vecVelocity().Length2D() > 0.1f || fabsf(cheat.local()->m_vecVelocity().z) > 100.f)
-	auto animstate = cheat.local()->get_animation_state();
+	//if (localPlayer->m_vecVelocity().Length2D() > 0.1f || fabsf(localPlayer->m_vecVelocity().z) > 100.f)
+	auto animstate = localPlayer->get_animation_state();
 
 	if (!animstate)
 		return false;
 	/*
-	if (animstate->m_flVelocity > 0.1f || fabs(animstate->m_flUpVelocity) > 100.0f)
+	if (animstate->m_flVelocityLengthXY > 0.1f || fabs(animstate->m_flVelocityLengthZ) > 100.0f)
 		cheat.globals.next_lby_update = util::server_time() + 0.22f;
 	else if (util::server_time() >= cheat.globals.next_lby_update)
 	{
@@ -556,7 +556,7 @@ bool antiaim::should_break_lby(CUserCmd* m_pcmd)
 		return true;
 	}
 	*/
-	if (animstate->m_flVelocity > 0.1f || fabs(animstate->m_flUpVelocity) > 100.0f)
+	if (animstate->m_flVelocityLengthXY > 0.1f || fabs(animstate->m_flVelocityLengthZ) > 100.0f)
 		cheat.globals.next_lby_update = TICKS_TO_TIME(cheat.globals.fixed_tickbase + 14);
 	else if (TICKS_TO_TIME(cheat.globals.fixed_tickbase) > cheat.globals.next_lby_update)
 	{
@@ -579,7 +579,7 @@ float antiaim::at_targets()
 		if (!e->valid(true))
 			continue;
 
-		auto weapon = e->m_hActiveWeapon().Get();
+		auto weapon = e->getActiveWeapon();
 
 		if (!weapon)
 			continue;
@@ -626,7 +626,7 @@ bool antiaim::automatic_direction()
 
 	math::angle_vectors(engineViewAngles, &forward, &right, &up);
 
-	filter.pSkip = cheat.local();
+	filter.pSkip = localPlayer.get();
 	src3D = cheat.globals.eye_pos;
 	dst3D = src3D + forward * 100.0f;
 
@@ -681,7 +681,7 @@ void antiaim::freestanding(CUserCmd* m_pcmd)
 
 	math::angle_vectors(engineViewAngles, &forward, &right, &up);
 
-	filter.pSkip = cheat.local();
+	filter.pSkip = localPlayer.get();
 	src3D = cheat.globals.eye_pos;
 	dst3D = src3D + forward * 100.0f;
 

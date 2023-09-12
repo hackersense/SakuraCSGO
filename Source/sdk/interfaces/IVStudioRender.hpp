@@ -45,4 +45,9 @@ public:
 	{
 		CallVFunc<void>(this, 33, pMaterial, nOverrideType, nOverrides);
 	}
+
+	void ForcedMaterialOverride(IMaterial* pMaterial, OverrideType_t nOverrideType = 0, int nOverrides = 0)
+	{
+		CallVFunc<void>(this, 33, pMaterial, nOverrideType, nOverrides);
+	}
 };

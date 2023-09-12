@@ -117,6 +117,34 @@ LPDIRECT3DTEXTURE9 c_menu::steam_image_friends(CSteamID SteamId)
 	return asdgsdgadsg;
 }
 
+void menu::resetAll()
+{
+	c_lua::get().unload_all_scripts();
+
+	for (auto& script : configs.scripts.scripts)
+		c_lua::get().load_script(c_lua::get().get_script_id(script));
+
+	scripts = c_lua::get().scripts;
+
+	if (selected_script >= scripts.size())
+		selected_script = scripts.size() - 1;
+
+	for (auto& current : scripts)
+	{
+		if (current.size() >= 5 && current.at(current.size() - 1) == 'c')
+			current.erase(current.size() - 5, 5);
+		else if (current.size() >= 4)
+			current.erase(current.size() - 4, 4);
+	}
+
+	for (auto i = 0; i < configs.skins.skinChanger.size(); ++i)
+		all_skins[i] = nullptr;
+
+	configs.scripts.scripts.clear();
+
+	cfg_manager->config_files();
+}
+
 std::string get_weapon(int id, int custom_index = -1, bool knife = true)
 {
 	if (custom_index > -1)
@@ -576,31 +604,32 @@ void menu::draw()
 		float fc = 255.f / 0.2f * ImGui::GetIO().DeltaTime;
 		ImGui::GetStyle().Alpha = std::clamp(ImGui::GetStyle().Alpha + fc / 255.f, 0.f, 1.f);
 	}
-	*/
-	//if (!this->m_bIsOpened && ImGui::GetStyle().Alpha == 0.f)
-	//	return;
 
-	//if (!c_menu::get().load_success)
-	//{
-	//	c_menu::get().load_success = true;
-	//	Hooks::menu_open = true;
-	//	return;
-	//}
+	if (!this->m_bIsOpened && ImGui::GetStyle().Alpha == 0.f)
+		return;
+
+	if (!c_menu::get().load_success)
+	{
+		c_menu::get().load_success = true;
+		Hooks::menu_open = true;
+		return;
+	}
+	*/
 
 	if (!c_menu::get().load_success)
 	{
 		static int width, height;
 		m_engine()->GetScreenSize(width, height);
-		bool success = (load_number >= 50);
+		bool success = (load_number >= 30);
 		ImGui::PushFont(skeet_menu.title);
-		auto title_size = ImGui::CalcTextSize("Sakura.cc");
+		auto title_size = ImGui::CalcTextSize("Sakura.cc (Free Edition)");
 		ImGui::PopFont();
 		ImGui::PushFont(skeet_menu.text);
 		auto text_size = ImGui::CalcTextSize("Flower fall and people die");
 		auto text_size2 = ImGui::CalcTextSize(success ? ("Welcome you! " + cheat.username).c_str() : loading.at(static_cast<int>(load_number) % 6));
 		//auto free_size = ImGui::CalcTextSize("You are using free edition.");
 		ImGui::PopFont();
-		ImGui::GetBackgroundDrawList()->AddText(skeet_menu.title, 50, ImVec2((width / 2) - (title_size.x / 2), (height / 2) - title_size.y - 30), ImColor(255, 191, 192, text_alpha), "Sakura.cc");
+		ImGui::GetBackgroundDrawList()->AddText(skeet_menu.title, 50, ImVec2((width / 2) - (title_size.x / 2), (height / 2) - title_size.y - 30), ImColor(255, 191, 192, text_alpha), "Sakura.cc (Free Edition)");
 		ImGui::GetBackgroundDrawList()->AddTextShadow(skeet_menu.text, 25, ImVec2((width / 2) - (text_size.x / 2), (height / 2) - text_size.y), ImColor(255, 191, 192, text_alpha), "Flower fall and people die");
 		ImGui::GetBackgroundDrawList()->AddTextShadow(skeet_menu.text, 25, ImVec2((width / 2) - (text_size2.x / 2), (height / 2) - text_size2.y + 30), ImColor(255, 191, 192, loading_alpha), success ? ("Welcome you! " + cheat.username).c_str() : loading.at(static_cast<int>(load_number) % 6));
 		ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(0, 0), ImVec2(width, height), ImColor(255, 192, 203, background_alpha));
@@ -1649,7 +1678,8 @@ void menu::draw()
 				}
 			}
 
-			//ImGui::CheckboxSkeet(crypt_str("Draw server hitboxes"), &configs.misc.server_hitbox);
+			if (cheat.isDebugMode)
+				ImGui::CheckboxSkeet(crypt_str("Draw server hitboxes"), &configs.misc.server_hitbox);
 
 			ImGui::CheckboxSkeet(crypt_str("Reveal votes"), &configs.misc.reveal_votes);
 

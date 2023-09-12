@@ -156,7 +156,7 @@ static bool compare_records(const optimized_adjust_data& first, const optimized_
 	else if (first.duck_amount != second.duck_amount)
 		return first.duck_amount < second.duck_amount;
 	else if (first.origin != second.origin)
-		return first.origin.DistTo(cheat.local()->GetAbsOrigin()) < second.origin.DistTo(cheat.local()->GetAbsOrigin());
+		return first.origin.DistTo(localPlayer->GetAbsOrigin()) < second.origin.DistTo(localPlayer->GetAbsOrigin());
 
 	return first.simulation_time > second.simulation_time;
 }
@@ -305,7 +305,7 @@ bool ragebot::automatic_stop(CUserCmd* cmd)
 	if (cheat.globals.slowwalking)
 		return true;
 
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		return true;
 
 	if (cheat.globals.weapon->is_empty())
@@ -314,11 +314,11 @@ bool ragebot::automatic_stop(CUserCmd* cmd)
 	if (!currentWeapon.autostop_modifiers[AUTOSTOP_BETWEEN_SHOTS] && !cheat.globals.weapon->can_fire(false))
 		return true;
 
-	auto animlayer = cheat.local()->get_animlayers()[ANIMATION_LAYER_WEAPON_ACTION];
+	auto animlayer = localPlayer->get_animlayers()[ANIMATION_LAYER_WEAPON_ACTION];
 
 	if (animlayer.m_iSequence)
 	{
-		auto activity = cheat.local()->sequence_activity(animlayer.m_iSequence);
+		auto activity = localPlayer->sequence_activity(animlayer.m_iSequence);
 
 		if (activity == ACT_CSGO_RELOAD && animlayer.m_flWeight > 0.0f)
 			return true;
@@ -330,12 +330,12 @@ bool ragebot::automatic_stop(CUserCmd* cmd)
 		return true;
 
 	auto get_standing_accuracy = [&]() -> const float
-	{
-		const auto max_speed = cheat.globals.weapon->m_zoomLevel() > 0 ? weapon_info->flMaxPlayerSpeed : weapon_info->flMaxPlayerSpeedAlt;
-		return max_speed / 3.f;
-	};
+		{
+			const auto max_speed = cheat.globals.weapon->m_zoomLevel() > 0 ? weapon_info->flMaxPlayerSpeed : weapon_info->flMaxPlayerSpeedAlt;
+			return max_speed / 3.f;
+		};
 
-	auto& velocity = cheat.local()->m_vecVelocity();
+	auto& velocity = localPlayer->m_vecVelocity();
 	float speed = velocity.Length2D();
 	float max_speed = (cheat.globals.weapon->m_zoomLevel() == 0 ? weapon_info->flMaxPlayerSpeed : weapon_info->flMaxPlayerSpeedAlt) * 0.1f;
 
@@ -437,7 +437,7 @@ bool ragebot::baimHitboxesCheck(int hitbox)
 
 void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_position, bool optimized)
 {
-	auto weapon = optimized ? cheat.local()->m_hActiveWeapon().Get() : cheat.globals.weapon;
+	auto weapon = optimized ? localPlayer->getActiveWeapon() : cheat.globals.weapon;
 
 	if (!weapon)
 		return;
@@ -452,33 +452,33 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 	if (hitboxes.empty())
 		return;
 
-	auto force_safe_points = (record->player->m_iHealth() <= weapon_info->iDamage && currentWeapon.safe_points_conditions[SAFEPOINTS_LOWDAMAGE]) || key_binds::get().get_key_bind_state(key_bind_features::SAFE_POINT) || configs.player_list.force_safe_points[record->index] || (currentWeapon.max_misses && cheat.globals.missed_shots[record->index] >= currentWeapon.max_misses_amount);
+	auto force_safe_points = ((record->player->m_iHealth() <= weapon_info->iDamage) && currentWeapon.safe_points_conditions[SAFEPOINTS_LOWDAMAGE]) || key_binds::get().get_key_bind_state(key_bind_features::SAFE_POINT) || configs.player_list.force_safe_points[record->index] || (currentWeapon.max_misses && cheat.globals.missed_shots[record->index] >= currentWeapon.max_misses_amount);
 	auto best_damage = 0;
 
-	auto best_body_damage = 0.f;
-	auto prev_hitbox = -1;
-	scan_data best_data;
+	//auto best_body_damage = 0.f;
+	//auto prev_hitbox = -1;
+	//scan_data best_data;
 
 	auto minimum_damage = get_minimum_damage(false, record->player->m_iHealth());
 	auto minimum_visible_damage = get_minimum_damage(true, record->player->m_iHealth());
 
 	auto get_hitgroup = [](const int& hitbox)
-	{
-		if (hitbox == HITBOX_HEAD)
-			return 0;
-		else if (hitbox == HITBOX_PELVIS)
-			return 1;
-		else if (hitbox == HITBOX_STOMACH)
-			return 2;
-		else if (hitbox >= HITBOX_LOWER_CHEST && hitbox <= HITBOX_UPPER_CHEST)
-			return 3;
-		else if (hitbox >= HITBOX_RIGHT_THIGH && hitbox <= HITBOX_LEFT_FOOT)
-			return 4;
-		else if (hitbox >= HITBOX_RIGHT_HAND && hitbox <= HITBOX_LEFT_LOWER_ARM)
-			return 5;
+		{
+			if (hitbox == HITBOX_HEAD)
+				return 0;
+			else if (hitbox == HITBOX_PELVIS)
+				return 1;
+			else if (hitbox == HITBOX_STOMACH)
+				return 2;
+			else if (hitbox >= HITBOX_LOWER_CHEST && hitbox <= HITBOX_UPPER_CHEST)
+				return 3;
+			else if (hitbox >= HITBOX_RIGHT_THIGH && hitbox <= HITBOX_LEFT_FOOT)
+				return 4;
+			else if (hitbox >= HITBOX_RIGHT_HAND && hitbox <= HITBOX_LEFT_LOWER_ARM)
+				return 5;
 
-		return -1;
-	};
+			return -1;
+		};
 
 	std::vector<scan_point> points;
 
@@ -495,7 +495,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 		for (auto& point : current_points)
 		{
 			//point.safe = record->robot || (hitbox_intersection(record->player, record->matrixes_data.zero, hitbox, shoot_position, point.point) && hitbox_intersection(record->player, record->matrixes_data.first, hitbox, shoot_position, point.point) && hitbox_intersection(record->player, record->matrixes_data.second, hitbox, shoot_position, point.point));
-			
+
 			if (!record->robot)
 			{
 				auto safe = 0.0f;
@@ -519,6 +519,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 		}
 	}
 
+	/*
 	if (!optimized)
 	{
 		for (auto& point : points)
@@ -548,6 +549,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 			}
 		}
 	}
+	*/
 
 	if (points.empty())
 		return;
@@ -566,7 +568,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 	{
 		if (!optimized && !point.safe)
 		{
-			if (currentWeapon.safe_points_conditions[SAFEPOINTS_VISIBLE] && util::visible(cheat.globals.eye_pos, point.point, record->player, cheat.local()))
+			if (currentWeapon.safe_points_conditions[SAFEPOINTS_VISIBLE] && util::visible(cheat.globals.eye_pos, point.point, record->player, localPlayer.get()))
 				continue;
 
 			if (currentWeapon.safe_points_conditions[SAFEPOINTS_INAIR] && !(record->flags & FL_ONGROUND))
@@ -735,11 +737,12 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 				continue;
 
 			best_damage = fire_data.damage;
+
 			data.point = point;
 			data.visible = fire_data.visible;
 			data.damage = best_damage;
 			data.hitbox = fire_data.hitbox;
-			
+
 			//data.point = best_data.point;
 			//data.visible = best_data.visible;
 			//data.damage = best_data.damage;
@@ -750,6 +753,7 @@ void ragebot::scan(adjust_data* record, scan_data& data, const Vector& shoot_pos
 
 			if (optimized)
 				break;
+			//return;
 		}
 	}
 }
@@ -795,7 +799,7 @@ std::vector<int> ragebot::get_hitboxes(adjust_data* record, bool optimized)
 	float desired_speed = .1f;
 
 	// get weapon.
-	weapon_t* weapon = record->player->m_hActiveWeapon().Get();
+	weapon_t* weapon = record->player->getActiveWeapon();
 	if (weapon)
 	{
 		// get weapon info.
@@ -853,7 +857,7 @@ std::vector<int> ragebot::get_hitboxes(adjust_data* record, bool optimized)
 
 float ragebot::GetBodyScale(player_t* player)
 {
-	if (currentWeapon.body_scale)
+	if (currentWeapon.scan_point_mode == 1 && currentWeapon.body_scale)
 		return currentWeapon.body_scale;
 
 	auto weapon_info = cheat.globals.weapon->get_weapon_info();
@@ -865,17 +869,17 @@ float ragebot::GetBodyScale(player_t* player)
 		return 1.f - 1.f / (1.f + pow(2.f, (-([](float x, float min, float max) {
 			return ((x - min) * 2.f) / (max - min) - 1.f;
 			}(x, min, max)) / 0.115f)));
-	}(player->m_vecOrigin().DistTo(cheat.globals.eye_pos), 0.f, weapon_info->flRange / 4.f);
+		}(player->m_vecOrigin().DistTo(cheat.globals.eye_pos), 0.f, weapon_info->flRange / 4.f);
 
-	if (cheat.globals.weapon->is_sniper() && !cheat.local()->m_bIsScoped())
-		factor = 0.f;
+		if (cheat.globals.weapon->is_sniper() && !localPlayer->m_bIsScoped())
+			factor = 0.f;
 
-	return std::clamp(factor, 0.f, 0.75f);
+		return std::clamp(factor, 0.f, 0.75f);
 }
 
 float ragebot::GetHeadScale(player_t* player)
 {
-	if (currentWeapon.head_scale)
+	if (currentWeapon.scan_point_mode == 1 && currentWeapon.head_scale)
 		return currentWeapon.head_scale;
 
 	if (player->m_fFlags() & FL_ONGROUND)
@@ -1062,6 +1066,90 @@ std::vector<scan_point> ragebot::get_points(adjust_data* record, int hitbox, boo
 			{
 				if (currentWeapon.multipoints_hitboxes.at(6))
 					points.emplace_back(scan_point(Vector(bbox->bbmax.x + bbox->radius, center.y, center.z), hitbox, false));
+			}
+		}
+	}
+	else if (currentWeapon.scan_point_mode == 1)
+	{
+		auto center = (bbox->bbmin + bbox->bbmax) * 0.5f;
+		if (bbox->radius <= 0.0f)
+		{
+			auto rotation_matrix = math::angle_matrix(bbox->rotation);
+
+			matrix3x4_t matrix;
+			math::concat_transforms(record->matrixes_data.main[bbox->bone], rotation_matrix, matrix);
+
+			auto origin = matrix.GetOrigin();
+
+			if (hitbox == HITBOX_RIGHT_FOOT || hitbox == HITBOX_LEFT_FOOT)
+			{
+				auto side = (bbox->bbmin.z - center.z) * 0.875f;
+
+				if (hitbox == HITBOX_LEFT_FOOT)
+					side = -side;
+
+				points.emplace_back(scan_point(Vector(center.x, center.y, center.z + side), hitbox, true));
+
+				auto min = (bbox->bbmin.x - center.x) * 0.875f;
+				auto max = (bbox->bbmax.x - center.x) * 0.875f;
+
+				points.emplace_back(scan_point(Vector(center.x + min, center.y, center.z), hitbox, false));
+				points.emplace_back(scan_point(Vector(center.x + max, center.y, center.z), hitbox, false));
+			}
+		}
+		else
+		{
+			auto scale = (hitbox == HITBOX_HEAD) ? GetHeadScale(record->player) : GetBodyScale(record->player);
+
+			if (currentWeapon.adaptive_point_scale && (record->player->get_max_desync_delta() < 33.f || record->shot || record->robot))
+				scale *= .5f;
+
+			if (scale <= 0.0f)
+			{
+				math::vector_transform(center, record->matrixes_data.main[bbox->bone], center);
+				points.emplace_back(scan_point(center, hitbox, true));
+
+				return points;
+			}
+
+			auto final_radius = bbox->radius * scale;
+
+			if (hitbox == HITBOX_HEAD)
+			{
+				auto pitch_down = math::normalize_pitch(record->angles.x) > 85.0f;
+				auto backward = fabs(math::normalize_yaw(record->angles.y - math::calculate_angle(record->player->get_eye_position(), localPlayer->GetAbsOrigin()).y)) > 120.0f;
+
+				points.emplace_back(scan_point(center, hitbox, !pitch_down || !backward));
+
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x + 0.70710678f * final_radius, bbox->bbmax.y - 0.70710678f * final_radius, bbox->bbmax.z), hitbox, false));
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + final_radius), hitbox, false));
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - final_radius), hitbox, false));
+
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y - final_radius, bbox->bbmax.z), hitbox, false));
+
+				if (pitch_down && backward)
+					points.emplace_back(scan_point(Vector(bbox->bbmax.x - final_radius, bbox->bbmax.y, bbox->bbmax.z), hitbox, false));
+			}
+			else if (hitbox >= HITBOX_PELVIS && hitbox <= HITBOX_UPPER_CHEST)
+			{
+				points.emplace_back(scan_point(center, hitbox, true));
+
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z + final_radius), hitbox, false));
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x, bbox->bbmax.y, bbox->bbmax.z - final_radius), hitbox, false));
+
+				points.emplace_back(scan_point(Vector(center.x, bbox->bbmax.y - final_radius, center.z), hitbox, true));
+			}
+			else if (hitbox == HITBOX_RIGHT_CALF || hitbox == HITBOX_LEFT_CALF)
+			{
+				points.emplace_back(scan_point(center, hitbox, true));
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x - final_radius, bbox->bbmax.y, bbox->bbmax.z), hitbox, false));
+			}
+			else if (hitbox == HITBOX_RIGHT_THIGH || hitbox == HITBOX_LEFT_THIGH)
+				points.emplace_back(scan_point(center, hitbox, true));
+			else if (hitbox == HITBOX_RIGHT_UPPER_ARM || hitbox == HITBOX_LEFT_UPPER_ARM)
+			{
+				points.emplace_back(scan_point(center, hitbox, true));
+				points.emplace_back(scan_point(Vector(bbox->bbmax.x + final_radius, center.y, center.z), hitbox, false));
 			}
 		}
 	}
@@ -1261,7 +1349,7 @@ std::vector<scan_point> ragebot::get_points(adjust_data* record, int hitbox, boo
 			if (hitbox == HITBOX_HEAD)
 			{
 				auto pitch_down = math::normalize_pitch(record->angles.x) > 85.0f;
-				auto backward = fabs(math::normalize_yaw(record->angles.y - math::calculate_angle(record->eye_position, cheat.local()->GetAbsOrigin()).y)) > 120.0f;
+				auto backward = fabs(math::normalize_yaw(record->angles.y - math::calculate_angle(record->eye_position, localPlayer->GetAbsOrigin()).y)) > 120.0f;
 
 				points.emplace_back(scan_point(center, hitbox, !pitch_down || !backward));
 
@@ -1363,7 +1451,7 @@ void ragebot::fire(CUserCmd* cmd)
 
 	if (hitchance_amount)
 	{
-		final_hitchance = (cheat.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 && !(cheat.local()->m_fFlags() & FL_ONGROUND) && (!(engineprediction::get().backup_data.flags & FL_ONGROUND) && fabs(engineprediction::get().backup_data.velocity.z) < 5.0f && engineprediction::get().backup_data.velocity.Length2D() < 5.0f)) ? 101 : hitchance(aim_angle);
+		final_hitchance = (cheat.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 && !(localPlayer->m_fFlags() & FL_ONGROUND) && (!(engineprediction::get().backup_data.flags & FL_ONGROUND) && fabs(engineprediction::get().backup_data.velocity.z) < 5.0f && engineprediction::get().backup_data.velocity.Length2D() < 5.0f)) ? 101 : hitchance(aim_angle);
 
 		if (final_hitchance < hitchance_amount)
 		{
@@ -1374,7 +1462,7 @@ void ragebot::fire(CUserCmd* cmd)
 			if (can_scope && configs.ragebot.autoscope != 0 && (configs.ragebot.autoscope == 1 || (configs.ragebot.autoscope == 2 && !hit)))
 				cmd->m_buttons |= IN_ZOOM;
 
-				//cmd->m_buttons |= IN_ATTACK2;
+			//cmd->m_buttons |= IN_ATTACK2;
 
 			return;
 		}
@@ -1387,7 +1475,7 @@ void ragebot::fire(CUserCmd* cmd)
 	{
 		auto original_tickbase = cheat.globals.backup_tickbase;
 
-		if (misc::get().double_tap_enabled && configs.ragebot.double_tap_key.key > KEY_NONE && configs.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key && !cheat.local()->m_bGunGameImmunity() && !(cheat.local()->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && !cheat.globals.weapon->is_grenade() && cheat.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && cheat.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
+		if (misc::get().double_tap_enabled && configs.ragebot.double_tap_key.key > KEY_NONE && configs.ragebot.double_tap_key.key < KEY_MAX && misc::get().double_tap_key && !localPlayer->m_bGunGameImmunity() && !(localPlayer->m_fFlags() & FL_FROZEN) && !antiaim::get().freeze_check && !cheat.globals.weapon->is_grenade() && cheat.globals.weapon->m_iItemDefinitionIndex() != WEAPON_TASER && cheat.globals.weapon->m_iItemDefinitionIndex() != WEAPON_REVOLVER)
 			original_tickbase += cheat.globals.weapon->get_max_tickbase_shift();
 
 		static auto sv_maxunlag = m_cvar()->FindVar(crypt_str("sv_maxunlag"));
@@ -1399,83 +1487,83 @@ void ragebot::fire(CUserCmd* cmd)
 	}
 
 	static auto get_hitbox_name = [](int hitbox, bool shot_info = false) -> std::string
-	{
-		switch (hitbox)
 		{
-		case HITBOX_HEAD:
-			return shot_info ? crypt_str("head") : crypt_str("Head");
-		case HITBOX_LOWER_CHEST:
-			return shot_info ? crypt_str("lower chest") : crypt_str("Lower chest");
-		case HITBOX_CHEST:
-			return shot_info ? crypt_str("chest") : crypt_str("Chest");
-		case HITBOX_UPPER_CHEST:
-			return shot_info ? crypt_str("upper chest") : crypt_str("Upper chest");
-		case HITBOX_STOMACH:
-			return shot_info ? crypt_str("stomach") : crypt_str("Stomach");
-		case HITBOX_PELVIS:
-			return shot_info ? crypt_str("pelvis") : crypt_str("Pelvis");
-		case HITBOX_RIGHT_UPPER_ARM:
-		case HITBOX_RIGHT_LOWER_ARM:
-		case HITBOX_RIGHT_HAND:
-			return shot_info ? crypt_str("left arm") : crypt_str("Left arm");
-		case HITBOX_LEFT_UPPER_ARM:
-		case HITBOX_LEFT_LOWER_ARM:
-		case HITBOX_LEFT_HAND:
-			return shot_info ? crypt_str("right arm") : crypt_str("Right arm");
-		case HITBOX_RIGHT_THIGH:
-		case HITBOX_RIGHT_CALF:
-			return shot_info ? crypt_str("left leg") : crypt_str("Left leg");
-		case HITBOX_LEFT_THIGH:
-		case HITBOX_LEFT_CALF:
-			return shot_info ? crypt_str("right leg") : crypt_str("Right leg");
-		case HITBOX_RIGHT_FOOT:
-			return shot_info ? crypt_str("left foot") : crypt_str("Left foot");
-		case HITBOX_LEFT_FOOT:
-			return shot_info ? crypt_str("right foot") : crypt_str("Right foot");
-		}
-	};
+			switch (hitbox)
+			{
+			case HITBOX_HEAD:
+				return shot_info ? crypt_str("head") : crypt_str("Head");
+			case HITBOX_LOWER_CHEST:
+				return shot_info ? crypt_str("lower chest") : crypt_str("Lower chest");
+			case HITBOX_CHEST:
+				return shot_info ? crypt_str("chest") : crypt_str("Chest");
+			case HITBOX_UPPER_CHEST:
+				return shot_info ? crypt_str("upper chest") : crypt_str("Upper chest");
+			case HITBOX_STOMACH:
+				return shot_info ? crypt_str("stomach") : crypt_str("Stomach");
+			case HITBOX_PELVIS:
+				return shot_info ? crypt_str("pelvis") : crypt_str("Pelvis");
+			case HITBOX_RIGHT_UPPER_ARM:
+			case HITBOX_RIGHT_LOWER_ARM:
+			case HITBOX_RIGHT_HAND:
+				return shot_info ? crypt_str("left arm") : crypt_str("Left arm");
+			case HITBOX_LEFT_UPPER_ARM:
+			case HITBOX_LEFT_LOWER_ARM:
+			case HITBOX_LEFT_HAND:
+				return shot_info ? crypt_str("right arm") : crypt_str("Right arm");
+			case HITBOX_RIGHT_THIGH:
+			case HITBOX_RIGHT_CALF:
+				return shot_info ? crypt_str("left leg") : crypt_str("Left leg");
+			case HITBOX_LEFT_THIGH:
+			case HITBOX_LEFT_CALF:
+				return shot_info ? crypt_str("right leg") : crypt_str("Right leg");
+			case HITBOX_RIGHT_FOOT:
+				return shot_info ? crypt_str("left foot") : crypt_str("Left foot");
+			case HITBOX_LEFT_FOOT:
+				return shot_info ? crypt_str("right foot") : crypt_str("Right foot");
+			}
+		};
 
 	static auto get_resolver_type = [](ResolverType type) -> std::string
-	{
-		switch (type)
 		{
-		case ResolverType::ORIGINAL:
-			return crypt_str("Orig ");
-		case ResolverType::BRUTEFORCE:
-			return crypt_str("BF ");
-		case ResolverType::LBY:
-			return crypt_str("LBY ");
-		case ResolverType::LAYERS:
-			return crypt_str("Layer ");
-		case ResolverType::TRACE:
-			return crypt_str("Trace ");
-		case ResolverType::DIRECTIONAL:
-			return crypt_str("Dir ");
-		}
-	};
+			switch (type)
+			{
+			case ResolverType::ORIGINAL:
+				return crypt_str("Orig ");
+			case ResolverType::BRUTEFORCE:
+				return crypt_str("BF ");
+			case ResolverType::LBY:
+				return crypt_str("LBY ");
+			case ResolverType::LAYERS:
+				return crypt_str("Layer ");
+			case ResolverType::TRACE:
+				return crypt_str("Trace ");
+			case ResolverType::DIRECTIONAL:
+				return crypt_str("Dir ");
+			}
+		};
 
 	static auto get_side_type = [](ResolverSide type) -> std::string
-	{
-		switch (type)
 		{
-		case ResolverSide::RESOLVER_ORIGINAL:
-			return crypt_str("Orig ");
-		case ResolverSide::RESOLVER_ZERO:
-			return crypt_str("Zero ");
-		case ResolverSide::RESOLVER_FIRST:
-			return crypt_str("R1 ");
-		case ResolverSide::RESOLVER_SECOND:
-			return crypt_str("R2 ");
-		case ResolverSide::RESOLVER_LOW_FIRST:
-			return crypt_str("RL1 ");
-		case ResolverSide::RESOLVER_LOW_SECOND:
-			return crypt_str("RL2 ");
-		case ResolverSide::RESOLVER_DEFAULT:
-			return crypt_str("Def ");
-		default:
-			return crypt_str("Unknown ");
-		}
-	};
+			switch (type)
+			{
+			case ResolverSide::RESOLVER_ORIGINAL:
+				return crypt_str("Orig ");
+			case ResolverSide::RESOLVER_ZERO:
+				return crypt_str("Zero ");
+			case ResolverSide::RESOLVER_FIRST:
+				return crypt_str("R1 ");
+			case ResolverSide::RESOLVER_SECOND:
+				return crypt_str("R2 ");
+			case ResolverSide::RESOLVER_LOW_FIRST:
+				return crypt_str("RL1 ");
+			case ResolverSide::RESOLVER_LOW_SECOND:
+				return crypt_str("RL2 ");
+			case ResolverSide::RESOLVER_DEFAULT:
+				return crypt_str("Def ");
+			default:
+				return crypt_str("Unknown ");
+			}
+		};
 
 	PlayerInfo player_info;
 	m_engine()->GetPlayerInfo(final_target.record->index, &player_info);
@@ -1490,9 +1578,9 @@ void ragebot::fire(CUserCmd* cmd)
 
 		auto new_aim_angle = math::calculate_angle(cheat.globals.eye_pos, pos).Clamp();
 
-		float yaw = new_aim_angle.y - cheat.local()->m_aimPunchAngle().y * 2;
+		float yaw = new_aim_angle.y - localPlayer->m_aimPunchAngle().y * 2;
 
-		float pitch = new_aim_angle.x - cheat.local()->m_aimPunchAngle().x * 2;
+		float pitch = new_aim_angle.x - localPlayer->m_aimPunchAngle().x * 2;
 
 		aim_angle = Vector(pitch, yaw, aim_angle.z);
 	}
@@ -1559,7 +1647,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 	auto spread = ZERO;
 
 	//static auto weapon_recoil_scale = m_cvar()->FindVar(crypt_str("weapon_recoil_scale"));
-	//const auto current_aim_angle = math::calculate_angle(cheat.globals.eye_pos, final_target.data.point.point) - (cheat.local()->m_aimPunchAngle() * weapon_recoil_scale->getFloat());
+	//const auto current_aim_angle = math::calculate_angle(cheat.globals.eye_pos, final_target.data.point.point) - (localPlayer->m_aimPunchAngle() * weapon_recoil_scale->getFloat());
 
 	math::angle_vectors(aim_angle, &forward, &right, &up);
 
@@ -1575,7 +1663,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 	auto weapon_inaccuracy = cheat.globals.weapon->get_inaccuracy();
 	auto weapon_spread = cheat.globals.weapon->get_spread();
 
-	//if (cheat.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 && !(cheat.local()->m_fFlags() & FL_ONGROUND) && weapon_inaccuracy < 0.009f)
+	//if (cheat.globals.weapon->m_iItemDefinitionIndex() == WEAPON_SSG08 && !(localPlayer->m_fFlags() & FL_ONGROUND) && weapon_inaccuracy < 0.009f)
 	//	return 101;
 
 	for (int i = 0; i < MAX_SPREAD_SEED; i++) {
@@ -1647,7 +1735,7 @@ int ragebot::hitchance(const Vector& aim_angle)
 
 	auto inaccuracy = weapon_info->flInaccuracyStand;
 
-	if (cheat.local()->m_fFlags() & FL_DUCKING)
+	if (localPlayer->m_fFlags() & FL_DUCKING)
 	{
 		if (is_special_weapon)
 			inaccuracy = weapon_info->flInaccuracyCrouchAlt;

@@ -11,7 +11,6 @@
 #include "..\..\features\visuals\dormant_esp.h"
 #include "..\..\features\serverside\local_animations.h"
 #include "..\..\utils\Log.h"
-#include "..\..\sdk\BBData.h"
 #include "..\..\DiscordRpc.h"
 
 bool reload_fonts()
@@ -32,14 +31,14 @@ bool reload_fonts()
 	return false;
 }
 
-void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repaint, bool allow_force)
+void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repaint, bool allow_force) noexcept
 {
-	if (cheat.username.empty() || !strcmp(cheat.username.c_str(), "Unknown") || cheat.remainingTime < -1)
-	{
-		MessageBoxA(nullptr, "Why you fucking crack my cheat?", "Fuck You!", MB_OK | MB_ICONWARNING);
-		exit(0);
-		return;
-	}
+	//if (cheat.username.empty() || !strcmp(cheat.username.c_str(), "Unknown") || cheat.remainingTime < -1)
+	//{
+	//	MessageBoxA(nullptr, "Why you fucking crack my cheat?", "Fuck You!", MB_OK | MB_ICONWARNING);
+	//	exit(0);
+	//	return;
+	//}
 
 	/*
 	static auto set_console = true;
@@ -66,6 +65,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 			m_cvar()->FindVar(crypt_str("con_filter_text"))->SetValue(crypt_str("IrWL5106TZZKNFPz4P4Gl3pSN?J370f5hi373ZjPg%VOVh6lN"));
 	}
 	*/
+
 	static float lasttime = 0.f;
 	if (m_globals()->m_realtime > lasttime + 5.f)
 	{
@@ -122,9 +122,6 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 
 		configs.player_list.players.clear();
 
-		for (auto i = 0; i < 65; i++)
-			BBData::reset(i);
-
 		misc::get().double_tap_enabled = misc::get().double_tap_key = misc::get().hide_shots_enabled = misc::get().hide_shots_key = false;
 	}
 
@@ -161,12 +158,12 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 		{
 			static auto alive = false;
 
-			if (!alive && cheat.local()->is_alive())
+			if (!alive && localPlayer->is_alive())
 			{
 				alive = true;
 				cheat.globals.should_clear_death_notices = true;
 			}
-			else if (alive && !cheat.local()->is_alive())
+			else if (alive && !localPlayer->is_alive())
 			{
 				alive = false;
 
@@ -194,7 +191,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 			walkbot::get().update(false);
 			misc::get().zeus_range();
 			
-			auto weapon = cheat.local()->m_hActiveWeapon().Get();
+			auto weapon = localPlayer->getActiveWeapon();
 
 			if (configs.esp.enabled && configs.visuals.removals[REMOVALS_SCOPE] && cheat.globals.scoped && weapon->is_sniper())
 			{
@@ -205,7 +202,7 @@ void __stdcall Hooks::hooked_painttraverse(vgui::VPANEL panel, bool force_repain
 				render::get().line(0, h / 2, w, h / 2, Color::Black);
 			}
 
-			if (cheat.local()->is_alive())
+			if (localPlayer->is_alive())
 			{
 				if (c_menu::get().public_alpha > 0.15f && configs.legitbot.enabled)
 				{

@@ -213,7 +213,7 @@ void misc::clan_tag()
 
 void misc::force_crosshair()
 {
-	static auto weapon_debug_spread_show = m_cvar()->FindVar("weapon_debug_spread_show");
+	static auto weapon_debug_spread_show = m_cvar2()->FindVar("weapon_debug_spread_show");
 
 	if (configs.visuals.force_crosshair)
 	{
@@ -241,7 +241,7 @@ void misc::auto_crouch(CUserCmd* cmd)
 	//	return;
 	//}
 
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 	{
 		cheat.globals.fakeducking = false;
 		return;
@@ -284,13 +284,13 @@ void misc::auto_crouch(CUserCmd* cmd)
 
 void misc::slide_walk(CUserCmd* cmd)
 {
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
-	if (cheat.local()->get_move_type() == MOVETYPE_LADDER)
+	if (localPlayer->get_move_type() == MOVETYPE_LADDER)
 		return;
 
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		return;
 
 	if (antiaim::get().condition(cmd, true) && ((configs.misc.slide_walk == 2 && !math::random_int(0, 2)) || configs.misc.slide_walk == 1))
@@ -323,7 +323,7 @@ void misc::slide_walk(CUserCmd* cmd)
 
 		if ((configs.misc.slide_walk == 2 && math::random_int(0, 1)) || configs.misc.slide_walk == 1)
 		{
-			if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+			if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 				return;
 
 			if (cmd->m_forwardmove <= 0.0f)
@@ -341,7 +341,7 @@ void misc::slide_walk(CUserCmd* cmd)
 		else
 			goto LABEL_18;
 
-		if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+		if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 			return;
 
 		if (cmd->m_forwardmove <= 0.0f)
@@ -389,7 +389,7 @@ void misc::automatic_peek(CUserCmd* cmd, float current_yaw)
 	{
 		if (cheat.globals.start_position.IsZero())
 		{
-			cheat.globals.start_position = cheat.local()->GetAbsOrigin();
+			cheat.globals.start_position = localPlayer->GetAbsOrigin();
 
 			if (!(engineprediction::get().backup_data.flags & FL_ONGROUND))
 			{
@@ -413,7 +413,7 @@ void misc::automatic_peek(CUserCmd* cmd, float current_yaw)
 
 			if (cheat.globals.fired_shot)
 			{
-				auto& current_position = cheat.local()->GetAbsOrigin();
+				Vector current_position = localPlayer->GetAbsOrigin();
 				auto difference = current_position - cheat.globals.start_position;
 
 				if (difference.Length2D() > 5.0f)
@@ -558,10 +558,10 @@ void misc::zeus_range()
 	if (!m_input()->m_bCameraInThirdPerson)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
-	auto weapon = cheat.local()->m_hActiveWeapon().Get();
+	auto weapon = localPlayer->getActiveWeapon();
 
 	if (!weapon)
 		return;
@@ -574,7 +574,7 @@ void misc::zeus_range()
 	if (!weapon_info)
 		return;
 
-	render::get().Draw3DRainbowCircle(cheat.local()->get_eye_position(), weapon_info->flRange);
+	render::get().Draw3DRainbowCircle(localPlayer->get_eye_position(), weapon_info->flRange);
 }
 
 void misc::night_mode()
@@ -633,7 +633,7 @@ void misc::night_mode()
 
 void misc::desync_arrows()
 {
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	if (!configs.ragebot.enabled)
@@ -754,7 +754,7 @@ void misc::fix_animation_lod()
 	for (auto i = 1; i < m_globals()->m_maxclients; i++)
 	{
 		player_t* entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
-		if (!entity || entity == cheat.local() || entity->IsDormant() || !entity->is_alive())
+		if (!entity || entity == localPlayer.get() || entity->IsDormant() || !entity->is_alive())
 			continue;
 
 		entity->get_occlusion_flags() = 0;
@@ -777,18 +777,18 @@ void misc::rank_reveal(CUserCmd* m_pcmd)
 
 void misc::air_static_legs()
 {
-	if (!configs.misc.air_static_legs || !cheat.local()->get_animation_state())
+	if (!configs.misc.air_static_legs || !localPlayer->get_animation_state())
 		return;
 
-	if (cheat.local()->m_fFlags() & FL_ONGROUND)
+	if (localPlayer->m_fFlags() & FL_ONGROUND)
 	{
-		cheat.local()->get_animation_state()->m_flDurationInAir = .5f;
+		localPlayer->get_animation_state()->m_flDurationInAir = .5f;
 	}
 	else
 	{
-		cheat.local()->get_animation_state()->m_flDurationInAir = 99;
-		cheat.local()->get_animation_state()->m_flLandingDuckAdditiveSomething = 0;
-		cheat.local()->get_animation_state()->m_bInHitGroundAnimation = false;
+		localPlayer->get_animation_state()->m_flDurationInAir = 99;
+		localPlayer->get_animation_state()->m_flLandingDuckAdditiveSomething = 0;
+		localPlayer->get_animation_state()->m_bOnLanding = false;
 	}
 }
 
@@ -797,7 +797,7 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 	if (!configs.misc.fast_stop)
 		return;
 
-	if (!(cheat.local()->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
+	if (!(localPlayer->m_fFlags() & FL_ONGROUND && engineprediction::get().backup_data.flags & FL_ONGROUND))
 		return;
 
 	auto pressed_move_key = m_pcmd->m_buttons & IN_FORWARD || m_pcmd->m_buttons & IN_MOVELEFT || m_pcmd->m_buttons & IN_BACK || m_pcmd->m_buttons & IN_MOVERIGHT || m_pcmd->m_buttons & IN_JUMP;
@@ -807,7 +807,7 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 
 	if (antiaim::get().condition(m_pcmd))
 	{
-		auto& velocity = cheat.local()->m_vecVelocity();
+		auto& velocity = localPlayer->m_vecVelocity();
 
 		if (velocity.Length2D() > 20.0f)
 		{
@@ -822,8 +822,8 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 			Vector forward;
 			math::angle_vectors(direction, forward);
 
-			static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
-			static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
+			static auto cl_forwardspeed = m_cvar2()->FindVar(crypt_str("cl_forwardspeed"));
+			static auto cl_sidespeed = m_cvar2()->FindVar(crypt_str("cl_sidespeed"));
 
 			auto negative_forward_speed = -cl_forwardspeed->GetFloat();
 			auto negative_side_speed = -cl_sidespeed->GetFloat();
@@ -837,7 +837,7 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 	}
 	else
 	{
-		auto& velocity = cheat.local()->m_vecVelocity();
+		auto& velocity = localPlayer->m_vecVelocity();
 
 		if (velocity.Length2D() > 20.0f)
 		{
@@ -852,8 +852,8 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 			Vector forward;
 			math::angle_vectors(direction, forward);
 
-			static auto cl_forwardspeed = m_cvar()->FindVar(crypt_str("cl_forwardspeed"));
-			static auto cl_sidespeed = m_cvar()->FindVar(crypt_str("cl_sidespeed"));
+			static auto cl_forwardspeed = m_cvar2()->FindVar(crypt_str("cl_forwardspeed"));
+			static auto cl_sidespeed = m_cvar2()->FindVar(crypt_str("cl_sidespeed"));
 
 			auto negative_forward_speed = -cl_forwardspeed->GetFloat();
 			auto negative_side_speed = -cl_sidespeed->GetFloat();
@@ -885,16 +885,16 @@ void misc::fast_stop(CUserCmd* m_pcmd)
 
 bool can_shift_shot(int ticks)
 {
-	if (!cheat.local() || !cheat.local()->m_hActiveWeapon())
+	if (!localPlayer || !localPlayer->getActiveWeapon())
 		return false;
 
-	auto tickbase = cheat.local()->m_nTickBase();
+	auto tickbase = localPlayer->m_nTickBase();
 	auto curtime = m_globals()->m_intervalpertick * (tickbase - ticks);
 
-	if (curtime < cheat.local()->m_flNextAttack())
+	if (curtime < localPlayer->m_flNextAttack())
 		return false;
 
-	if (curtime < cheat.local()->m_hActiveWeapon()->m_flNextPrimaryAttack())
+	if (curtime < localPlayer->getActiveWeapon()->m_flNextPrimaryAttack())
 		return false;
 
 	return true;
@@ -954,7 +954,7 @@ bool misc::double_tap(CUserCmd* m_pcmd)
 	}
 
 	/*
-	if (cheat.local()->m_bGunGameImmunity() || cheat.local()->m_fFlags() & FL_FROZEN)
+	if (localPlayer->m_bGunGameImmunity() || localPlayer->m_fFlags() & FL_FROZEN)
 	{
 		double_tap_enabled = false;
 		cheat.globals.ticks_allowed = 0;
@@ -1111,7 +1111,7 @@ void misc::hide_shots(CUserCmd* m_pcmd, bool should_work)
 	double_tap_key = false;
 
 	/*
-	if (cheat.local()->m_bGunGameImmunity() || cheat.local()->m_fFlags() & FL_FROZEN)
+	if (localPlayer->m_bGunGameImmunity() || localPlayer->m_fFlags() & FL_FROZEN)
 	{
 		hide_shots_enabled = false;
 		cheat.globals.ticks_allowed = 0;
@@ -1178,10 +1178,10 @@ void misc::blockbot(CUserCmd* cmd)
 	{
 		auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(i));
 
-		if (!entity || entity->IsDormant() || !entity->is_alive() || entity == cheat.local())
+		if (!entity || entity->IsDormant() || !entity->is_alive() || entity == localPlayer.get())
 			continue;
 
-		float flDistance = cheat.local()->m_vecOrigin().DistTo(entity->m_vecOrigin());
+		float flDistance = localPlayer->m_vecOrigin().DistTo(entity->m_vecOrigin());
 		if (flDistance < flBestDistance)
 		{
 			flBestDistance = flDistance;
@@ -1199,8 +1199,8 @@ void misc::blockbot(CUserCmd* cmd)
 	Vector angLocal;
 	m_engine()->GetViewAngles(angLocal);
 
-	Vector vecForward = entity->m_vecOrigin() - cheat.local()->m_vecOrigin();
-	if (entity->hitbox_position(6).z < cheat.local()->m_vecOrigin().z && cheat.local()->m_vecOrigin().DistTo(entity->m_vecOrigin()) < 100.0f)
+	Vector vecForward = entity->m_vecOrigin() - localPlayer->m_vecOrigin();
+	if (entity->hitbox_position(6).z < localPlayer->m_vecOrigin().z && localPlayer->m_vecOrigin().DistTo(entity->m_vecOrigin()) < 100.0f)
 	{
 		cmd->m_forwardmove = ((sin(DEG2RAD(angLocal.y)) * vecForward.y) + (cos(DEG2RAD(angLocal.y)) * vecForward.x)) * flBestSpeed;
 		cmd->m_sidemove = ((cos(DEG2RAD(angLocal.y)) * -vecForward.y) + (sin(DEG2RAD(angLocal.y)) * vecForward.x)) * flBestSpeed;
@@ -1240,7 +1240,7 @@ void misc::anti_exploit()
 	static auto is_command_set = configs.misc.anti_exploit;
 	if (is_command_set != configs.misc.anti_exploit)
 	{
-		auto old_team = cheat.local()->m_iTeamNum();
+		auto old_team = localPlayer->m_iTeamNum();
 
 		std::string command = "kill; jointeam 1; cl_lagcompensation ";
 		command += std::to_string(configs.misc.anti_exploit ? 0 : 1) + ";";
@@ -1309,7 +1309,7 @@ void misc::draw_server_hitboxes() {
 	if (!m_engine()->IsConnected() || !m_engine()->IsInGame())
 		return;
 
-	if (!cheat.local() || !cheat.local()->is_alive())
+	if (!localPlayer || !localPlayer->is_alive())
 		return;
 
 	if (!m_input()->m_bCameraInThirdPerson)
@@ -1320,14 +1320,14 @@ void misc::draw_server_hitboxes() {
 		static auto player_index = reinterpret_cast<player_by_index>(util::FindSignature(crypt_str("server.dll"), crypt_str("85 C9 7E 32 A1")));
 
 		if (!player_index)
-			return false;
+			return nullptr;
 
 		return player_index(index);
 	};
 
 	static auto fn = util::FindSignature(crypt_str("server.dll"), crypt_str("55 8B EC 81 EC ? ? ? ? 53 56 8B 35 ? ? ? ? 8B D9 57 8B CE"));
 	auto duration = -1.f;
-	player_t* entity = get_player_by_index(cheat.local()->EntIndex());
+	player_t* entity = get_player_by_index(localPlayer->EntIndex());
 
 	if (!entity)
 		return;
@@ -1347,10 +1347,10 @@ void misc::killfeed_changer(IGameEvent& event)
 	if (!configs.killfeedChanger.enabled)
 		return;
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
-	if (const auto localUserId = cheat.local()->get_player_info()->userId; event.GetInt("attacker") != localUserId || event.GetInt("userid") == localUserId)
+	if (const auto localUserId = localPlayer->get_player_info()->userId; event.GetInt("attacker") != localUserId || event.GetInt("userid") == localUserId)
 		return;
 
 	if (configs.killfeedChanger.headshot)
@@ -1435,7 +1435,7 @@ void misc::vote_revealer(IGameEvent& event)
 		return;
 
 	const auto votedYes = event.GetInt("vote_option") == 0;
-	const auto isLocal = cheat.local() && entity == cheat.local();
+	const auto isLocal = localPlayer && entity == localPlayer.get();
 	const char color = votedYes ? '\x06' : '\x07';
 
 	m_clientmode()->getHudChat()->printf(0, " \x0C\u2022Sakura\u2022 %c%s\x01 voted %c%s\x01", isLocal ? '\x01' : color, isLocal ? "You" : entity->get_player_info()->getUsername().c_str(), color, votedYes ? "Yes" : "No");
@@ -1465,7 +1465,7 @@ void misc::vote_revealer_call(const void*& data, int& size, ECstrike15UserMessag
 		if (!entity || !entity->is_player())
 			return;
 
-		const auto isLocal = cheat.local() && entity == cheat.local();
+		const auto isLocal = localPlayer && entity == localPlayer.get();
 
 		const auto voteType = reader.readInt32(3);
 		m_clientmode()->getHudChat()->printf(0, " \x0C\u2022Sakura\u2022 %c%s\x01 call vote (\x06%s\x01)", isLocal ? '\x01' : '\x06', isLocal ? "You" : entity->get_player_info()->getUsername().c_str(), voteName(voteType));
@@ -1481,14 +1481,14 @@ void misc::chat_revealer(IGameEvent& event, IGameEvent* events)
 	if (!configs.misc.chat_revealer)
 		return;
 
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
 	const auto entity = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(m_engine()->GetPlayerForUserID(events->GetInt("userid"))));
 	if (!entity)
 		return;
 
-	std::string output = "\x0C\u2022Sakura\u2022\x01 ";
+	std::string output = "[Sakura] ";
 
 	auto team = entity->m_iTeamNum();
 	bool isAlive = entity->is_alive();
@@ -1498,11 +1498,11 @@ void misc::chat_revealer(IGameEvent& event, IGameEvent* events)
 			isAlive = pr->getICSPlayerResource()->is_alive(entity->EntIndex());
 	}
 
-	const char* text = event.GetString("text");
-	const char* lastLocation = entity->m_szLastPlaceName();
-	const std::string name = entity->get_player_info()->getUsername();
+	std::string text = event.GetString("text");
+	std::string lastLocation = entity->m_szLastPlaceName();
+	std::string name = entity->get_player_info()->getUsername();
 
-	if (team == cheat.local()->m_iTeamNum())
+	if (team == localPlayer->m_iTeamNum())
 		return;
 
 	if (!isAlive)
@@ -1589,7 +1589,7 @@ void misc::get_keys()
 
 void misc::spectators_list()
 {
-	if (!configs.misc.spectators_list || !m_engine()->IsInGame() || !cheat.local()->is_alive())
+	if (!configs.misc.spectators_list || !m_engine()->IsInGame() || !localPlayer->is_alive())
 		return;
 
 	std::vector<std::string> spectators;
@@ -1666,7 +1666,7 @@ void misc::spectators_list()
 		if (e->IsDormant())
 			continue;
 
-		if (e->m_hObserverTarget().Get() != cheat.local())
+		if (e->m_hObserverTarget().Get() != localPlayer.get())
 			continue;
 
 		PlayerInfo player_info;

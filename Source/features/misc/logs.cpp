@@ -159,13 +159,13 @@ void eventlogs::events(IGameEvent* event)
 
 		auto player = reinterpret_cast<player_t*>(m_entitylist()->GetClientEntity(player_id));
 
-		if (!cheat.local() || !player)
+		if (!localPlayer || !player)
 			return;
 
-		if (cheat.local() == player)
+		if (localPlayer.get() == player)
 			cheat.globals.should_buy = 0;
 
-		if (player->m_iTeamNum() == cheat.local()->m_iTeamNum())
+		if (player->m_iTeamNum() == localPlayer->m_iTeamNum())
 			return;
 
 		std::string weapon = event->GetString(crypt_str("weapon"));

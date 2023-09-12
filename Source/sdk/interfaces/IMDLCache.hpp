@@ -98,7 +98,6 @@ enum MDLCacheFlush_t
 //-----------------------------------------------------------------------------
 // The main MDL cacher 
 //-----------------------------------------------------------------------------
-#define MDLCACHE_INTERFACE_VERSION "MDLCache004"
 
 class IMDLCache : public IAppSystem
 {

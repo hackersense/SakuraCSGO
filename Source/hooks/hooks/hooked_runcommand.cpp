@@ -15,19 +15,19 @@ void FixAttackPacket(CUserCmd* m_pCmd, bool m_bPredict)
 	if (m_bPredict)
 	{
 		m_bLastAttack = m_pCmd->m_weaponselect || (m_pCmd->m_buttons & IN_ATTACK);
-		m_flLastCycle = cheat.local()->m_flCycle();
+		m_flLastCycle = localPlayer->m_flCycle();
 	}
 	else if (m_bLastAttack && !m_bInvalidCycle)
-		m_bInvalidCycle = cheat.local()->m_flCycle() == 0.f && m_flLastCycle > 0.f;
+		m_bInvalidCycle = localPlayer->m_flCycle() == 0.f && m_flLastCycle > 0.f;
 
 	if (m_bInvalidCycle)
-		cheat.local()->m_flCycle() = m_flLastCycle;
+		localPlayer->m_flCycle() = m_flLastCycle;
 }
 */
 
-void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player, CUserCmd* m_pcmd, IMoveHelper* move_helper)
+void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player, CUserCmd* m_pcmd, IMoveHelper* move_helper) noexcept
 {
-	if (!m_pcmd || !player || player != cheat.local())
+	if (!m_pcmd || !player || player != localPlayer.get())
 		return prediction_hook.callOriginal<void, void*, 19>(ecx, player, m_pcmd, move_helper);
 
 	if (m_pcmd->m_tickcount > m_globals()->m_tickcount + m_cvar()->FindVar("sv_max_usercmd_future_ticks")->GetInt())
@@ -43,7 +43,7 @@ void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player,
 
 	if (configs.ragebot.enabled && player->is_alive())
 	{
-		auto weapon = player->m_hActiveWeapon().Get();
+		auto weapon = player->getActiveWeapon();
 
 		if (weapon)
 		{
@@ -108,7 +108,7 @@ void __fastcall Hooks::hooked_runcommand(void* ecx, void* edx, player_t* player,
 		prediction_hook.callOriginal<void, void*, 19>(ecx, player, m_pcmd, move_helper);
 }
 
-bool __stdcall Hooks::hooked_inprediction()
+bool __stdcall Hooks::hooked_inprediction() noexcept
 {
 	static auto maintain_sequence_transitions = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 74 17 8B 87"));
 	static auto setupbones_timing = util::FindSignature(crypt_str("client.dll"), crypt_str("84 C0 74 0A F3 0F 10 05 ? ? ? ? EB 05"));
@@ -126,16 +126,26 @@ bool __stdcall Hooks::hooked_inprediction()
 	return prediction_hook.callOriginal<bool, 14>();
 }
 
-void __fastcall Hooks::hooked_gamemovement(void* ecx, void* edx, player_t* ent, CMoveData* move_data)
+void __fastcall Hooks::hooked_gamemovement(void* ecx, void* edx, player_t* ent, CMoveData* move_data) noexcept
 {
 	move_data->m_bGameCodeMovedPlayer = false;
-	gamemovement_hook.callOriginal<void, void*, 1>(ecx, ent, move_data);
+	return gamemovement_hook.callOriginal<void, void*, 1>(ecx, ent, move_data);
 }
 
-void WriteUserCmd(bufferWrite* buf, CUserCmd* incmd, CUserCmd* outcmd)
+void __stdcall Hooks::hooked_onjump(float stamina) noexcept
+{
+	gamemovement_hook.callOriginal<void, 32>(stamina);
+
+	if (localPlayer && localPlayer->is_alive() && localPlayer->get_animation_state())
+		localPlayer->get_animation_state()->doAnimationEvent(PLAYERANIMEVENT_JUMP);
+}
+
+void WriteUserCmd(bufferWrite* buf, CUserCmd* incmd, CUserCmd* outcmd) noexcept
 {
 	using WriteUserCmd_t = void(__fastcall*)(bufferWrite*, CUserCmd*, CUserCmd*);
-	static auto Fn = (WriteUserCmd_t)util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 51 53 56 8B D9"));
+
+	//static auto Fn = (WriteUserCmd_t)util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 51 53 56 8B D9"));
+	static auto Fn = (WriteUserCmd_t)util::FindSignature(crypt_str("client.dll"), crypt_str("55 8B EC 83 E4 F8 51 53 56 8B D9 8B 0D"));
 
 	__asm
 	{
@@ -147,16 +157,16 @@ void WriteUserCmd(bufferWrite* buf, CUserCmd* incmd, CUserCmd* outcmd)
 	}
 }
 
-bool __fastcall Hooks::hooked_writeusercmddeltatobuffer(void* ecx, void* edx, int slot, bufferWrite* buffer, int from, int to, bool is_new_command)
+bool __fastcall Hooks::hooked_writeusercmddeltatobuffer(void* ecx, void* edx, int slot, bufferWrite* buffer, int from, int to, bool is_new_command) noexcept
 {
 	static auto original_fn = client_hook.getOriginal<bool, 24>(slot, buffer, from, to, is_new_command);
 
-	if (!cheat.local()
+	if (!localPlayer
 		|| !m_engine()->IsConnected()
-		|| !cheat.local()->is_alive()
-		|| m_gamerules()->m_bFreezePeriod()
-		|| cheat.local()->m_bGunGameImmunity()
-		|| cheat.local()->m_fFlags() & FL_FROZEN
+		|| !localPlayer->is_alive()
+		//|| m_gamerules()->m_bFreezePeriod()
+		//|| localPlayer->m_bGunGameImmunity()
+		//|| localPlayer->m_fFlags() & FL_FROZEN
 		|| !cheat.globals.tickbase_shift)
 		return original_fn(ecx, slot, buffer, from, to, is_new_command);
 	

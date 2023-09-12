@@ -2,7 +2,7 @@
 
 void bunnyhop::create_move(CUserCmd* cmd)
 {
-	if (!configs.misc.bunnyhop || cheat.local()->get_move_type() == MOVETYPE_LADDER)
+	if (!configs.misc.bunnyhop || localPlayer->get_move_type() == MOVETYPE_LADDER)
 		return;
 
 	static auto last_jumped = false;
@@ -15,7 +15,7 @@ void bunnyhop::create_move(CUserCmd* cmd)
 	}
 	else if (cmd->m_buttons & IN_JUMP)
 	{
-		if (cheat.local()->m_fFlags() & FL_ONGROUND)
+		if (localPlayer->m_fFlags() & FL_ONGROUND)
 		{
 			last_jumped = should_jump = true;
 		}

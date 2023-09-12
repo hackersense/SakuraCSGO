@@ -214,33 +214,38 @@ namespace Hooks
 		return hr;
 	}
 
-	DWORD original_getforeignfallbackfontname;
-	DWORD original_setupbones;
-	DWORD original_doextrabonesprocessing;
-	DWORD original_standardblendingrules;
-	DWORD original_physicssimulate;
-	DWORD original_modifyeyeposition;
-	DWORD original_updateclientsideanimation;
-	DWORD original_calcviewmodelbob;
-	DWORD original_processinterpolatedlist;
-	DWORD original_checkforsequencechange;
-	DWORD original_particlecollection;
-	DWORD original_clmove;
-
 	ClientHook* player_hook;
-	ClientHook* clientstate_hook;
-	ClientHook* clientmode_hook;
 	ClientHook* inputinternal_hook;
 	ClientHook* renderview_hook;
 	ClientHook* modelrender_hook;
-	ClientHook* bspquery_hook;
 	ClientHook* steam_hook;
-	ClientHook* directx_hook;
+	//ClientHook* directx_hook;
 	PresentFn oPresent;
 	ResetFn oReset;
+	MinHook getforeignfallbackfontname_hook;
+	MinHook processinterpolatedlist_hook;
+	MinHook doextrabonesprocessing_hook;
+	MinHook updateclientsideanimation_hook;
+	MinHook calcviewmodelbob_hook;
+	MinHook standardblendingrules_hook;
+	MinHook setupbones_hook;
+	MinHook setupvelocity_hook;
+	MinHook setupmovement_hook;
+	MinHook setupaliveloop_hook;
+	MinHook updatestate_hook;
+	MinHook resetstate_hook;
 	MinHook eyeangles_hook;
+	MinHook checkforsequencechang_hook;
 	MinHook buildtransformations_hook;
+	MinHook particlecollection_hook;
+	MinHook modifyeyeposition_hook;
+	MinHook physicssimulate_hook;
+	MinHook calculateview_hook;
+	MinHook clmove_hook;
+	MinHook bspquery_hook;
 	MinHook client_hook;
+	MinHook clientmode_hook;
+	MinHook clientstate_hook;
 	MinHook prediction_hook;
 	MinHook gamemovement_hook;
 	MinHook modelcache_hook;
@@ -260,12 +265,11 @@ namespace Hooks
 	MinHook performscreenoverlay_hook;
 	MinHook isdepthoffieldenabled_hook;
 	MinHook tracefilterforheadcollision_hook;
-	MinHook dispatchsound_hook;
 
 	C_HookedEvents hooked_events;
 }
 
-void __fastcall Hooks::hooked_setkeycodestate(void* thisptr, void* edx, ButtonCode_t code, bool bDown)
+void __fastcall Hooks::hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t code, bool bDown) noexcept
 {
 	static auto original_fn = inputinternal_hook->getOriginal<SetKeyCodeState_t>(91);
 
@@ -277,10 +281,10 @@ void __fastcall Hooks::hooked_setkeycodestate(void* thisptr, void* edx, ButtonCo
 			*input_receivedKeyval = code;
 	}
 
-	return original_fn(thisptr, code, bDown);
+	return original_fn(ecx, code, bDown);
 }
 
-void __fastcall Hooks::hooked_setmousecodestate(void* thisptr, void* edx, ButtonCode_t code, MouseCodeState_t state)
+void __fastcall Hooks::hooked_setmousecodestate(void* ecx, void* edx, ButtonCode_t code, MouseCodeState_t state) noexcept
 {
 	static auto original_fn = inputinternal_hook->getOriginal<SetMouseCodeState_t>(92);
 
@@ -292,5 +296,5 @@ void __fastcall Hooks::hooked_setmousecodestate(void* thisptr, void* edx, Button
 			*input_receivedKeyval = code;
 	}
 
-	return original_fn(thisptr, code, state);
+	return original_fn(ecx, code, state);
 }

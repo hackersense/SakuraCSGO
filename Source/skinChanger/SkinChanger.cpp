@@ -155,7 +155,7 @@ static void post_data_update_start(player_t* local) noexcept
 		apply_config_on_attributable_item(glove, glove_config, player_info.xuid, player_info.xuidLow, true);
 	}
 
-	auto weapons = local->m_hMyWeapons();
+	auto weapons = localPlayer->m_hMyWeapons();
 
 	for (auto weapon_handle = 0; weapons[weapon_handle].IsValid(); weapon_handle++)
 	{
@@ -262,9 +262,9 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 
 	if (stage == FRAME_NET_UPDATE_POSTDATAUPDATE_START)
 	{
-		post_data_update_start(cheat.local());
+		post_data_update_start(localPlayer.get());
 
-		if (!cheat.local()->is_alive())
+		if (!localPlayer->is_alive())
 		{
 			UpdateRequired = false;
 			hudUpdateRequired = false;
@@ -282,7 +282,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 		else if (hudUpdateRequired && !cheat.globals.updating_skins)
 		{
 			hudUpdateRequired = false;
-			if (!cheat.local()->IsDormant())
+			if (!localPlayer->IsDormant())
 				updateHud();
 		}
 	}
@@ -297,7 +297,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 		const char** player_model_index = nullptr;
 		auto player_model = 0;
 
-		switch (cheat.local()->m_iTeamNum())
+		switch (localPlayer->m_iTeamNum())
 		{
 		case 2:
 			player_model_index = player_model_index_t;
@@ -313,7 +313,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 		{
 			if (!cheat.globals.backup_model)
 			{
-				auto model = cheat.local()->GetModel();
+				auto model = localPlayer->GetModel();
 
 				if (model)
 				{
@@ -330,12 +330,12 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 			if (SkinChanger::player_model_indexes.find(player_model_index[player_model - 1]) == SkinChanger::player_model_indexes.end())
 				SkinChanger::player_model_indexes.emplace(player_model_index[player_model - 1], m_modelinfo()->GetModelIndex(player_model_index[player_model - 1]));
 
-			cheat.local()->set_model_index(SkinChanger::player_model_indexes[player_model_index[player_model - 1]]);
+			localPlayer->set_model_index(SkinChanger::player_model_indexes[player_model_index[player_model - 1]]);
 			cheat.globals.backup_model = true;
 		}
 		else if (cheat.globals.backup_model)
 		{
-			cheat.local()->set_model_index(backup_model_index);
+			localPlayer->set_model_index(backup_model_index);
 			cheat.globals.backup_model = false;
 		}
 	}
@@ -343,7 +343,7 @@ void SkinChanger::run(ClientFrameStage_t stage) noexcept
 
 void SkinChanger::scheduleHudUpdate() noexcept
 {
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		return;
 
 	UpdateRequired = true;
@@ -376,10 +376,10 @@ std::uint64_t UserIdToXUID(const int user_id)
 
 void SkinChanger::overrideHudIcon(IGameEvent* event) noexcept
 {
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
-	if (event->GetInt("attacker") != cheat.local()->get_player_info()->userId)
+	if (event->GetInt("attacker") != localPlayer->get_player_info()->userId)
 		return;
 
 	if (const auto weapon = event->GetString("weapon"); weapon != "knife" && weapon != "knife_t")
@@ -395,13 +395,13 @@ void SkinChanger::overrideHudIcon(IGameEvent* event) noexcept
 
 void SkinChanger::updateStatTrak(IGameEvent* event) noexcept
 {
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
-	if (const auto localUserId = cheat.local()->get_player_info()->userId; event->GetInt("attacker") != localUserId || event->GetInt("userid") == localUserId)
+	if (const auto localUserId = localPlayer->get_player_info()->userId; event->GetInt("attacker") != localUserId || event->GetInt("userid") == localUserId)
 		return;
 
-	const auto weapon = static_cast<weapon_t*>(cheat.local()->m_hActiveWeapon());
+	const auto weapon = localPlayer->getActiveWeapon();
 	if (!weapon)
 		return;
 
@@ -441,7 +441,7 @@ static void appendProtobufString(std::string_view string, std::vector<char>& buf
 
 void SkinChanger::onUserTextMsg(const void*& data, int& size) noexcept
 {
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
 	constexpr auto HUD_PRINTTALK = 3;
@@ -462,11 +462,11 @@ void SkinChanger::onUserTextMsg(const void*& data, int& size) noexcept
 		if (!isDefaultKnifeNameLocalizationString(strings[1]))
 			return;
 
-		auto weapons = cheat.local()->m_hMyWeapons();
+		auto weapons = localPlayer->m_hMyWeapons();
 
 		for (auto weapon_handle = 0; weapons[weapon_handle].IsValid(); weapon_handle++)
 		{
-			auto weapon = (weapon_t*)m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]);
+			auto weapon = reinterpret_cast<weapon_t*>(m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]));
 
 			if (!weapon)
 				continue;
@@ -495,11 +495,11 @@ void SkinChanger::onUserTextMsg(const void*& data, int& size) noexcept
 		if (!isDefaultKnifeNameLocalizationString(strings[2]))
 			return;
 
-		auto weapons = cheat.local()->m_hMyWeapons();
+		auto weapons = localPlayer->m_hMyWeapons();
 
 		for (auto weapon_handle = 0; weapons[weapon_handle].IsValid(); weapon_handle++)
 		{
-			auto weapon = (weapon_t*)m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]);
+			auto weapon = reinterpret_cast<weapon_t*>(m_entitylist()->GetClientEntityFromHandle(weapons[weapon_handle]));
 
 			if (!weapon)
 				continue;

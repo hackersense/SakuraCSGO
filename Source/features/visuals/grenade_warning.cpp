@@ -44,7 +44,7 @@ bool c_grenade_prediction::data_t::draw()
 	if (m_path.size() <= 1 || m_globals()->m_curtime >= m_expire_time)
 		return false;
 
-	float distance = cheat.local()->m_vecOrigin().DistTo(m_origin) / 12.f;
+	float distance = localPlayer->m_vecOrigin().DistTo(m_origin) / 12.f;
 
 	if (distance > 200.f)
 		return false;
@@ -128,9 +128,9 @@ bool c_grenade_prediction::data_t::draw()
 
 	Vector screenPos;
 	Vector vEnemyOrigin = m_origin;
-	Vector vLocalOrigin = cheat.local()->GetAbsOrigin();
+	Vector vLocalOrigin = localPlayer->GetAbsOrigin();
 
-	if (!cheat.local()->is_alive())
+	if (!localPlayer->is_alive())
 		vLocalOrigin = m_input()->m_vecCameraOffset;
 
 	Vector viewAngles;
@@ -221,7 +221,7 @@ void c_grenade_prediction::run(entity_t* ent)
 
 		const auto handle = entity->GetRefEHandle().ToLong();
 
-		if (entity->m_nExplodeEffectTickBegin() || !entity->m_hThrower().IsValid() || (entity->m_hThrower().Get()->m_iTeamNum() == cheat.local()->m_iTeamNum() && entity->m_hThrower().Get() != cheat.local())) {
+		if (entity->m_nExplodeEffectTickBegin() || !entity->m_hThrower().IsValid() || (entity->m_hThrower().Get()->m_iTeamNum() == localPlayer->m_iTeamNum() && entity->m_hThrower().Get() != localPlayer.get())) {
 			predicted_nades.erase(handle);
 
 			return;

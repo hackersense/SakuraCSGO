@@ -141,7 +141,7 @@ class ConCommandBase
     friend class CCvar;
     friend class ConVar;
     friend class ConCommand;
-    friend void ConVar_Register(int nCVarFlag, IConCommandBaseAccessor* pAccessor);
+    friend void ConVar_Register(int nCVarFlag, IConCommandBaseAccessor *pAccessor);
 
     // FIXME: Remove when ConVar changes are done
     friend class CDefaultCvar;
@@ -161,7 +161,7 @@ public:
     const ConCommandBase*       GetNext(void) const;
     ConCommandBase*             GetNext(void);
     virtual bool                IsRegistered(void) const;
-    virtual int                 GetDLLIdentifier() const;
+    virtual int GetDLLIdentifier() const;
 
     //protected:
     virtual void                Create(const char *pName, const char *pHelpString = 0, int flags = 0);
@@ -188,6 +188,7 @@ protected:
 
     // ConVars in this executable use this 'global' to access values.
     static IConCommandBaseAccessor* s_pAccessor;
+
 public:
     // This list will hold all the registered commands.
     // It is not from the official SDK. I've added this so that
@@ -347,17 +348,16 @@ public:
     virtual void                Init();
 
     //protected:
-    ConVar*                             m_pParent;
-    const char*                         m_pszDefaultValue;
-    CVValue_t                           m_Value;
-    CVValue_t					        m_ValueUnknown;
-    bool                                m_bHasMin;
-    float                               m_fMinVal;
-    bool                                m_bHasMax;
-    float                               m_fMaxVal;
+    ConVar*                     m_pParent;
+    const char*                 m_pszDefaultValue;
+    CVValue_t                   m_Value;
+    bool                        m_bHasMin;
+    float                       m_fMinVal;
+    bool                        m_bHasMax;
+    float                       m_fMaxVal;
 
     // Call this function when ConVar changes
-    CUtlVector<FnChangeCallback_t>      m_fnChangeCallbacks;
+    CUtlVector<FnChangeCallback_t> m_fnChangeCallbacks;
 };
 
 

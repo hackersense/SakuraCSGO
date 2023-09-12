@@ -1,16 +1,9 @@
 #include "..\hooks.hpp"
 
-using DoPostScreenEffects_t = void(__thiscall*)(void*, CViewSetup*);
-
-void __fastcall Hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewSetup* setup)
+void __stdcall Hooks::hooked_postscreeneffects(void* param) noexcept
 {
-	static auto original_fn = clientmode_hook->getOriginal<DoPostScreenEffects_t>(44);
-
-	if (!configs.esp.enabled)
-		return original_fn(thisptr, setup);
-
-	if (!cheat.local())
-		return original_fn(thisptr, setup);
+	if (!configs.esp.enabled || !localPlayer)
+		return clientmode_hook.callOriginal<void, 44>(param);
 
 	for (auto i = 0; i < m_glow()->m_GlowObjectDefinitions.Count(); i++)
 	{
@@ -38,9 +31,9 @@ void __fastcall Hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 
 			auto type = ENEMY;
 
-			if (e == cheat.local())
+			if (e == localPlayer.get())
 				type = LOCAL;
-			else if (e->m_iTeamNum() == cheat.local()->m_iTeamNum())
+			else if (e->m_iTeamNum() == localPlayer->m_iTeamNum())
 				type = TEAM;
 
 			float color[4];
@@ -86,7 +79,7 @@ void __fastcall Hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 				configs.esp.type[type].glow_type
 			);
 		}
-		else if (configs.visuals.weapon[WEAPON_GLOW] && (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor)) //-V648
+		else if (configs.visuals.weapon[WEAPON_GLOW] && (client_class->m_ClassID == CAK47 || client_class->m_ClassID == CDEagle || client_class->m_ClassID >= CWeaponAug && client_class->m_ClassID <= CWeaponZoneRepulsor))
 		{
 			float color[4] =
 			{
@@ -167,5 +160,5 @@ void __fastcall Hooks::hooked_postscreeneffects(void* thisptr, void* edx, CViewS
 		}
 	}
 
-	original_fn(thisptr, setup);
+	clientmode_hook.callOriginal<void, 44>(param);
 }

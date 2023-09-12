@@ -1,14 +1,9 @@
 #include "..\hooks.hpp"
 
-_declspec(noinline)const char* Hooks::getforeignfallbackfontname_detour(void* ecx, uint32_t i)
+const char* __fastcall Hooks::hooked_getforeignfallbackfontname(void* ecx, void* edx) noexcept
 {
 	if (cheat.last_font_name.empty())
-		return ((GetForeignFallbackFontNameFn)original_getforeignfallbackfontname)(ecx);
+		return getforeignfallbackfontname_hook.callOriginal<const char*, void*>(ecx);
 
 	return cheat.last_font_name.c_str();
-}
-
-const char* __fastcall Hooks::hooked_getforeignfallbackfontname(void* ecx, uint32_t i)
-{
-	return getforeignfallbackfontname_detour(ecx, i);
 }

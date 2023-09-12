@@ -83,7 +83,7 @@ void ImGuiRendering::BeginScene()
 
 	worldesp::get().onImGuiRender();
 
-	if (!cheat.local())
+	if (!localPlayer)
 		return;
 
 	otheresp::get().spread_crosshair();
@@ -324,11 +324,12 @@ void ImGuiRendering::DrawGradientCircle(float x, float y, float rad, float rotat
 
 void ImGuiRendering::DrawString(float x, float y, Color color, int flags, ImFont* font, const char* message, ...)
 {
-	char output[1024] = {};
-	va_list args;
-	va_start(args, message);
-	vsprintf_s(output, message, args);
-	va_end(args);
+	const char* output = message;
+	//char output[1024] = {};
+	//va_list args;
+	//va_start(args, message);
+	//vsprintf_s(output, message, args);
+	//va_end(args);
 
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
@@ -366,11 +367,12 @@ void ImGuiRendering::DrawString(float x, float y, Color color, int flags, ImFont
 
 void ImGuiRendering::DrawString(float x, float y, Color color, int flags, ImFont* font, const std::string message, ...)
 {
-	char output[1024] = {};
-	va_list args;
-	va_start(args, message);
-	vsprintf_s(output, message.c_str(), args);
-	va_end(args);
+	const char* output = message.c_str();
+	//char output[1024] = {};
+	//va_list args;
+	//va_start(args, message);
+	//vsprintf_s(output, message.c_str(), args);
+	//va_end(args);
 
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
@@ -408,11 +410,12 @@ void ImGuiRendering::DrawString(float x, float y, Color color, int flags, ImFont
 
 void ImGuiRendering::DrawStringWithShadow(float x, float y, Color color, int flags, ImFont* font, const char* message, ...)
 {
-	char output[1024] = {};
-	va_list args;
-	va_start(args, message);
-	vsprintf_s(output, message, args);
-	va_end(args);
+	const char* output = message;
+	//char output[1024] = {};
+	//va_list args;
+	//va_start(args, message);
+	//vsprintf_s(output, message, args);
+	//va_end(args);
 
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 
@@ -450,11 +453,12 @@ void ImGuiRendering::DrawStringWithShadow(float x, float y, Color color, int fla
 
 void ImGuiRendering::DrawStringWithShadow(float x, float y, Color color, int flags, ImFont* font, const std::string message, ...)
 {
-	char output[1024] = {};
-	va_list args;
-	va_start(args, message);
-	vsprintf_s(output, message.c_str(), args);
-	va_end(args);
+	const char* output = message.c_str();
+	//char output[1024] = {};
+	//va_list args;
+	//va_start(args, message);
+	//vsprintf_s(output, message, args);
+	//va_end(args);
 
 	ImGuiWindow* window = ImGui::GetCurrentWindow();
 

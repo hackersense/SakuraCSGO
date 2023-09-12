@@ -29,7 +29,7 @@ public:
 	int GetSerialNumber( ) const;
 
 	int ToInt( ) const;
-	unsigned long ToLong( ) const;
+	unsigned long ToLong() const;
 	bool operator !=( const CBaseHandle &other ) const;
 	bool operator ==( const CBaseHandle &other ) const;
 	bool operator ==( const IHandleEntity* e ) const;
@@ -76,7 +76,7 @@ inline void CBaseHandle::Term( ) {
 }
 
 inline bool CBaseHandle::IsValid( ) const {
-	return m_Index != INVALID_EHANDLE_INDEX;
+	return m_Index != INVALID_EHANDLE_INDEX && m_Index != -1;
 }
 
 inline int CBaseHandle::GetEntryIndex( ) const {
@@ -91,8 +91,8 @@ inline int CBaseHandle::ToInt( ) const {
 	return ( int )m_Index;
 }
 
-inline unsigned long CBaseHandle::ToLong( ) const {
-	return m_Index;
+inline unsigned long CBaseHandle::ToLong() const {
+	return (unsigned long)m_Index;
 }
 
 inline bool CBaseHandle::operator !=( const CBaseHandle &other ) const {

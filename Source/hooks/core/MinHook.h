@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "../../utils/x86RetSpoof.h"
-#include "Memory.h"
+#include "../../sdk/Memory.h"
 
 class MinHook {
 public:
@@ -22,28 +22,22 @@ public:
         return reinterpret_cast<T(__thiscall*)(void*, Args...)>(originals[Idx]);
     }
 
-    template<typename T, std::size_t Idx, typename ...Args>
+    template<typename T, std::size_t Idx = 0, typename ...Args>
     constexpr auto callOriginal(Args... args) const noexcept
     {
-        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), originals[Idx], memory->jmpEbxGadgetInClient, args...);
+        return getOriginal<T, Idx>(args...)(base, args...);
+        //if (!Idx)
+        //    return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), original, memory->jmpEbxGadgetInClient, args...);
+        //return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), originals[Idx], memory->jmpEbxGadgetInClient, args...);
     }
 
-    template<typename T, typename Base, std::size_t Idx, typename ...Args>
+    template<typename T, typename Base, std::size_t Idx = 0, typename ...Args>
     constexpr auto callOriginal(Base base, Args... args) const noexcept
     {
-        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), originals[Idx], memory->jmpEbxGadgetInClient, args...);
-    }
-
-    template<typename T, typename ...Args>
-    constexpr auto callOriginal(Args... args) const noexcept
-    {
-        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), original, memory->jmpEbxGadgetInClient, args...);
-    }
-
-    template<typename T, typename Base, typename ...Args>
-    constexpr auto callOriginal(Base base, Args... args) const noexcept
-    {
-        return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), original, memory->jmpEbxGadgetInClient, args...);
+        return getOriginal<T, Idx>(args...)(base, args...);
+        //if (!Idx)
+        //    return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), original, memory->jmpEbxGadgetInClient, args...);
+        //return x86RetSpoof::invokeThiscall<T, Args...>(std::uintptr_t(base), originals[Idx], memory->jmpEbxGadgetInClient, args...);
     }
 
     constexpr auto getDetour() const noexcept

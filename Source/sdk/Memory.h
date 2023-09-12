@@ -20,12 +20,14 @@
 class IClientEntity;
 class MemAlloc;
 class KeyValues;
+class CStudioHdr;
 struct IPanoramaEventRegistration;
 struct Ray_t;
 struct mstudiobbox_t;
 class matrix3x4_t;
 class CGameTrace;
 class ItemSystem;
+struct CSplitScreen;
 
 struct tesla_info_t {
     Vector m_pos;
@@ -53,7 +55,19 @@ public:
     std::uintptr_t money;
     std::uintptr_t inventoryAccess;
     std::uintptr_t sendDatagram;
+    std::uintptr_t setupVelocity;
+    std::uintptr_t setupMovement;
+    std::uintptr_t setupAliveloop;
+    CSplitScreen* splitScreen;
+    bool* disablePostProcessing;
+    int(__thiscall* getSequenceActivity)(void*, int);
+    std::uintptr_t studioSetPoseParameter;
+    const char* (__thiscall* getWeaponPrefix)(void*);
+    int(__thiscall* getLayerActivity)(void*, int);
+    int(__thiscall* lookUpSequence)(void*, const char*);
+    int(__stdcall* lookUpPoseParameter)(CStudioHdr*, const char*);
     float(__thiscall* getFirstSequenceAnimTag)(void*, int, int, int);
+    void(__fastcall* getSequenceLinearMotion)(void*, int, float*, Vector*);
     float(__thiscall* sequenceDuration)(void*, int);
     int* (__thiscall* findHudElement)(std::uintptr_t, const char*);
     int(__thiscall* clearHudWeapon)(int*, int);
@@ -85,7 +99,6 @@ public:
     std::uintptr_t physicsSimulate;
     std::uintptr_t getForeignFallbackFontName;
     std::uintptr_t processInterpolatedList;
-    std::uintptr_t dispatchSound;
     std::uintptr_t standardBlendingRules;
     std::uintptr_t doExtraBoneProcessing;
     std::uintptr_t shouldSkipAnimationFrame;
@@ -100,6 +113,7 @@ public:
     std::uintptr_t invalidateBoneCache;
     std::string* relayCluster;
     int(__thiscall* lookUpBone)(void*, const char*);
+    void(__thiscall* getBonePos)(void*, int, Vector*);
     std::uintptr_t setupBones;
     void(__stdcall* restoreEntityToPredictedFrame)(int, int);
     bool(__thiscall* physicsRunThink)(void*, int);

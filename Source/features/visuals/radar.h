@@ -108,7 +108,7 @@ private:
 		y -= size_diff / 2;
 
 		// Locate map by our local player
-		auto local_player = cheat.local();
+		auto local_player = localPlayer.get();
 
 		// Prepare imgui shit
 	
