@@ -14,6 +14,7 @@
 #include "..\sdk\interfaces\IMDLCache.hpp"
 #include "..\sdk\interfaces\IGameEventManager.hpp"
 #include "core\MinHook.h"
+#include "core\VmtSwap.h"
 #include "core\ClientHook.h"
 #include "..\utils\util.hpp"
 
@@ -47,11 +48,11 @@ namespace Hooks
 	typedef long(__stdcall* ResetFn)(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	typedef long(__stdcall* PresentFn)(IDirect3DDevice9*, RECT*, RECT*, HWND, RGNDATA*);
 
-	extern ClientHook* player_hook;
-	extern ClientHook* inputinternal_hook;
-	extern ClientHook* renderview_hook;
+	extern VmtSwap player_hook;
+	extern VmtSwap inputinternal_hook;
+	extern VmtSwap renderview_hook;
 	extern ClientHook* modelrender_hook;
-	extern ClientHook* steam_hook;
+	extern VmtSwap steam_hook;
 	//extern ClientHook* directx_hook;
 	extern PresentFn oPresent;
 	extern ResetFn oReset;
@@ -154,10 +155,4 @@ namespace Hooks
 	HRESULT __stdcall hooked_reset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	HRESULT __stdcall hooked_present(IDirect3DDevice9* device, RECT* src_rect, RECT* dest_rect, HWND dest_wnd_override, RGNDATA* dirty_region);
 	void GUI_Init(IDirect3DDevice9* pDevice);
-
-	typedef void(__thiscall* SetKeyCodeState_t) (void*, ButtonCode_t, bool);
-	extern SetKeyCodeState_t o_SetKeyCodeState;
-
-	typedef void(__thiscall* SetMouseCodeState_t) (void*, ButtonCode_t, MouseCodeState_t);
-	extern SetMouseCodeState_t o_SetMouseCodeState;
 }

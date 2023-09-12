@@ -214,11 +214,11 @@ namespace Hooks
 		return hr;
 	}
 
-	ClientHook* player_hook;
-	ClientHook* inputinternal_hook;
-	ClientHook* renderview_hook;
+	VmtSwap player_hook;
+	VmtSwap inputinternal_hook;
+	VmtSwap renderview_hook;
 	ClientHook* modelrender_hook;
-	ClientHook* steam_hook;
+	VmtSwap steam_hook;
 	//ClientHook* directx_hook;
 	PresentFn oPresent;
 	ResetFn oReset;
@@ -269,11 +269,11 @@ namespace Hooks
 	C_HookedEvents hooked_events;
 }
 
-void __fastcall Hooks::hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t code, bool bDown) noexcept
+void __fastcall Hooks::hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t code, bool down) noexcept
 {
-	static auto original_fn = inputinternal_hook->getOriginal<SetKeyCodeState_t>(91);
+	static auto original_fn = inputinternal_hook.getOriginal<void, 91>(code, down);
 
-	if (input_shouldListen && bDown)
+	if (input_shouldListen && down)
 	{
 		input_shouldListen = false;
 
@@ -281,12 +281,12 @@ void __fastcall Hooks::hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t
 			*input_receivedKeyval = code;
 	}
 
-	return original_fn(ecx, code, bDown);
+	return original_fn(ecx, code, down);
 }
 
 void __fastcall Hooks::hooked_setmousecodestate(void* ecx, void* edx, ButtonCode_t code, MouseCodeState_t state) noexcept
 {
-	static auto original_fn = inputinternal_hook->getOriginal<SetMouseCodeState_t>(92);
+	static auto original_fn = inputinternal_hook.getOriginal<void, 92>(code, state);
 
 	if (input_shouldListen && state == BUTTON_PRESSED)
 	{

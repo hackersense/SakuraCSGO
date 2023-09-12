@@ -49,12 +49,9 @@ __forceinline void setup_netvars()
 int buildTransformsIndex;
 Vector correctAngle;
 
-using GetEyeAngles = Vector * (__thiscall*)(void*);
-using BuildTransformations = Vector * (__thiscall*)(void*, CStudioHdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed);
-
 static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
 {
-    static auto original = Hooks::player_hook->getOriginal<GetEyeAngles>(170);
+    static auto original = Hooks::player_hook.getOriginal<Vector*, 170>();
 
     const auto entity = reinterpret_cast<player_t*>(ecx);
     if (!localPlayer || entity != localPlayer.get())
@@ -73,7 +70,7 @@ static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
 
 static void __fastcall buildTransformations(void* ecx, void* edx, CStudioHdr* hdr, Vector* pos, Quaternion* q, matrix3x4_t* cameraTransform, int bonemask, void* computed) noexcept
 {
-    static auto original = Hooks::player_hook->getOriginal<BuildTransformations>(190);
+    static auto original = Hooks::player_hook.getOriginal<void, 190>(hdr, pos, q, cameraTransform, bonemask, computed);
 
     const auto entity = reinterpret_cast<player_t*>(ecx);
     if (entity && entity->is_alive() && localPlayer && localPlayer.get() == entity && entity->get_animation_state())
@@ -167,7 +164,7 @@ static const DemoPlaybackParameters* __stdcall getDemoPlaybackParameters() noexc
 using GCRetrieveMessage = SteamResult(__thiscall*)(void*, uint32_t* punMsgType, void* pubDest, uint32_t cubDest, uint32_t* pcubMsgSize);
 static SteamResult __fastcall retrieveMessage(void* ecx, void*, uint32_t* punMsgType, void* pubDest, uint32_t cubDest, uint32_t* pcubMsgSize) noexcept
 {
-    static auto retrieveMessage = Hooks::steam_hook->getOriginal<GCRetrieveMessage>(2);
+    static auto retrieveMessage = Hooks::steam_hook.getOriginal<SteamResult, 2>(punMsgType, pubDest, cubDest, pcubMsgSize);
     const auto status = retrieveMessage(ecx, punMsgType, pubDest, cubDest, pcubMsgSize);
 
     if (configs.profileChanger.enabled && status == SteamResult::OK)
@@ -578,8 +575,8 @@ __forceinline void setup_hooks()
     //Hooks::inputinternal_hook->hookAt(91, Hooks::hooked_setkeycodestate);
     //Hooks::inputinternal_hook->hookAt(92, Hooks::hooked_setmousecodestate);
 
-    Hooks::renderview_hook = new ClientHook(m_renderview());
-    Hooks::renderview_hook->hookAt(9, Hooks::hooked_sceneend);
+    Hooks::renderview_hook.init(m_renderview());
+    Hooks::renderview_hook.hookAt(9, Hooks::hooked_sceneend);
 
     Hooks::modelrender_hook = new ClientHook(m_modelrender());
     Hooks::modelrender_hook->hookAt(21, Hooks::hooked_dme);
@@ -639,8 +636,8 @@ __forceinline void setup_hooks()
         Hooks::returnaddressmaterialsystem_hook.detour(memory->returnAddressMaterialSystem, returnAddressBypass);
     }
 
-    Hooks::steam_hook = new ClientHook(reinterpret_cast<PDWORD*>(memory->steamGameCoordinator));
-    Hooks::steam_hook->hookAt(2, retrieveMessage);
+    Hooks::steam_hook.init(reinterpret_cast<PDWORD*>(memory->steamGameCoordinator));
+    Hooks::steam_hook.hookAt(2, retrieveMessage);
 
     WindowInfo::window = FindWindowW(crypt_str(L"Valve001"), nullptr);
 

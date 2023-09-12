@@ -221,7 +221,7 @@ void Netvars::walkTable(bool unload, const char* networkName, RecvTable* recvTab
 		if (prop.type == 6 && prop.dataTable && prop.dataTable->netTableName[0] == 'D')
 			walkTable(unload, networkName, prop.dataTable, prop.offset + offset);
 
-		const auto hash{ fnv::hashRuntime((networkName + std::string { crypt_str("->") } + prop.name).c_str()) };
+		const auto hash{ fnv::hashRuntime((networkName + std::string(crypt_str("->")) + prop.name).c_str())};
 
 		constexpr auto getHook
 		{ 
@@ -233,8 +233,8 @@ void Netvars::walkTable(bool unload, const char* networkName, RecvTable* recvTab
 				 if (hash == fnv::hash(crypt_str("CBaseEntity->m_bSpotted")))
 					 return spottedHook;
 
-				 if (hash == fnv::hash(crypt_str("CBaseEntity->m_flSimulationTime")))
-					 return m_flSimulationTimeHook;
+				 //if (hash == fnv::hash(crypt_str("CBaseEntity->m_flSimulationTime")))
+				//	 return m_flSimulationTimeHook;
 
 				 return nullptr;
 			} 

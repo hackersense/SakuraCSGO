@@ -1,10 +1,8 @@
 #include "..\hooks.hpp"
 
-using SceneEnd_t = void(__thiscall*)(void*);
-
 void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx) noexcept
 {
-	static auto original_fn = renderview_hook->getOriginal<SceneEnd_t>(9);
+	static auto original_fn = renderview_hook.getOriginal<void, 9>();
 
 	if (!localPlayer)
 		return original_fn(ecx);
