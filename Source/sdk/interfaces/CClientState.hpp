@@ -24,41 +24,12 @@ public:
 	int			m_nInReliableState;
 	int			m_nChokedPackets;
 
-	void SetTimeOut(float seconds)
-	{
-		using Fn = void(__thiscall*)(void*, float);
-		return call_virtual<Fn>(this, 4)(this, seconds);
-	}
-
-	float GetLatency(int flow)
-	{
-		using Fn = float(__thiscall*)(void*, int);
-		return call_virtual<Fn>(this, 9)(this, flow);
-	}
-
-	void SendNetMsg(void* msg, bool forceReliable = false, bool voice = false)
-	{
-		using Fn = void(__thiscall*)(void*, void*, bool, bool);
-		call_virtual<Fn>(this, 40)(this, msg, forceReliable, voice);
-	}
-
-	void SendDatagram()
-	{
-		using Fn = int(__thiscall*)(void*, void*);
-		call_virtual<Fn>(this, 46)(this, 0);
-	}
-
-	void Transmit(bool onlyReliable)
-	{
-		using Fn = bool(__thiscall*)(void*, bool);
-		call_virtual<Fn>(this, 49)(this, onlyReliable);
-	}
-
-	int RequestFile(const char* fileName)
-	{
-		using Fn = int(__thiscall*)(void*, const char*);
-		return call_virtual<Fn>(this, 62)(this, fileName);
-	}
+	VIRTUAL_METHOD(void, SetTimeOut, 4, (float seconds), (this, seconds))
+	VIRTUAL_METHOD(float, GetLatency, 9, (int flow), (this, flow))
+	VIRTUAL_METHOD(bool, SendNetMsg, 40, (void* msg, bool forceReliable = false, bool voice = false), (this, msg, forceReliable, voice))
+	VIRTUAL_METHOD(int, SendDatagram, 46, (), (this, 0))
+	VIRTUAL_METHOD(bool, Transmit, 49, (bool onlyReliable), (this, onlyReliable))
+	VIRTUAL_METHOD(int, RequestFile, 62, (const char* fileName), (this, fileName))
 };
 
 class INetMessage

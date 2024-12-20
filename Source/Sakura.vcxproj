@@ -878,7 +878,6 @@
     <ClInclude Include="sdk\misc\UtlMemory.hpp" />
     <ClInclude Include="sdk\misc\UtlString.hpp" />
     <ClInclude Include="sdk\misc\UtlVector.hpp" />
-    <ClInclude Include="sdk\misc\UtlVectorSimple.hpp" />
     <ClInclude Include="sdk\misc\vfunc.hpp" />
     <ClInclude Include="sdk\ProtobufReader.h" />
     <ClInclude Include="sdk\Steam.h" />

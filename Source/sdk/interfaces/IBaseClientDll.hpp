@@ -5,6 +5,7 @@
 #include "..\misc\ClientClass.hpp"
 #include "..\misc\BitBuffer.h"
 #include "..\math\Vector.hpp"
+#include "..\sdk\VirtualMethod.h"
 
 enum ClientFrameStage_t
 {
@@ -64,15 +65,6 @@ public:
     virtual void             LevelShutdown(void) = 0;
     virtual ClientClass*     GetAllClasses(void) = 0;
 
-    bool WriteUserCMDDeltaToBuffer(int slot, bufferWrite* buf, int from, int to, bool isnewcommand)
-    {
-        using WriteUserCMDDeltaToBuffer_t = bool* (__thiscall*)(void*, int, bufferWrite*, int, int, bool);
-        return call_virtual<WriteUserCMDDeltaToBuffer_t>(this, 24)(this, slot, buf, from, to, isnewcommand);
-    }
-
-    bool DispatchUserMessage(int messageType, int arg, int arg1, void* data)
-    {
-        using DispatchUserMessage_t = bool* (__thiscall*)(void*, int, int, int, void*);
-        return call_virtual<DispatchUserMessage_t>(this, 38)(this, messageType, arg, arg1, data);
-    }
+    VIRTUAL_METHOD(bool, WriteUserCMDDeltaToBuffer, 24, (int slot, bufferWrite* buf, int from, int to, bool isnewcommand), (this, slot, buf, from, to, isnewcommand))
+    VIRTUAL_METHOD(bool, DispatchUserMessage, 38, (int messageType, int arg, int arg1, void* data), (this, messageType, arg, arg1, data))
 };
