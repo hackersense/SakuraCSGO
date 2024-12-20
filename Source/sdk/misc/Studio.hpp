@@ -225,12 +225,12 @@ public:
 	StudioHdr*						studioHdr;
 	void*							virtualModel;
 	void*							softBody;
-	CUtlVector<const StudioHdr*>	hdrCache;
+	SafeUtlVector<const StudioHdr*>	hdrCache;
 	int								numFrameUnlockCounter;
 	int*							frameUnlockCounter;
 	std::byte						pad[8];
-	CUtlVector<int>					boneFlags;
-	CUtlVector<int>					boneParent;
+	SafeUtlVector<int>				boneFlags;
+	SafeUtlVector<int>				boneParent;
 	void*							activityToSequence;
 
 	StudioSeqdesc getSeqdesc(int sequence)

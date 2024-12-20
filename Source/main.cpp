@@ -131,7 +131,7 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
         entity->m_flCollisionChangeTime() = 0.0f;
     }
 
-    const CUtlVector<int> backupFlags = hdr->boneFlags;
+    const SafeUtlVector<int> backupFlags = hdr->boneFlags;
 
     for (int i = 0; i < hdr->boneFlags.m_Size; i++)
     {

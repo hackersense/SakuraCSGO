@@ -5,7 +5,20 @@
 
 #define MEM_ALLOC_CREDIT_CLASS()		((void)0)
 
-template< class T, class A = CUtlMemory<T> >
+template <typename T>
+class SafeUtlVector {
+public:
+    constexpr T& operator[](int i) noexcept { return memory[i]; }
+    constexpr const T& operator[](int i) const noexcept { return memory[i]; }
+
+    T* memory;
+    int allocationCount;
+    int growSize;
+    int m_Size;
+    T* m_pElements;
+};
+
+template<class T, class A = CUtlMemory<T>>
 class CUtlVector
 {
     typedef A CAllocator;

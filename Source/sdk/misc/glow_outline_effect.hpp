@@ -95,6 +95,6 @@ public:
 		static const int ENTRY_IN_USE = -2;
 	};
 
-	CUtlVector< GlowObjectDefinition_t > m_GlowObjectDefinitions;
+	CUtlVector<GlowObjectDefinition_t> m_GlowObjectDefinitions;
 	int m_nFirstFreeSlot;
 };
