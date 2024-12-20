@@ -25,13 +25,13 @@ class local_animations : public singleton<local_animations>
 	float spawntime = 0.0f;
 	float tickcount = 0.0f;
 
-	float abs_angles = 0.0f;
 	float pose_parameter[24];
 	AnimationLayer layers[15];
 
 	void update_fake_animations();
 	void update_local_animations(AnimationState* animstate);
 public:
+	float abs_angles = 0.0f;
 	Local_data local_data;
 
 	void run(ClientFrameStage_t stage);

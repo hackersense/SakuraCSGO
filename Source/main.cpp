@@ -131,7 +131,19 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
         entity->m_flCollisionChangeTime() = 0.0f;
     }
 
+    const CUtlVector<int> backupFlags = hdr->boneFlags;
+
+    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
+    {
+        if (configs.visuals.disable_jiggle_bones)
+            hdr->boneFlags.m_pElements[i] &= ~0x04;
+        else
+            hdr->boneFlags.m_pElements[i] |= 0x04;
+    }
+
     Hooks::buildtransformations_hook.callOriginal<void, void*>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
+
+    hdr->boneFlags = backupFlags;
 }
 
 static void* __stdcall allocKeyValuesMemory(int size) noexcept
@@ -503,7 +515,7 @@ __forceinline void setup_hooks()
 
     Hooks::getforeignfallbackfontname_hook.detour(memory->getForeignFallbackFontName, Hooks::hooked_getforeignfallbackfontname);
 
-    DetourFunction((PBYTE)memory->shouldSkipAnimationFrame, (PBYTE)Hooks::hooked_shouldskipanimframe);
+    Hooks::shouldskipanimationframe_hook.detour(memory->shouldSkipAnimationFrame, Hooks::hooked_shouldskipanimframe);
 
     Hooks::setupbones_hook.detour(memory->setupBones, Hooks::hooked_setupbones);
 
@@ -875,10 +887,11 @@ void threadMain()
     */
 
     cheat.remainingTime = -1;
-    wchar_t username[255];
+    /*wchar_t username[255];
     unsigned long size = 255;
     GetUserNameW(username, &size);
-    cheat.username = StringUtils::wstringToString(username);
+    cheat.username = StringUtils::wstringToString(username);*/
+    cheat.username = "Timeline";
     cheat.timeStamp = getTimeStamp();
 
     //Beep(578, 100);
@@ -916,9 +929,6 @@ void threadMain()
     key_binds::get().initialize_key_binds();
 
     discord_main();
-
-    //Beep(578, 100);
-    //Beep(578, 100);
 
     setup_hooks();
 

@@ -622,14 +622,14 @@ void menu::draw()
 		m_engine()->GetScreenSize(width, height);
 		bool success = (load_number >= 30);
 		ImGui::PushFont(skeet_menu.title);
-		auto title_size = ImGui::CalcTextSize("Sakura.cc (Free Edition)");
+		auto title_size = ImGui::CalcTextSize("Sakura.cc");
 		ImGui::PopFont();
 		ImGui::PushFont(skeet_menu.text);
 		auto text_size = ImGui::CalcTextSize("Flower fall and people die");
 		auto text_size2 = ImGui::CalcTextSize(success ? ("Welcome you! " + cheat.username).c_str() : loading.at(static_cast<int>(load_number) % 6));
 		//auto free_size = ImGui::CalcTextSize("You are using free edition.");
 		ImGui::PopFont();
-		ImGui::GetBackgroundDrawList()->AddText(skeet_menu.title, 50, ImVec2((width / 2) - (title_size.x / 2), (height / 2) - title_size.y - 30), ImColor(255, 191, 192, text_alpha), "Sakura.cc (Free Edition)");
+		ImGui::GetBackgroundDrawList()->AddText(skeet_menu.title, 50, ImVec2((width / 2) - (title_size.x / 2), (height / 2) - title_size.y - 30), ImColor(255, 191, 192, text_alpha), "Sakura.cc");
 		ImGui::GetBackgroundDrawList()->AddTextShadow(skeet_menu.text, 25, ImVec2((width / 2) - (text_size.x / 2), (height / 2) - text_size.y), ImColor(255, 191, 192, text_alpha), "Flower fall and people die");
 		ImGui::GetBackgroundDrawList()->AddTextShadow(skeet_menu.text, 25, ImVec2((width / 2) - (text_size2.x / 2), (height / 2) - text_size2.y + 30), ImColor(255, 191, 192, loading_alpha), success ? ("Welcome you! " + cheat.username).c_str() : loading.at(static_cast<int>(load_number) % 6));
 		ImGui::GetBackgroundDrawList()->AddRectFilled(ImVec2(0, 0), ImVec2(width, height), ImColor(255, 192, 203, background_alpha));

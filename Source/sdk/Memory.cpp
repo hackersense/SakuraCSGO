@@ -11,8 +11,8 @@ Memory::Memory() noexcept
 {
     //if (!GetModuleHandleW(crypt_str(L"discordhook")))
     //{
-    reset = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("gameoverlayrenderer"), "\x57\x53\xC7\x45") + 11);
-    present = reset + 4;
+    reset = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("gameoverlayrenderer"), "\xE8????\xA1????\x57\x53") + 6);
+    present = *reinterpret_cast<std::uintptr_t*>(findPattern(crypt_str("gameoverlayrenderer"), "\x8B\x4D?\xA1????\x51\xFF") + 4);
     //}
     //else
     //{

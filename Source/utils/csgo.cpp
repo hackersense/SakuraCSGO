@@ -101,7 +101,7 @@ IDirect3DDevice9* C_CSGO::m_device() {
 
 IVEngineClient* C_CSGO::m_engine() {
 	if (!p_engine)
-		p_engine = get_interface<IVEngineClient>(crypt_str("engine.dll"), crypt_str("VEngineClient"));
+		p_engine = getInterface<IVEngineClient>(crypt_str("engine.dll"), crypt_str("VEngineClient014"));
 
 	return p_engine;
 }

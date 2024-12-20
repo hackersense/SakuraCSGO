@@ -54,10 +54,10 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 {
 	auto result = true;
 
-	static auto r_jiggle_bones = m_cvar2()->FindVar(crypt_str("r_jiggle_bones"));
-	auto r_jiggle_bones_backup = r_jiggle_bones->GetInt();
+	//static auto r_jiggle_bones = m_cvar2()->FindVar(crypt_str("r_jiggle_bones"));
+	//auto r_jiggle_bones_backup = r_jiggle_bones->GetInt();
 
-	r_jiggle_bones->SetValue(!configs.visuals.disable_jiggle_bones);
+	//r_jiggle_bones->SetValue(!configs.visuals.disable_jiggle_bones);
 
 	if (!ecx)
 		result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
@@ -66,6 +66,18 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 	else
 	{
 		auto player = reinterpret_cast<player_t*>(uintptr_t(ecx) - 4);
+
+		if (!player || !localPlayer || localPlayer.get() != player || m_engine()->IsHLTV())
+			return setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
+
+		if (!m_input()->m_bCameraInThirdPerson)
+		{
+			memory->setAbsAngles(localPlayer.get(), Vector{ 0.f, local_animations::get().abs_angles, 0.f});
+			return setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
+		}
+
+		if (cheat.globals.updatingFake)
+			return setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 
 		if (!player->valid(false, false))
 			result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
@@ -95,7 +107,7 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 		}
 	}
 
-	r_jiggle_bones->SetValue(r_jiggle_bones_backup);
+	//r_jiggle_bones->SetValue(r_jiggle_bones_backup);
 	return result;
 }
 

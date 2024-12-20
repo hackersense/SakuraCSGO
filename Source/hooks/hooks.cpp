@@ -223,6 +223,7 @@ namespace Hooks
 	PresentFn oPresent;
 	ResetFn oReset;
 	MinHook getforeignfallbackfontname_hook;
+	MinHook shouldskipanimationframe_hook;
 	MinHook processinterpolatedlist_hook;
 	MinHook doextrabonesprocessing_hook;
 	MinHook updateclientsideanimation_hook;

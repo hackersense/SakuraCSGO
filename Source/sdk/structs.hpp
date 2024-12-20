@@ -635,10 +635,10 @@ public:
     std::byte               pad1[4];
     bool					m_bFirstRunSinceInit; //0x4
     std::byte               pad2[87];
-    weapon_t* m_pLastBoneSetupWeapon; //0x5C
-    player_t* m_pBaseEntity; //0x60
-    weapon_t* m_pActiveWeapon; //0x64
-    weapon_t* m_pLastActiveWeapon; //0x68
+    weapon_t*               m_pLastBoneSetupWeapon; //0x5C
+    player_t*               m_pBaseEntity; //0x60
+    weapon_t*               m_pActiveWeapon; //0x64
+    weapon_t*               m_pLastActiveWeapon; //0x68
     float                   m_flLastClientSideAnimationUpdateTime; //0x6C
     int                     m_iLastClientSideAnimationUpdateFramecount; //0x70
     float                   m_flUpdateTimeDelta; //0x74
