@@ -506,7 +506,7 @@ public:
     AnimationLayer* get_animlayers();
     AnimationLayer* get_animlayer(int overlay);
     CommandContext* getCommandContext();
-    CUtlVector<matrix3x4_t>& m_CachedBoneData();
+    SafeUtlVector<matrix3x4_t>& m_CachedBoneData();
     CBoneAccessor& m_BoneAccessor();
     void invalidate_bone_cache();
     void set_abs_velocity(const Vector& velocity);

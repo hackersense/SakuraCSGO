@@ -90,11 +90,11 @@ float entity_t::getSequenceMoveDist(CStudioHdr* studioHdr, int sequence)
 
 weapon_info_t* weapon_t::get_weapon_info()
 {
-	if (!this) //  || !m_weaponsystem()
+	if (!this || !m_weaponsystem())
 		return nullptr;
 
-	return VirtualMethod::call<weapon_info_t*, 461>(this);
-	//return m_weaponsystem()->GetWeaponData(m_iItemDefinitionIndex());
+	//return VirtualMethod::call<weapon_info_t*, 461>(this);
+	return m_weaponsystem()->GetWeaponData(m_iItemDefinitionIndex());
 }
 
 float weapon_t::get_inaccuracy()
@@ -953,11 +953,11 @@ CommandContext* player_t::getCommandContext()
 	return reinterpret_cast<CommandContext*>(uintptr_t(this) + 0x350C);
 }
 
-CUtlVector<matrix3x4_t>& player_t::m_CachedBoneData()
+SafeUtlVector<matrix3x4_t>& player_t::m_CachedBoneData()
 {
-	return *reinterpret_cast<CUtlVector<matrix3x4_t>*>(uintptr_t(this) + 0x2914);
-	//static auto m_CachedBoneData = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), crypt_str("FF B7 ?? ?? ?? ?? 52")) + 2) + 4;
-	//return *(CUtlVector<matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
+	//return *reinterpret_cast<SafeUtlVector<matrix3x4_t>*>(uintptr_t(this) + 0x2914);
+	static auto m_CachedBoneData = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), crypt_str("FF B7 ?? ?? ?? ?? 52")) + 2) + 4;
+	return *(SafeUtlVector<matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
 }
 
 CBoneAccessor& player_t::m_BoneAccessor()

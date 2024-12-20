@@ -17,8 +17,11 @@ public:
     int m_Size;
     T* m_pElements;
 
-    int Count() const
-    {
+    T* Base() {
+        return memory;
+    }
+
+    int Count() const {
         return m_Size;
     }
 };

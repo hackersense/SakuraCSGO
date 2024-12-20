@@ -13,22 +13,22 @@ class IHandleEntity;
 
 class CBaseHandle {
 public:
-	CBaseHandle( );
-	CBaseHandle( const CBaseHandle &other );
-	CBaseHandle( unsigned long value );
-	CBaseHandle( int iEntry, int iSerialNumber );
+	CBaseHandle();
+	CBaseHandle(const CBaseHandle &other);
+	CBaseHandle(unsigned long value);
+	CBaseHandle(int iEntry, int iSerialNumber);
 
-	void Init( int iEntry, int iSerialNumber );
-	void Term( );
+	void Init(int iEntry, int iSerialNumber);
+	void Term();
 
 	// Even if this returns true, Get() still can return return a non-null value.
 	// This just tells if the handle has been initted with any values.
-	bool IsValid( ) const;
+	bool IsValid() const;
 
-	int GetEntryIndex( ) const;
-	int GetSerialNumber( ) const;
+	int GetEntryIndex() const;
+	int GetSerialNumber() const;
 
-	int ToInt( ) const;
+	int ToInt() const;
 	unsigned long ToLong() const;
 	bool operator !=( const CBaseHandle &other ) const;
 	bool operator ==( const CBaseHandle &other ) const;
