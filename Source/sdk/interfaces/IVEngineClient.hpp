@@ -2,7 +2,7 @@
 
 #include "../math/Vector.hpp"
 #include "../math/VMatrix.hpp"
-#include "../sdk/misc/vfunc.hpp"
+#include "../sdk/VirtualMethod.h"
 
 #define SIGNONSTATE_NONE		0	// no state yet, about to connect
 #define SIGNONSTATE_CHALLENGE	1	// client challenging server, all OOB packets
@@ -359,9 +359,5 @@ public:
 
 	virtual float		GetTimeoutSeconds() const = 0;
 
-	void SetTimeoutSeconds(float newTimeoutSeconds, bool forceSet)
-	{
-		using Fn = void(__thiscall*)(void*, float, bool);
-		call_virtual<Fn>(this, 31)(this, newTimeoutSeconds, forceSet);
-	}
+	VIRTUAL_METHOD(void, SetTimeoutSeconds, 31, (float newTimeoutSeconds, bool forceSet), (this, newTimeoutSeconds, forceSet))
 };

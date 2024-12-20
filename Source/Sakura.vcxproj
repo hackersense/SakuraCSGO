@@ -257,7 +257,6 @@
     <ClCompile Include="sdk\misc\Color.cpp" />
     <ClCompile Include="sdk\misc\Convar.cpp" />
     <ClCompile Include="sdk\misc\KeyValues.cpp" />
-    <ClCompile Include="sdk\misc\threadtools.cpp" />
     <ClCompile Include="sdk\misc\UtlBuffer.cpp" />
     <ClCompile Include="sdk\misc\UtlString.cpp" />
     <ClCompile Include="sdk\SteamInputAPI.cpp" />
@@ -872,7 +871,6 @@
     <ClInclude Include="sdk\misc\platform.hpp" />
     <ClInclude Include="sdk\misc\Recv.hpp" />
     <ClInclude Include="sdk\misc\Studio.hpp" />
-    <ClInclude Include="sdk\misc\threadtools.h" />
     <ClInclude Include="sdk\misc\UtlBuffer.hpp" />
     <ClInclude Include="sdk\misc\UtlMap.hpp" />
     <ClInclude Include="sdk\misc\UtlMemory.hpp" />

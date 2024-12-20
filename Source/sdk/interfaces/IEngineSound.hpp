@@ -103,25 +103,12 @@ struct ActiveSoundInfo_t
 class VSoundEmitter
 {
 public:
-	const char* GetSoundName(int index)
-	{
-		using SoundNameFn = const char*(__thiscall*)(void*, int);
-		return call_virtual<SoundNameFn>(this, 46)(this, index);
-	}
+	VIRTUAL_METHOD(const char*, GetSoundName, 46, (int index), (this, index))
 };
 
 class IEngineSound
 {
 public:
-	int EmitSound(SoundParams_t data)
-	{
-		using EmitSoundFn = int(__thiscall*)(void*, SoundParams_t);
-		return call_virtual<EmitSoundFn>(this, 5)(this, data);
-	}
-
-	void GetActiveSounds(CUtlVector<ActiveSoundInfo_t>& soundList)
-	{
-		using GetActiveSoundsFn = void(__thiscall*)(void*, CUtlVector<ActiveSoundInfo_t>&);
-		return call_virtual<GetActiveSoundsFn>(this, 19)(this, soundList);
-	}
+	VIRTUAL_METHOD(int, EmitSound, 5, (SoundParams_t data), (this, data))
+	VIRTUAL_METHOD(void, GetActiveSounds, 19, (CUtlVector<ActiveSoundInfo_t>& soundList), (this, soundList))
 };

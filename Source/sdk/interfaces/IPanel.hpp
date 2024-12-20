@@ -1,13 +1,9 @@
 #pragma once
 
-#include "..\misc\vfunc.hpp"
+#include "../sdk/VirtualMethod.h"
 
 class IPanel
 {
 public:
-	const char* GetName(unsigned int vguiPanel)
-	{
-		typedef const char* (__thiscall* tGetName)(void*, unsigned int);
-		return call_virtual<tGetName>(this, 36)(this, vguiPanel);
-	}
+	VIRTUAL_METHOD(const char*, GetName, 36, (unsigned int vguiPanel), (this, vguiPanel))
 };
