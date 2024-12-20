@@ -39,6 +39,6 @@ public:
 		int m_nFlags = 0;
 	} m_cSoundPlayers[65];
 
-	CUtlVector<ActiveSoundInfo_t> m_utlvecSoundBuffer;
-	CUtlVector<ActiveSoundInfo_t> m_utlCurSoundList;
+	SafeCUtlVector<ActiveSoundInfo_t> m_utlvecSoundBuffer;
+	SafeCUtlVector<ActiveSoundInfo_t> m_utlCurSoundList;
 };

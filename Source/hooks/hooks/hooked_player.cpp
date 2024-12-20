@@ -97,10 +97,10 @@ bool __fastcall Hooks::hooked_setupbones(void* ecx, void* edx, matrix3x4_t* bone
 				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (player == localPlayer.get())
 				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
-			else if (!player->m_CachedBoneData().Count())
+			else if (!player->m_CachedBoneData().count())
 				result = setupbones_hook.callOriginal<bool, void*>(ecx, bone_world_out, max_bones, bone_mask, current_time);
 			else if (bone_world_out && max_bones != -1)
-				memcpy(bone_world_out, player->m_CachedBoneData().Base(), player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+				memcpy(bone_world_out, player->m_CachedBoneData().base(), player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 
 			if (previous_weapon)
 				animstate->m_pLastBoneSetupWeapon = previous_weapon;

@@ -3,8 +3,8 @@
 
 void __stdcall Hooks::hooked_emitsound(SoundParams_t params) noexcept
 {
-	//if (engineprediction::get().isInPrediction())
-	//	return;
+	if (engineprediction::get().inPrediction)
+		return;
 
 	if (!strcmp(params.m_nSoundEntry, "UIPanorama.popup_accept_match_beep") && configs.misc.auto_accept) {
 		if (const auto idx = memory->registeredPanoramaEvents->find(memory->makePanoramaSymbol("MatchAssistedAccept")); idx != -1) {

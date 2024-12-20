@@ -447,7 +447,7 @@ void misc::view_model()
 
 		if (viewFOVcvar->GetFloat() != viewFOV)
 		{
-			viewFOVcvar->onChangeCallbacks.m_Size = 0;
+			viewFOVcvar->onChangeCallbacks.size = 0;
 			viewFOVcvar->SetValue(viewFOV);
 		}
 	}
@@ -459,7 +459,7 @@ void misc::view_model()
 
 		if (viewXcvar->GetFloat() != viewX)
 		{
-			viewXcvar->onChangeCallbacks.m_Size = 0;
+			viewXcvar->onChangeCallbacks.size = 0;
 			viewXcvar->SetValue(viewX);
 		}
 	}
@@ -471,7 +471,7 @@ void misc::view_model()
 
 		if (viewYcvar->GetFloat() != viewY)
 		{
-			viewYcvar->onChangeCallbacks.m_Size = 0;
+			viewYcvar->onChangeCallbacks.size = 0;
 			viewYcvar->SetValue(viewY);
 		}
 	}
@@ -483,7 +483,7 @@ void misc::view_model()
 
 		if (viewZcvar->GetFloat() != viewZ)
 		{
-			viewZcvar->onChangeCallbacks.m_Size = 0;
+			viewZcvar->onChangeCallbacks.size = 0;
 			viewZcvar->SetValue(viewZ);
 		}
 	}
@@ -1250,7 +1250,7 @@ void misc::anti_exploit()
 		is_command_set = configs.misc.anti_exploit;
 	}
 
-	cl_lagcompensation->onChangeCallbacks.m_Size = 0;
+	cl_lagcompensation->onChangeCallbacks.size = 0;
 	cl_lagcompensation->SetValue(!configs.misc.anti_exploit);
 }
 

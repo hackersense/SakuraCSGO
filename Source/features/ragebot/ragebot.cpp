@@ -314,7 +314,7 @@ bool ragebot::automatic_stop(CUserCmd* cmd)
 	if (!currentWeapon.autostop_modifiers[AUTOSTOP_BETWEEN_SHOTS] && !cheat.globals.weapon->can_fire(false))
 		return true;
 
-	auto animlayer = localPlayer->get_animlayers()[ANIMATION_LAYER_WEAPON_ACTION];
+	auto animlayer = localPlayer->getAnimationLayers()[ANIMATION_LAYER_WEAPON_ACTION];
 
 	if (animlayer.m_iSequence)
 	{

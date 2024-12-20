@@ -3,13 +3,13 @@
 
 void c_dormant_esp::start()
 {
-	m_utlCurSoundList.RemoveAll();
+	m_utlCurSoundList.removeAll();
 	m_enginesound()->GetActiveSounds(m_utlCurSoundList);
 
-	if (!m_utlCurSoundList.Count())
+	if (!m_utlCurSoundList.count())
 		return;
 
-	for (auto i = 0; i < m_utlCurSoundList.Count(); i++)
+	for (auto i = 0; i < m_utlCurSoundList.count(); i++)
 	{
 		auto& sound = m_utlCurSoundList[i];
 
@@ -79,7 +79,7 @@ bool c_dormant_esp::adjust_sound(player_t* entity)
 
 bool c_dormant_esp::valid_sound(ActiveSoundInfo_t& sound)
 {
-	for (auto i = 0; i < m_utlvecSoundBuffer.Count(); i++)
+	for (auto i = 0; i < m_utlvecSoundBuffer.count(); i++)
 		if (m_utlvecSoundBuffer[i].m_nGuid == sound.m_nGuid)
 			return false;
 

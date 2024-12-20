@@ -126,8 +126,8 @@ public:
 
 		if (store)
 		{
-			memcpy(layers, e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
-			memcpy(matrixes_data.main, player->m_CachedBoneData().Base(), player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+			memcpy(layers, e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
+			memcpy(matrixes_data.main, player->m_CachedBoneData().base(), player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 		}
 
 		immune = player->m_bGunGameImmunity() || player->m_fFlags() & FL_FROZEN;
@@ -139,7 +139,7 @@ public:
 		username = player_info.getUsername();
 		robot = player_info.fakeplayer;
 		flags = player->m_fFlags();
-		bone_count = player->m_CachedBoneData().Count();
+		bone_count = player->m_CachedBoneData().count();
 
 		last_shot_time = player->getActiveWeapon() ? player->getActiveWeapon()->m_fLastShotTime() : 0.f;
 		simulation_time = player->m_flSimulationTime();
@@ -160,11 +160,11 @@ public:
 		if (!valid(false))
 			return;
 
-		memcpy(player->get_animlayers(), layers, player->animlayer_count() * sizeof(AnimationLayer));
-		memcpy(player->m_CachedBoneData().Base(), matrixes_data.main, player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+		memcpy(player->getAnimationLayers(), layers, player->getAnimationLayersCount() * sizeof(AnimationLayer));
+		memcpy(player->m_CachedBoneData().base(), matrixes_data.main, player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 
 		player->m_fFlags() = flags;
-		player->m_CachedBoneData().m_Size = bone_count;
+		player->m_CachedBoneData().size = bone_count;
 
 		player->m_flSimulationTime() = simulation_time;
 		player->m_flDuckAmount() = duck_amount;

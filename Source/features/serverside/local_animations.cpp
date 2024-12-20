@@ -18,9 +18,9 @@ void local_animations::run(ClientFrameStage_t stage)
 				fake_simulation_time = localPlayer->m_flSimulationTime();
 			}
 
-			localPlayer->get_animlayers()[3].m_flWeight = 0.0f;
-			localPlayer->get_animlayers()[3].m_flCycle = 0.0f;
-			localPlayer->get_animlayers()[12].m_flWeight = 0.0f;
+			localPlayer->getAnimationLayers()[3].m_flWeight = 0.0f;
+			localPlayer->getAnimationLayers()[3].m_flCycle = 0.0f;
+			localPlayer->getAnimationLayers()[12].m_flWeight = 0.0f;
 
 			cheat.globals.updatingFake = true;
 			update_fake_animations();
@@ -41,9 +41,9 @@ void local_animations::run(ClientFrameStage_t stage)
 				real_simulation_time = localPlayer->m_flSimulationTime();
 			}
 
-			localPlayer->get_animlayers()[3].m_flWeight = 0.0f;
-			localPlayer->get_animlayers()[3].m_flCycle = 0.0f;
-			localPlayer->get_animlayers()[12].m_flWeight = 0.0f;
+			localPlayer->getAnimationLayers()[3].m_flWeight = 0.0f;
+			localPlayer->getAnimationLayers()[3].m_flCycle = 0.0f;
+			localPlayer->getAnimationLayers()[12].m_flWeight = 0.0f;
 
 			if (configs.misc.slide_walk == 2) {
 				static auto alpha = 1.0f;
@@ -92,9 +92,9 @@ void local_animations::run(ClientFrameStage_t stage)
 			real_simulation_time = fake_simulation_time = localPlayer->m_flSimulationTime();
 		}
 
-		localPlayer->get_animlayers()[3].m_flWeight = 0.0f;
-		localPlayer->get_animlayers()[3].m_flCycle = 0.0f;
-		localPlayer->get_animlayers()[12].m_flWeight = 0.0f;
+		localPlayer->getAnimationLayers()[3].m_flWeight = 0.0f;
+		localPlayer->getAnimationLayers()[3].m_flCycle = 0.0f;
+		localPlayer->getAnimationLayers()[12].m_flWeight = 0.0f;
 
 		if (configs.misc.slide_walk == 2) {
 			static auto alpha = 1.0f;
@@ -165,15 +165,15 @@ void local_animations::update_prediction_animations()
 		memcpy(pose_parameter, &localPlayer->m_flPoseParameter(), 24 * sizeof(float));
 
 		AnimationLayer layers[15];
-		memcpy(layers, localPlayer->get_animlayers(), localPlayer->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(layers, localPlayer->getAnimationLayers(), localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		local_data.prediction_animstate->m_pBaseEntity = localPlayer.get();
 		util::update_state(local_data.prediction_animstate, ZERO);
 
-		localPlayer->setup_bones_fixed(cheat.globals.prediction_matrix, localPlayer->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
+		localPlayer->setup_bones_fixed(cheat.globals.prediction_matrix, localPlayer->m_CachedBoneData().size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
 
 		memcpy(&localPlayer->m_flPoseParameter(), pose_parameter, 24 * sizeof(float));
-		memcpy(localPlayer->get_animlayers(), layers, localPlayer->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(localPlayer->getAnimationLayers(), layers, localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 	}
 }
 
@@ -209,7 +209,7 @@ void local_animations::update_fake_animations()
 		memcpy(pose_parameter, &localPlayer->m_flPoseParameter(), 24 * sizeof(float));
 
 		AnimationLayer layers[15];
-		memcpy(layers, localPlayer->get_animlayers(), localPlayer->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(layers, localPlayer->getAnimationLayers(), localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		auto backup_frametime = m_globals()->m_frametime;
 		auto backup_curtime = m_globals()->m_curtime;
@@ -224,7 +224,7 @@ void local_animations::update_fake_animations()
 		local_data.animstate->m_flLandingDuckAdditiveSomething = 0.0f;
 		local_data.animstate->m_flHeadHeightOrOffsetFromHittingGroundAnimation = 1.0f;
 
-		localPlayer->setup_bones_fixed(cheat.globals.fake_matrix, localPlayer->m_CachedBoneData().m_Size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
+		localPlayer->setup_bones_fixed(cheat.globals.fake_matrix, localPlayer->m_CachedBoneData().size, BONE_USED_BY_ANYTHING, m_globals()->m_curtime);
 		local_data.visualize_lag = configs.esp.visualize_lag;
 
 		if (!local_data.visualize_lag)
@@ -242,7 +242,7 @@ void local_animations::update_fake_animations()
 		m_globals()->m_curtime = backup_curtime;
 
 		memcpy(&localPlayer->m_flPoseParameter(), pose_parameter, 24 * sizeof(float));
-		memcpy(localPlayer->get_animlayers(), layers, localPlayer->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(localPlayer->getAnimationLayers(), layers, localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 	}
 }
 
@@ -251,7 +251,7 @@ void local_animations::update_local_animations(AnimationState* animstate)
 	if (tickcount != m_globals()->m_tickcount)
 	{
 		tickcount = m_globals()->m_tickcount;
-		memcpy(layers, localPlayer->get_animlayers(), localPlayer->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(layers, localPlayer->getAnimationLayers(), localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		if (local_data.animstate)
 			animstate->m_flDuckAmount = local_data.animstate->m_flDuckAmount;
@@ -272,6 +272,6 @@ void local_animations::update_local_animations(AnimationState* animstate)
 	animstate->m_flGoalFeetYaw = antiaim::get().condition(cheat.get_command()) ? abs_angles : local_animations::get().local_data.real_angles.y;
 	localPlayer->set_abs_angles(Vector(0.0f, abs_angles, local_animations::get().local_data.real_angles.z));
 
-	memcpy(localPlayer->get_animlayers(), layers, localPlayer->animlayer_count() * sizeof(AnimationLayer));
+	memcpy(localPlayer->getAnimationLayers(), layers, localPlayer->getAnimationLayersCount() * sizeof(AnimationLayer));
 	memcpy(&localPlayer->m_flPoseParameter(), pose_parameter, 24 * sizeof(float));
 }

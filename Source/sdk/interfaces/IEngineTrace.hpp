@@ -500,6 +500,7 @@ public:
         allsolid = 0;
         startsolid = 0;
     }
+
     inline bool IsVisible() const
     {
         return fraction > 0.97f;

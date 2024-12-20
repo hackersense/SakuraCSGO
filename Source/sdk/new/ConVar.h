@@ -60,5 +60,5 @@ struct NEWConVar {
     const char* defaultValue;
     char* string;
 	std::byte pad2[44];
-	SafeUtlVector<void(__cdecl*)()> onChangeCallbacks;
+	SafeCUtlVector<void(__cdecl*)()> onChangeCallbacks;
 };

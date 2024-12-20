@@ -60,6 +60,7 @@ public:
 	Backup_data backup_data;
 	Prediction_data prediction_data;
 	Viewmodel_data viewmodel_data;
+	bool inPrediction = false;
 
 	void store_netvars();
 	void restore_netvars();

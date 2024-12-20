@@ -46,6 +46,103 @@ bool resolver::is_slow_walking(player_t* entity)
 	return false;
 }
 
+class C_AntiAimResolver
+{
+public:
+	void ResolveDesyncedPlayer(AnimationState& playerState)
+	{
+		float flEyeFootDelta = math::angle_difference(playerState.m_flEyeYaw, playerState.m_flGoalFeetYaw);
+		float flAimMatrixWidthRange = CalculateAimMatrixWidthRange(playerState);
+
+		float flTempYawMax = playerState.m_flAimYawMax * flAimMatrixWidthRange;
+		float flTempYawMin = playerState.m_flAimYawMin * flAimMatrixWidthRange;
+
+		if (flEyeFootDelta > flTempYawMax)
+		{
+			playerState.m_flGoalFeetYaw = playerState.m_flEyeYaw - fabs(flTempYawMax);
+		}
+		else if (flEyeFootDelta < flTempYawMin)
+		{
+			playerState.m_flGoalFeetYaw = playerState.m_flEyeYaw + fabs(flTempYawMin);
+		}
+		playerState.m_flGoalFeetYaw = math::angleNormalize(playerState.m_flGoalFeetYaw);
+
+		if (playerState.m_bOnGround)
+		{
+			if (playerState.m_flSpeedNormalized > 0.1f)
+			{
+				playerState.m_flGoalFeetYaw = math::approach_angle(playerState.m_flEyeYaw, playerState.m_flGoalFeetYaw, playerState.m_flUpdateTimeDelta * (30.0f + 20.0f * playerState.m_flStopToFullRunningFraction));
+
+				// Perform other resolver actions when the player is moving on the ground
+				if (playerState.m_flSpeedNormalized > 250.0f)
+				{
+					// High-speed movement correction
+					playerState.m_flGoalFeetYaw = ApplyHighSpeedCorrection(playerState.m_flEyeYaw, playerState.m_flGoalFeetYaw, playerState.m_flSpeedNormalized);
+				}
+			}
+			else
+			{
+				playerState.m_flGoalFeetYaw = math::approach_angle(playerState.m_pBaseEntity->m_flLowerBodyYawTarget(), playerState.m_flGoalFeetYaw, playerState.m_flUpdateTimeDelta * CSGO_ANIM_LOWER_CATCHUP_IDLE);
+
+				// Perform other resolver actions when the player is idle on the ground
+			}
+		}
+		else
+		{
+			// Perform resolver actions when the player is not on the ground (e.g., in-air)
+
+			if (playerState.m_flSpeedNormalized > 250.0f)
+			{
+				// High-speed in-air movement correction
+				playerState.m_flGoalFeetYaw = ApplyHighSpeedCorrection(playerState.m_flEyeYaw, playerState.m_flGoalFeetYaw, playerState.m_flSpeedNormalized);
+			}
+		}
+
+		// Apply the resolved foot yaw angle to the player
+		playerState.m_pBaseEntity->modify_eye_position(Vector(playerState.m_flEyeYaw, playerState.m_flGoalFeetYaw, 0.0f));
+	}
+
+private:
+	float CalculateAimMatrixWidthRange(const AnimationState& playerState)
+	{
+		float flAimMatrixWidthRange = math::lerp(math::clamp(playerState.m_flSpeedNormalized / CS_PLAYER_SPEED_WALK_MODIFIER, 0.0f, 1.0f), 1.0f,
+			math::lerp(playerState.m_flStopToFullRunningFraction, CSGO_ANIM_AIM_NARROW_WALK, CSGO_ANIM_AIM_NARROW_RUN));
+
+		if (playerState.m_flDuckAmount > 0.0f)
+		{
+			flAimMatrixWidthRange = math::lerp(playerState.m_flDuckAmount * math::clamp(playerState.m_flSpeedNormalized / CS_PLAYER_SPEED_DUCK_MODIFIER, 0.0f, 1.0f),
+				flAimMatrixWidthRange, CSGO_ANIM_AIM_NARROW_CROUCHMOVING);
+		}
+
+		return flAimMatrixWidthRange;
+	}
+
+	float ApplyHighSpeedCorrection(float flEyeYaw, float flFootYaw, float flSpeed)
+	{
+		float flAngleDelta = math::angle_difference(flEyeYaw, flFootYaw);
+		float flMaxCorrection = CalculateHighSpeedCorrection(flSpeed);
+		float flCorrection = math::clamp(flAngleDelta, -flMaxCorrection, flMaxCorrection);
+		return math::angleNormalize(flFootYaw + flCorrection);
+	}
+
+	float CalculateHighSpeedCorrection(float speed)
+	{
+		const float highSpeedThreshold = CSGO_ANIM_READJUST_THRESHOLD;
+		const float maxCorrection = 1;
+
+		float correction = 0.0f;
+		if (speed > highSpeedThreshold)
+		{
+			float correctionFactor = (speed - highSpeedThreshold) / highSpeedThreshold;
+			correction = maxCorrection * correctionFactor;
+		}
+
+		return correction;
+	}
+
+	// Implement the necessary helper functions, such as AngleDiff, ApproachAngle, AngleNormalize, etc.
+};
+
 bool resolver::isRoll(player_t* entity)
 {
 	float angle_diff = math::normalize_yaw(0);
@@ -83,7 +180,6 @@ float ClampYaw(float a)
 	return ret;
 }
 
-/*
 void resolver::test(player_t* e)
 {
 	// lets be real this is the most p thing we ever seen
@@ -96,16 +192,15 @@ void resolver::test(player_t* e)
 
 	if (player->is_alive() && !player->is_player())
 	{
-		memcpy(layers, player->get_animlayers(), sizeof(AnimationLayer) * 15);
-		memcpy(moveLayers, player->get_animlayers(), sizeof(AnimationLayer) * 15);
+		memcpy(layers, player->getAnimationLayers(), sizeof(AnimationLayer) * 15);
+		memcpy(moveLayers, player->getAnimationLayers(), sizeof(AnimationLayer) * 15);
 
 		auto standing = layers[ANIMATION_LAYER_ADJUST].m_flWeight == 0.0f && layers[ANIMATION_LAYER_ADJUST].m_flCycle == 0.0f;
 		auto animating = layers[ANIMATION_LAYER_LEAN].m_flWeight * 1000.f;
 		auto moving = !animating && (layers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight * 1000.f) == (layers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight * 1000.f);
 
-		player->get_animation_state()->m_flFeetCycle = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flCycle;
-		player->get_animation_state()->m_flFeetYawRate = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight;
-		player->get_animation_state()->m_flWeight() = e->get_animlayer(ANIMATION_LAYER_LEAN)->m_flWeight;
+		player->get_animation_state()->m_flFeetCycle = e->getAnimationLayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flCycle;
+		player->get_animation_state()->m_flFeetYawRate = e->getAnimationLayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight;
 
 		float m_flSpeed = player->m_vecVelocity().Length2D();
 		if (m_flSpeed > 1.1f)
@@ -151,50 +246,6 @@ void resolver::test(player_t* e)
 		}
 	}
 	player->get_animation_state()->m_flGoalFeetYaw = math::normalize_yaw(player->get_animation_state()->m_flEyeYaw + (player->get_max_desync_delta_for_auto() * m_flSide));
-}
-*/
-
-void resolver::test(player_t* e)
-{
-	auto state = e->get_animation_state();
-	float velocity = std::floor(std::sqrt(std::pow(state->m_vecVelocity.x, 2) + std::pow(state->m_vecVelocity.y, 2)) + 0.5f);
-	bool act_move = velocity >= 3 && (e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight * 1000);
-	bool act_stand = velocity < 3 && (e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight < 1);
-
-	state->m_flFeetCycle = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flCycle;
-	state->m_flFeetYawRate = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE)->m_flWeight;
-	state->m_flAccelerationWeight = e->get_animlayer(ANIMATION_LAYER_LEAN)->m_flWeight;
-	float delta = 0.0f;
-	int m_side = 0;
-
-	if (act_stand)
-	{
-		auto layer = e->get_animlayer(ANIMATION_LAYER_ADJUST);
-		auto layer_move = e->get_animlayer(ANIMATION_LAYER_MOVEMENT_MOVE);
-
-		if (layer->m_flWeight < 1 && layer->m_flCycle < 1 && layer_move->m_flWeight < 1)
-		{
-			auto m_flEyeDelta = math::angle_difference(state->m_flEyeYaw, state->m_flGoalFeetYaw) <= 0.f;
-			//auto m_flEyeDelta = std::remainderf(math::normalize_yaw(state->m_flEyeYaw - player->m_flLowerBodyYawTarget()), 360.f) <= 0.f;
-			m_side = (2 * m_flEyeDelta == 2) ? -1 : 1;
-		}
-	}
-	else if (act_move)
-	{
-		if (ClampYaw(state->m_flEyeYaw - state->m_flGoalFeetYaw) > 15)
-			m_side = 1;
-		else if (ClampYaw(state->m_flEyeYaw - state->m_flGoalFeetYaw) < -15)
-			m_side = -1;
-	}
-
-	if (m_side == 1)
-		delta = e->get_max_desync_delta();
-	else if (m_side == -1)
-		delta = e->get_min_desync_delta();
-	else
-		delta = state->m_flEyeYaw;
-
-	e->get_animation_state()->m_flGoalFeetYaw = math::normalize_yaw(state->m_flGoalFeetYaw + delta);
 }
 
 void resolver::resolve_yaw()
@@ -375,7 +426,9 @@ void resolver::resolve_yaw()
 		break;
 	}*/
 
-	test(player);
+	C_AntiAimResolver().ResolveDesyncedPlayer(*player->get_animation_state());
+
+	//test(player);
 
 	auto& info = resolver_info{ player->EntIndex(), true, beforeAnimYaw, player->get_animation_state()->m_flGoalFeetYaw, cheat.globals.missed_shots[player->EntIndex()], player_record->shot };
 

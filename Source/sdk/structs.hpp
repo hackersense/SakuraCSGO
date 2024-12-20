@@ -174,8 +174,8 @@ struct NoticeText_t
 
 struct KillFeed_t
 {
-    char                        pad[0x7C];
-    CUtlVector<NoticeText_t>    notices;
+    char                            pad[0x7C];
+    SafeCUtlVector<NoticeText_t>    notices;
 };
 
 class entity_t : public IClientEntity
@@ -440,13 +440,12 @@ public:
     NETVAR(bool, m_bIsWalking, crypt_str("CCSPlayer"), crypt_str("m_bIsWalking"));
     NETVAR(bool, m_bIsDefusing, crypt_str("CCSPlayer"), crypt_str("m_bIsDefusing"));
     NETVAR(Vector, m_vecRagdollPosition, crypt_str("DT_Ragdoll"), crypt_str("m_ragPos"));
-    //     NETVAR(CBaseHandle*, m_hWeapons, crypt_str("CBaseCombatCharacter"), crypt_str("m_hMyWeapons"));
+    //NETVAR(CBaseHandle*, m_hWeapons, crypt_str("CBaseCombatCharacter"), crypt_str("m_hMyWeapons"));
     //NETVAR(int[64], m_hMyWeapons, "CBaseCombatCharacter", "m_hMyWeapons");
     VIRTUAL(think(), 139, void(__thiscall*)(void*));
     VIRTUAL(set_sequence(int sequence), 219, void(__thiscall*)(void*, int), sequence);
     VIRTUAL(studio_frame_advance(), 220, void(__thiscall*)(void*));
     VIRTUAL(pre_think(), 318, void(__thiscall*)(void*));
-    //VIRTUAL(post_think(), 319, void(__thiscall*)(void*));
     VIRTUAL(update_collision_bounds(), 340, void(__thiscall*)(void*));
 
     CBaseHandle* m_hMyWeapons();
@@ -503,10 +502,10 @@ public:
     Vector bone_position(int hitbox_id);
     Vector hitbox_position(int hitbox_id);
     Vector hitbox_position_matrix(int hitbox_id, matrix3x4_t matrix[MAXSTUDIOBONES]);
-    AnimationLayer* get_animlayers();
-    AnimationLayer* get_animlayer(int overlay);
+    AnimationLayer* getAnimationLayers();
+    AnimationLayer* getAnimationLayer(int overlay);
     CommandContext* getCommandContext();
-    SafeUtlVector<matrix3x4_t>& m_CachedBoneData();
+    SafeCUtlVector<matrix3x4_t>& m_CachedBoneData();
     CBoneAccessor& m_BoneAccessor();
     void invalidate_bone_cache();
     void set_abs_velocity(const Vector& velocity);
@@ -521,7 +520,7 @@ public:
     PlayerInfo* get_player_info();
     bool valid(bool check_team, bool check_dormant = true);
     int get_move_type();
-    int animlayer_count();
+    int getAnimationLayersCount();
     int sequence_activity(int sequence);
     float get_max_desync_delta();
     float get_min_desync_delta();
@@ -689,8 +688,8 @@ public:
     bool                    m_bPlantAnimStarted;//T 310
     bool                    m_bTwitchAnimStarted;//T 311
     bool                    m_bAdjustStarted;//T 312
-    std::byte               pad9[3]; //T 313
-    CUtlVector<uint16_t>	m_szActivityModifiers;//T 316 (size 20)
+    std::byte                   pad9[3]; //T 313
+    SafeCUtlVector<uint16_t>    m_szActivityModifiers;//T 316 (size 20)
     float					m_flNextTwitchTime;//T 336
     float					m_flTimeOfLastKnownInjury;//T 340
     float					m_flLastVelocityTestTime; //344 = 0x158

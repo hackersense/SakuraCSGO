@@ -13,7 +13,7 @@ class zeusbot : public singleton <zeusbot>
 	bool can_hit(player_t* player, matrix3x4_t* bones, int box, const Vector& start, const Vector& end);
 	bool hitbox_intersection(player_t* e, matrix3x4_t* matrix, int hitbox, const Vector& start, const Vector& end, float* safe = nullptr);
 
-	std::vector <scanned_target> scanned_targets;
+	std::vector<scanned_target> scanned_targets;
 	scanned_target final_target;
 public:
 	void run(CUserCmd* cmd);

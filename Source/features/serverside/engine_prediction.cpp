@@ -29,7 +29,7 @@ void engineprediction::restore_netvars()
 {
 	const int tickbase = localPlayer->m_nTickBase();
 
-	const auto netvars = netvarData.at(tickbase % MULTIPLAYER_BACKUP);// (m_clientstate()->m_iCommandAck - 1)
+	const auto& netvars = netvarData.at(tickbase % MULTIPLAYER_BACKUP);// (m_clientstate()->m_iCommandAck - 1)
 
 	if (!&netvars)
 		return;
@@ -74,6 +74,8 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 {
 	//if (m_clientstate()->m_iDeltaTick > 0)
 	m_prediction()->Update(m_clientstate()->m_iDeltaTick, m_clientstate()->m_iDeltaTick > 0, m_clientstate()->m_nLastCommandAck, m_clientstate()->m_nLastOutgoingCommand + m_clientstate()->m_iChokedCommands);
+	
+	inPrediction = true;
 
 	backup_data.flags = localPlayer->m_fFlags();
 	backup_data.velocity = localPlayer->m_vecVelocity();
@@ -154,6 +156,7 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 		viewmodel_data.animation_time = viewmodel->m_flAnimTime();
 	}
 	*/
+	inPrediction = false;
 	const auto activeWeapon = cheat.globals.weapon;
 	if (activeWeapon && !activeWeapon->is_grenade() && !activeWeapon->is_knife())
 		activeWeapon->update_accuracy_penality();

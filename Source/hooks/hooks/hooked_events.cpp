@@ -161,13 +161,13 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 
 				if (ragebot::get().last_target[current_shot->last_target].data.point.safe)
 				{
-					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.zero, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.zero, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, ragebot::get().last_target[current_shot->last_target].record.player, &trace_zero);
 
-					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.first, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.first, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, ragebot::get().last_target[current_shot->last_target].record.player, &trace_first);
 
-					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.second, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+					memcpy(ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().base(), ragebot::get().last_target[current_shot->last_target].record.matrixes_data.second, ragebot::get().last_target[current_shot->last_target].record.player->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 					m_trace()->ClipRayToEntity(ray, MASK_SHOT_HULL | CONTENTS_HITBOX, ragebot::get().last_target[current_shot->last_target].record.player, &trace_second);
 				}
 
@@ -390,10 +390,10 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 					misc::get().lag_hitbox();
 
 				otheresp::get().hitmarker.hurt_time = m_globals()->m_curtime;
-				otheresp::get().hitmarker.point = entity->hitbox_position_matrix(get_hitbox_by_hitgroup(hitgroup), current_shot && entity == ragebot::get().last_target[current_shot->last_target].record.player ? ragebot::get().last_target[current_shot->last_target].record.matrixes_data.main : entity->m_CachedBoneData().Base());
+				otheresp::get().hitmarker.point = entity->hitbox_position_matrix(get_hitbox_by_hitgroup(hitgroup), current_shot && entity == ragebot::get().last_target[current_shot->last_target].record.player ? ragebot::get().last_target[current_shot->last_target].record.matrixes_data.main : entity->m_CachedBoneData().base());
 				otheresp::get().damage_marker[user_id] = otheresp::Damage_marker
 				{
-					entity->hitbox_position_matrix(get_hitbox_by_hitgroup(hitgroup), current_shot && entity == ragebot::get().last_target[current_shot->last_target].record.player ? ragebot::get().last_target[current_shot->last_target].record.matrixes_data.main : entity->m_CachedBoneData().Base()),
+					entity->hitbox_position_matrix(get_hitbox_by_hitgroup(hitgroup), current_shot && entity == ragebot::get().last_target[current_shot->last_target].record.player ? ragebot::get().last_target[current_shot->last_target].record.matrixes_data.main : entity->m_CachedBoneData().base()),
 					m_globals()->m_curtime,
 					Color::White,
 					damage,

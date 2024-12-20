@@ -914,8 +914,8 @@ Vector player_t::hitbox_position(int hitbox_id)
 
 	Vector min, max;
 
-	math::vector_transform(hitbox->bbmin, m_CachedBoneData().Base()[hitbox->bone], min);
-	math::vector_transform(hitbox->bbmax, m_CachedBoneData().Base()[hitbox->bone], max);
+	math::vector_transform(hitbox->bbmin, m_CachedBoneData().base()[hitbox->bone], min);
+	math::vector_transform(hitbox->bbmax, m_CachedBoneData().base()[hitbox->bone], max);
 
 	return (min + max) * 0.5f;
 }
@@ -953,11 +953,11 @@ CommandContext* player_t::getCommandContext()
 	return reinterpret_cast<CommandContext*>(uintptr_t(this) + 0x350C);
 }
 
-SafeUtlVector<matrix3x4_t>& player_t::m_CachedBoneData()
+SafeCUtlVector<matrix3x4_t>& player_t::m_CachedBoneData()
 {
-	//return *reinterpret_cast<SafeUtlVector<matrix3x4_t>*>(uintptr_t(this) + 0x2914);
+	//return *reinterpret_cast<SafeCUtlVector<matrix3x4_t>*>(uintptr_t(this) + 0x2914);
 	static auto m_CachedBoneData = *(DWORD*)(util::FindSignature(crypt_str("client.dll"), crypt_str("FF B7 ?? ?? ?? ?? 52")) + 2) + 4;
-	return *(SafeUtlVector<matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
+	return *(SafeCUtlVector<matrix3x4_t>*)(uintptr_t(this) + m_CachedBoneData);
 }
 
 CBoneAccessor& player_t::m_BoneAccessor()
@@ -1071,7 +1071,7 @@ float& player_t::m_flLastBoneSetupTime()
 	return *reinterpret_cast<float*>(uintptr_t(this) + last_bone_setup_time);
 }
 
-bool player_t::physics_run_think(int index)
+bool player_t::physics_run_think(int index = 0)
 {
 	return memory->physicsRunThink(this, index);
 }
@@ -1131,7 +1131,7 @@ void player_t::runPreThink()
 	if (!this)
 		return;
 
-	if (physics_run_think(0))
+	if (physics_run_think())
 		pre_think();
 }
 
@@ -1193,7 +1193,7 @@ bool player_t::valid(bool check_team, bool check_dormant)
 	return true;
 }
 
-int player_t::animlayer_count()
+int player_t::getAnimationLayersCount()
 {
 	if (!this)
 		return 0;
@@ -1204,7 +1204,7 @@ int player_t::animlayer_count()
 	return count > 0 ? count : 13;
 }
 
-AnimationLayer* player_t::get_animlayers()
+AnimationLayer* player_t::getAnimationLayers()
 {
 	if (!this)
 		return nullptr;
@@ -1212,12 +1212,12 @@ AnimationLayer* player_t::get_animlayers()
 	return *reinterpret_cast<AnimationLayer**>(reinterpret_cast<uintptr_t>(this) + 0x2990);
 }
 
-AnimationLayer* player_t::get_animlayer(int overlay)
+AnimationLayer* player_t::getAnimationLayer(int overlay)
 {
 	if (!this)
 		return 0;
 
-	return &get_animlayers()[overlay];
+	return &getAnimationLayers()[overlay];
 }
 
 int player_t::sequence_activity(int sequence)
@@ -1284,9 +1284,9 @@ bool player_t::setup_bones_fixed(matrix3x4_t* matrix, int maxBones, int mask, fl
 
 		setup_bones.m_animating = this;
 		setup_bones.m_vecOrigin = m_vecOrigin();
-		setup_bones.m_animLayers = get_animlayers();
+		setup_bones.m_animLayers = getAnimationLayers();
 		setup_bones.m_pHdr = m_pStudioHdr();
-		setup_bones.m_nAnimOverlayCount = animlayer_count();
+		setup_bones.m_nAnimOverlayCount = getAnimationLayersCount();
 		setup_bones.m_angAngles = Vector(0.0f, animstate ? animstate->m_flGoalFeetYaw : 0.0f, 0.0f);
 		setup_bones.m_boneMatrix = matrix;
 

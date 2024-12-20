@@ -130,7 +130,7 @@ public:
 class ICommandCompletionCallback
 {
 public:
-    virtual int  CommandCompletionCallback(const char *pPartial, CUtlVector<CUtlString> &commands) = 0;
+    virtual int  CommandCompletionCallback(const char *pPartial, SafeCUtlVector<CUtlString> &commands) = 0;
 };
 
 //-----------------------------------------------------------------------------
@@ -216,7 +216,7 @@ public:
 
     virtual         ~ConCommand(void);
     virtual bool    IsCommand(void) const;
-    virtual int     AutoCompleteSuggest(const char *partial, CUtlVector<CUtlString> &commands);
+    virtual int     AutoCompleteSuggest(const char *partial, SafeCUtlVector<CUtlString> &commands);
     virtual bool    CanAutoComplete(void);
     virtual void    Dispatch(const CCommand &command);
 
@@ -284,7 +284,7 @@ public:
     void InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke = true);
     void RemoveChangeCallback(FnChangeCallback_t callbackToRemove);
 
-    int GetChangeCallbackCount() const { return m_pParent->m_fnChangeCallbacks.Count(); }
+    int GetChangeCallbackCount() const { return m_pParent->m_fnChangeCallbacks.count(); }
     FnChangeCallback_t GetChangeCallback(int slot) const { return m_pParent->m_fnChangeCallbacks[slot]; }
 
     // Retrieve value
@@ -357,7 +357,7 @@ public:
     float                       m_fMaxVal;
 
     // Call this function when ConVar changes
-    CUtlVector<FnChangeCallback_t> m_fnChangeCallbacks;
+    SafeCUtlVector<FnChangeCallback_t> m_fnChangeCallbacks;
 };
 
 

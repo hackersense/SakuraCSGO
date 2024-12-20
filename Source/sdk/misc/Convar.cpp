@@ -429,7 +429,7 @@ void ConCommand::Dispatch(const CCommand &command)
 	//AssertMsg(0, ("Encountered ConCommand without a callback!\n");
 }
 
-int	ConCommand::AutoCompleteSuggest(const char *partial, CUtlVector< CUtlString > &commands)
+int	ConCommand::AutoCompleteSuggest(const char *partial, SafeCUtlVector<CUtlString> &commands)
 {
 	if (m_bUsingCommandCallbackInterface) {
 		if (!m_pCommandCompletionCallback)
@@ -444,7 +444,7 @@ int	ConCommand::AutoCompleteSuggest(const char *partial, CUtlVector< CUtlString 
 	int iret = (m_fnCompletionCallback)(partial, rgpchCommands);
 	for (int i = 0; i < iret; ++i) {
 		CUtlString str = rgpchCommands[i];
-		commands.AddToTail(str);
+		commands.addToTail(str);
 	}
 	return iret;
 }
@@ -492,8 +492,8 @@ ConVar::~ConVar(void)
 void ConVar::InstallChangeCallback(FnChangeCallback_t callback, bool bInvoke)
 {
 	if (callback) {
-		if (m_fnChangeCallbacks.GetOffset(callback) != -1) {
-			m_fnChangeCallbacks.AddToTail(callback);
+		if (m_fnChangeCallbacks.find(callback) != -1) {
+			m_fnChangeCallbacks.addToTail(callback);
 			if (bInvoke)
 				callback(this, m_Value.m_pszString, m_Value.m_fValue);
 		}
@@ -605,7 +605,7 @@ void ConVar::ChangeStringValue(const char *tempVal, float flOldValue)
 	memcpy(m_Value.m_pszString, tempVal, len);
 
 	// Invoke any necessary callback function
-	for (int i = 0; i < m_fnChangeCallbacks.Count(); i++) {
+	for (int i = 0; i < m_fnChangeCallbacks.count(); i++) {
 		m_fnChangeCallbacks[i](this, pszOldValue, flOldValue);
 	}
 
@@ -702,7 +702,7 @@ void ConVar::Create(const char *pName, const char *pDefaultValue, int flags /*= 
 	m_fMaxVal = fMax;
 
 	if (callback)
-		m_fnChangeCallbacks.AddToTail(callback);
+		m_fnChangeCallbacks.addToTail(callback);
 
 	float value = (float)atof(m_Value.m_pszString);
 

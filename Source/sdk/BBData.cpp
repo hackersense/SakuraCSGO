@@ -183,10 +183,10 @@ void BBData::update()
 					if (record->valid() && (configs.ragebot.enabled || configs.legitbot.enabled))
 						player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, record->matrixes_data.main);
 					else
-						player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().Base());
+						player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().base());
 				}
 				else
-					player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().Base());
+					player_info[i].skeletonValid = calculation_skeleton(player_info[i], entity, entity->m_CachedBoneData().base());
 			}
 			else
 			{

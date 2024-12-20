@@ -639,7 +639,7 @@ void AnimationState::setupAliveLoop() noexcept
         m_modelcache()->BeginLock();
         setLayerSequence(ANIMATION_LAYER_ALIVELOOP, ACT_CSGO_ALIVE_LOOP);
         setLayerCycle(ANIMATION_LAYER_ALIVELOOP, math::random_float(0.f, 1.f));
-        auto layer = entity->get_animlayer(ANIMATION_LAYER_ALIVELOOP);
+        auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
         if (layer)
         {
             float newRate = entity->get_sequence_cycle_rate(layer->m_iSequence);
@@ -663,7 +663,7 @@ void AnimationState::setupAliveLoop() noexcept
         {
             //re-roll rate
             m_modelcache()->BeginLock();
-            auto layer = entity->get_animlayer(ANIMATION_LAYER_ALIVELOOP);
+            auto layer = entity->getAnimationLayer(ANIMATION_LAYER_ALIVELOOP);
             if (layer)
             {
                 float newRate = entity->get_sequence_cycle_rate(layer->m_iSequence);
@@ -835,7 +835,7 @@ void AnimationState::updateAnimLayer(size_t layerIndex, int sequence, float play
     if (sequence >= 2)
     {
         m_modelcache()->BeginLock();
-        auto& layer = *entity->get_animlayer(layerIndex);
+        auto& layer = *entity->getAnimationLayer(layerIndex);
         if (&layer)
         {
             layer.m_iSequence = sequence;
@@ -944,7 +944,7 @@ void AnimationState::setLayerSequence(size_t layer, int32_t activity) noexcept
     if (sequence < 2)
         return;
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
@@ -957,7 +957,7 @@ void AnimationState::setLayerRate(size_t layer, float newRate) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
     l.m_flPlaybackRate = newRate;
@@ -967,7 +967,7 @@ void AnimationState::setLayerCycle(size_t layer, float newCycle) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
     l.m_iSequence = math::clamp_cycle(newCycle);
@@ -977,7 +977,7 @@ void AnimationState::setLayerWeight(size_t layer, float weight) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
     l.m_flCycle = std::clamp(weight, 0.f, 1.f);
@@ -987,7 +987,7 @@ void AnimationState::setLayerWeightRate(size_t layer, float previous) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
@@ -999,7 +999,7 @@ void AnimationState::incrementLayerCycle(size_t layer, bool allowLoop) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
@@ -1021,7 +1021,7 @@ void AnimationState::incrementLayerCycleWeightRateGeneric(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
@@ -1035,7 +1035,7 @@ void AnimationState::incrementLayerWeight(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return;
 
@@ -1053,7 +1053,7 @@ float AnimationState::getLayerIdealWeightFromSeqCycle(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return 0.f;
 
@@ -1085,7 +1085,7 @@ bool AnimationState::isLayerSequenceCompleted(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (&l)
         return (m_flUpdateTimeDelta * l.m_flPlaybackRate) + l.m_flCycle >= 1.0f;
     return false;
@@ -1095,7 +1095,7 @@ float AnimationState::getLayerCycle(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return 0.f;
     return l.m_flCycle;
@@ -1105,7 +1105,7 @@ float AnimationState::getLayerWeight(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return 0.f;
     return l.m_flWeight;
@@ -1115,7 +1115,7 @@ int AnimationState::getLayerActivity(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    AnimationLayer* l = entity->get_animlayer(layer);
+    AnimationLayer* l = entity->getAnimationLayer(layer);
     if (l)
         return memory->getSequenceActivity(entity, l->m_iSequence);
     return ACT_INVALID;
@@ -1125,7 +1125,7 @@ int AnimationState::getLayerSequence(size_t layer) noexcept
 {
     auto entity = reinterpret_cast<player_t*>(m_pBaseEntity);
 
-    auto& l = *entity->get_animlayer(layer);
+    auto& l = *entity->getAnimationLayer(layer);
     if (!&l)
         return 0;
     return l.m_iSequence;

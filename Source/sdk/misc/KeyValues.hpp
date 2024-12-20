@@ -333,12 +333,12 @@ private:
 	void RecursiveLoadFromBuffer(char const* resourceName, CKeyValuesTokenReader& buf, GetSymbolProc_t pfnEvaluateSymbolProc);
 
 	// for handling #include "filename"
-	void AppendIncludedKeys(CUtlVector< KeyValues* >& includedKeys);
+	void AppendIncludedKeys(SafeCUtlVector< KeyValues* >& includedKeys);
 	void ParseIncludedKeys(char const* resourceName, const char* filetoinclude,
-		IBaseFileSystem* pFileSystem, const char* pPathID, CUtlVector< KeyValues* >& includedKeys, GetSymbolProc_t pfnEvaluateSymbolProc);
+		IBaseFileSystem* pFileSystem, const char* pPathID, SafeCUtlVector< KeyValues* >& includedKeys, GetSymbolProc_t pfnEvaluateSymbolProc);
 
 	// For handling #base "filename"
-	void MergeBaseKeys(CUtlVector< KeyValues* >& baseKeys);
+	void MergeBaseKeys(SafeCUtlVector< KeyValues* >& baseKeys);
 	void RecursiveMergeKeyValues(KeyValues* baseKV);
 
 	// NOTE: If both filesystem and pBuf are non-null, it'll save to both of them.

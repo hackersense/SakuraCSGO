@@ -44,24 +44,24 @@ struct SoundInfo2_t
 
 struct SoundParams_t
 {
-	void*				m_nFilter;
-	int					m_nEntityIndex;
-	int					m_nChannel;
-	const char*			m_nSoundEntry;
-	int					m_nSoundEntryHash;
-	const char*			m_nSample;
-	float				m_flVolume;
-	int					m_nSeed;
-	int					m_nSoundLevel;
-	int					m_nFlags;
-	int					m_nPitch;
-	const Vector&		m_vOrigin;
-	const Vector&		m_vDirection;
-	CUtlVector<Vector>* m_vOrigins;
-	bool				m_bUpdatePosition;
-	float				m_flSoundTime;
-	int					m_nSpeakerEntity;
-	void*				m_nSoundParams;
+	void*					m_nFilter;
+	int						m_nEntityIndex;
+	int						m_nChannel;
+	const char*				m_nSoundEntry;
+	int						m_nSoundEntryHash;
+	const char*				m_nSample;
+	float					m_flVolume;
+	int						m_nSeed;
+	int						m_nSoundLevel;
+	int						m_nFlags;
+	int						m_nPitch;
+	const Vector&			m_vOrigin;
+	const Vector&			m_vDirection;
+	SafeCUtlVector<Vector>* m_vOrigins;
+	bool					m_bUpdatePosition;
+	float					m_flSoundTime;
+	int						m_nSpeakerEntity;
+	void*					m_nSoundParams;
 };
 
 struct ActiveChannels_t
@@ -119,9 +119,9 @@ public:
 		return call_virtual<EmitSoundFn>(this, 5)(this, data);
 	}
 
-	void GetActiveSounds(CUtlVector<ActiveSoundInfo_t>& soundList)
+	void GetActiveSounds(SafeCUtlVector<ActiveSoundInfo_t>& soundList)
 	{
-		using GetActiveSoundsFn = void(__thiscall*)(void*, CUtlVector<ActiveSoundInfo_t>&);
+		using GetActiveSoundsFn = void(__thiscall*)(void*, SafeCUtlVector<ActiveSoundInfo_t>&);
 		return call_virtual<GetActiveSoundsFn>(this, 19)(this, soundList);
 	}
 };

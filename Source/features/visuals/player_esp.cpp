@@ -409,7 +409,7 @@ bool playeresp::draw_ammobar(player_t* m_entity, const Box& box)
 	auto bar_width = ammo * box.w / weapon_info->iMaxClip1;
 	auto reloading = false;
 
-	auto animlayer = m_entity->get_animlayers()[ANIMATION_LAYER_WEAPON_ACTION];
+	auto animlayer = m_entity->getAnimationLayers()[ANIMATION_LAYER_WEAPON_ACTION];
 
 	if (animlayer.m_iSequence)
 	{

@@ -30,10 +30,7 @@ void animation_system::run(ClientFrameStage_t stage)
 	if (m_engine()->IsHLTV())
 		return;
 
-	if (!localPlayer)
-		return;
-
-	if (!localPlayer->is_alive())
+	if (!localPlayer || !localPlayer->is_alive())
 		return;
 
 	for (auto i = 1; i < m_globals()->m_maxclients; i++)
@@ -66,7 +63,7 @@ void animation_system::run(ClientFrameStage_t stage)
 
 			if (TIME_TO_TICKS(e->m_flOldSimulationTime()) < current_tick && TIME_TO_TICKS(e->m_flSimulationTime()) == current_tick)
 			{
-				auto layer = &e->get_animlayers()[ANIMATION_LAYER_ALIVELOOP];
+				auto layer = &e->getAnimationLayers()[ANIMATION_LAYER_ALIVELOOP];
 				auto previous_layer = &player_records[i].front().layers[ANIMATION_LAYER_ALIVELOOP];
 
 				if (layer->m_flCycle == previous_layer->m_flCycle)
@@ -141,8 +138,8 @@ void animation_system::update_player_animations(player_t* e)
 
 	AnimationLayer animlayers[15];
 
-	memcpy(animlayers, e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
-	memcpy(record->layers, animlayers, e->animlayer_count() * sizeof(AnimationLayer));
+	memcpy(animlayers, e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
+	memcpy(record->layers, animlayers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 	//auto backup_lower_body_yaw_target = e->m_flLowerBodyYawTarget();
 	auto backup_duck_amount = e->m_flDuckAmount();
@@ -246,7 +243,7 @@ void animation_system::update_player_animations(player_t* e)
 
 	if (previous_record)
 	{
-		memcpy(e->get_animlayers(), previous_record->layers, e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(e->getAnimationLayers(), previous_record->layers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		if (previous_record->simulation_time != e->m_flSimulationTime())
 		{
@@ -264,7 +261,7 @@ void animation_system::update_player_animations(player_t* e)
 		*/
 	}
 
-	/*
+	cheat.globals.updating_animation = true;
 	if (chokedPackets > 0)
 	{
 		for (int i = 1; i <= chokedPackets + 1; i++)
@@ -292,16 +289,14 @@ void animation_system::update_player_animations(player_t* e)
 	}
 	else
 	{
-	*/
-	//cheat.globals.updating_animation = true;
-	e->m_iEFlags() &= ~0x1000;
-	if (e->m_fFlags() & FL_ONGROUND && e->m_vecVelocity().Length() > 0.0f && animlayers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight <= 0.0f)
-		e->m_vecVelocity().Zero();
-	e->m_vecAbsVelocity() = e->m_vecVelocity();
-	//e->m_bClientSideAnimation() = true;
-	e->update_clientside_animation();
-	//cheat.globals.updating_animation = false;
-	//}
+		e->m_iEFlags() &= ~0x1000;
+		if (e->m_fFlags() & FL_ONGROUND && e->m_vecVelocity().Length() > 0.0f && animlayers[ANIMATION_LAYER_MOVEMENT_MOVE].m_flWeight <= 0.0f)
+			e->m_vecVelocity().Zero();
+		e->m_vecAbsVelocity() = e->m_vecVelocity();
+		//e->m_bClientSideAnimation() = true;
+		e->update_clientside_animation();
+	}
+	cheat.globals.updating_animation = false;
 
 	//Fix jump pose
 	if (!(e->m_fFlags() & FL_ONGROUND) && previous_record && e->get_move_type() != MOVETYPE_NOCLIP)
@@ -311,10 +306,10 @@ void animation_system::update_player_animations(player_t* e)
 		{
 			std::array<AnimationLayer, 13> backupLayers;
 
-			std::memcpy(&backupLayers, e->get_animlayers(), sizeof(AnimationLayer) * e->animlayer_count());
-			std::memcpy(e->get_animlayers(), &previous_record->layers, sizeof(AnimationLayer)* e->animlayer_count());
+			std::memcpy(&backupLayers, e->getAnimationLayers(), sizeof(AnimationLayer) * e->getAnimationLayersCount());
+			std::memcpy(e->getAnimationLayers(), &previous_record->layers, sizeof(AnimationLayer)* e->getAnimationLayersCount());
 			const auto oldActivity = animstate->getLayerActivity(ANIMATION_LAYER_MOVEMENT_JUMP_OR_FALL);
-			std::memcpy(e->get_animlayers(), &backupLayers, sizeof(AnimationLayer) * e->animlayer_count());
+			std::memcpy(e->getAnimationLayers(), &backupLayers, sizeof(AnimationLayer) * e->getAnimationLayersCount());
 
 			float cycle;
 			if (oldActivity != currentActivity)
@@ -466,9 +461,9 @@ void animation_system::update_player_animations(player_t* e)
 		e->invalidate_physics_recursive(PHYSIC_ANIMATION);
 
 		AnimationLayer backup_layers[15];
-		memcpy(backup_layers, e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(backup_layers, e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
-		memcpy(e->get_animlayers(), layers, e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(e->getAnimationLayers(), layers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		switch (matrix)
 		{
@@ -486,7 +481,7 @@ void animation_system::update_player_animations(player_t* e)
 			break;
 		}
 
-		memcpy(e->get_animlayers(), backup_layers, e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(e->getAnimationLayers(), backup_layers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
 	};
 
 	PlayerInfo player_info;
@@ -564,7 +559,7 @@ void animation_system::update_player_animations(player_t* e)
 		setup_matrix(e, animlayers, NONE);
 		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
 		player_resolver[e->EntIndex()].zero_goal_feet_yaw = animstate->m_flGoalFeetYaw;
-		memcpy(player_resolver[e->EntIndex()].resolver_layers[0], e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(player_resolver[e->EntIndex()].resolver_layers[0], e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		animstate->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y + e->get_max_desync_delta());
 
@@ -575,7 +570,7 @@ void animation_system::update_player_animations(player_t* e)
 		setup_matrix(e, animlayers, FIRST);
 		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
 		player_resolver[e->EntIndex()].first_goal_feet_yaw = animstate->m_flGoalFeetYaw;
-		memcpy(player_resolver[e->EntIndex()].resolver_layers[1], e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(player_resolver[e->EntIndex()].resolver_layers[1], e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		animstate->m_flGoalFeetYaw = math::normalize_yaw(e->m_angEyeAngles().y + e->get_max_desync_delta());
 
@@ -586,7 +581,7 @@ void animation_system::update_player_animations(player_t* e)
 		setup_matrix(e, animlayers, SECOND);
 		memcpy(animstate, &state, sizeof(c_baseplayeranimationstate));
 		player_resolver[e->EntIndex()].second_goal_feet_yaw = animstate->m_flGoalFeetYaw;
-		memcpy(player_resolver[e->EntIndex()].resolver_layers[2], e->get_animlayers(), e->animlayer_count() * sizeof(AnimationLayer));
+		memcpy(player_resolver[e->EntIndex()].resolver_layers[2], e->getAnimationLayers(), e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 		animstate->m_flGoalFeetYaw = previous_goal_feet_yaw[e->EntIndex()];
 
@@ -607,7 +602,7 @@ void animation_system::update_player_animations(player_t* e)
 	cheat.globals.updating_animation = false;
 
 	setup_matrix(e, animlayers, MAIN);
-	memcpy(e->m_CachedBoneData().Base(), record->matrixes_data.main, e->m_CachedBoneData().Count() * sizeof(matrix3x4_t));
+	memcpy(e->m_CachedBoneData().base(), record->matrixes_data.main, e->m_CachedBoneData().count() * sizeof(matrix3x4_t));
 
 	m_globals()->m_curtime = backup_curtime;
 	m_globals()->m_frametime = backup_frametime;
@@ -617,8 +612,8 @@ void animation_system::update_player_animations(player_t* e)
 	e->m_fFlags() = backup_flags;
 	e->m_iEFlags() = backup_eflags;
 
-	memcpy(e->get_animlayers(), animlayers, e->animlayer_count() * sizeof(AnimationLayer));
-	memcpy(player_resolver[e->EntIndex()].previous_layers, animlayers, e->animlayer_count() * sizeof(AnimationLayer));
+	memcpy(e->getAnimationLayers(), animlayers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
+	memcpy(player_resolver[e->EntIndex()].previous_layers, animlayers, e->getAnimationLayersCount() * sizeof(AnimationLayer));
 
 	record->store_data(e, false);
 

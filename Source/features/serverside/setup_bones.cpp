@@ -443,8 +443,8 @@ void CSetupBones::studio_build_matrices(CStudioHdr* hdr, const matrix3x4_t& rota
 	if (bone < -1 || bone >= studio_hdr->numBones)
 		bone = 0;
 
-	auto bone_parent = (CUtlVector<int>*)(std::uintptr_t(hdr) + 0x44);
-	auto bone_flags = (CUtlVector<int>*)(std::uintptr_t(hdr) + 0x30);
+	auto bone_parent = (SafeCUtlVector<int>*)(std::uintptr_t(hdr) + 0x44);
+	auto bone_flags = (SafeCUtlVector<int>*)(std::uintptr_t(hdr) + 0x30);
 
 	int chain[MAXSTUDIOBONES];
 
@@ -462,7 +462,7 @@ void CSetupBones::studio_build_matrices(CStudioHdr* hdr, const matrix3x4_t& rota
 		do
 		{
 			chain[chain_length++] = i;
-			i = bone_parent->m_Memory.Element(i);
+			i = bone_parent->memory[i];
 		} while (i != -1);
 	}
 
@@ -475,8 +475,8 @@ void CSetupBones::studio_build_matrices(CStudioHdr* hdr, const matrix3x4_t& rota
 		if ((1 << (i & 0x1F)) & boneComputed[i >> 5])
 			continue;
 
-		auto flag = bone_flags->m_Memory.Element(i);
-		auto parent = bone_parent->m_Memory.Element(i);
+		auto flag = bone_flags->memory[i];
+		auto parent = bone_parent->memory[i];
 
 		if (flag & boneMask && q)
 		{

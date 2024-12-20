@@ -222,16 +222,16 @@ public:
 class CStudioHdr
 {
 public:
-	StudioHdr*						studioHdr;
-	void*							virtualModel;
-	void*							softBody;
-	SafeUtlVector<const StudioHdr*>	hdrCache;
-	int								numFrameUnlockCounter;
-	int*							frameUnlockCounter;
-	std::byte						pad[8];
-	SafeUtlVector<int>				boneFlags;
-	SafeUtlVector<int>				boneParent;
-	void*							activityToSequence;
+	StudioHdr*							studioHdr;
+	void*								virtualModel;
+	void*								softBody;
+	SafeCUtlVector<const StudioHdr*>	hdrCache;
+	int									numFrameUnlockCounter;
+	int*								frameUnlockCounter;
+	std::byte							pad[8];
+	SafeCUtlVector<int>					boneFlags;
+	SafeCUtlVector<int>					boneParent;
+	void*								activityToSequence;
 
 	StudioSeqdesc getSeqdesc(int sequence)
 	{

@@ -131,14 +131,14 @@ static void __fastcall buildTransformationsHook(void* thisPointer, void* edx, CS
         entity->m_flCollisionChangeTime() = 0.0f;
     }
 
-    const SafeUtlVector<int> backupFlags = hdr->boneFlags;
+    const SafeCUtlVector<int> backupFlags = hdr->boneFlags;
 
-    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
+    for (int i = 0; i < hdr->boneFlags.size; i++)
     {
         if (configs.visuals.disable_jiggle_bones)
-            hdr->boneFlags.m_pElements[i] &= ~0x04;
+            hdr->boneFlags.elements[i] &= ~0x04;
         else
-            hdr->boneFlags.m_pElements[i] |= 0x04;
+            hdr->boneFlags.elements[i] |= 0x04;
     }
 
     Hooks::buildtransformations_hook.callOriginal<void, void*>(thisPointer, hdr, pos, q, cameraTransform, boneMask, boneComputed);
@@ -572,7 +572,8 @@ __forceinline void setup_hooks()
     Hooks::client_hook.hookAt(37, Hooks::hooked_fsn);
     Hooks::client_hook.hookAt(38, dispatchUserMessage);
 
-    Hooks::clientstate_hook.init(&memory->splitScreen->splitScreenPlayers[0]->client);
+    //Hooks::clientstate_hook.init(&memory->splitScreen->splitScreenPlayers[0]->client);
+    Hooks::clientstate_hook.init((CClientState*)(uint32_t(m_clientstate()) + 0x8));
     Hooks::clientstate_hook.hookAt(5, Hooks::hooked_packetstart);
     Hooks::clientstate_hook.hookAt(6, Hooks::hooked_packetend);
     Hooks::clientstate_hook.hookAt(39, Hooks::hooked_packetprocess);
