@@ -16,6 +16,11 @@ public:
     int growSize;
     int m_Size;
     T* m_pElements;
+
+    int Count() const
+    {
+        return m_Size;
+    }
 };
 
 template<class T, class A = CUtlMemory<T>>

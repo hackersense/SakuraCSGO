@@ -228,7 +228,7 @@ void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage) noexcept
 		if (configs.visuals.client_bullet_impacts)
 		{
 			static auto last_count = 0;
-			auto& client_impact_list = *reinterpret_cast<CUtlVector<client_hit_verify_t>*>(uintptr_t(localPlayer.get()) + 0x11C50);
+			auto& client_impact_list = *reinterpret_cast<SafeUtlVector<client_hit_verify_t>*>(uintptr_t(localPlayer.get()) + 0x11C50);
 
 			for (auto i = client_impact_list.Count(); i > last_count; --i)
 				m_debugoverlay()->AddBoxOverlay(client_impact_list[i - 1].position, Vector(-2.0f, -2.0f, -2.0f), Vector(2.0f, 2.0f, 2.0f), Vector(0.0f, 0.0f, 0.0f), configs.visuals.client_bullet_impacts_color.r(), configs.visuals.client_bullet_impacts_color.g(), configs.visuals.client_bullet_impacts_color.b(), configs.visuals.client_bullet_impacts_color.a(), 4.0f);

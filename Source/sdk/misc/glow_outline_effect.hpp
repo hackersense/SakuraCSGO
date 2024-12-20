@@ -5,7 +5,6 @@
 
 class CGlowObjectManager {
 public:
-
 	int RegisterGlowObject(entity_t *pEntity, const Vector &vGlowColor, float flGlowAlpha, bool bRenderWhenOccluded, bool bRenderWhenUnoccluded, int nSplitScreenSlot) {
 		int nIndex;
 		if (m_nFirstFreeSlot == GlowObjectDefinition_t::END_OF_FREE_LIST) {
