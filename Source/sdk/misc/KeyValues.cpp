@@ -2,14 +2,14 @@
 #include "IKeyValuesSystem.hpp"
 #include "../Memory.h"
 
-KeyValues* KeyValues::FromString(char const* szName, char const* szStringVal, char const** ppEndOfParse)
+KeyValues* KeyValues::fromString(const char* name, const char* value) noexcept
 {
     const auto keyValuesFromString = memory->keyValuesFromString;
     KeyValues* keyValues;
     __asm {
         push 0
-        mov edx, szStringVal
-        mov ecx, szName
+        mov edx, value
+        mov ecx, name
         call keyValuesFromString
         add esp, 4
         mov keyValues, eax
@@ -17,18 +17,18 @@ KeyValues* KeyValues::FromString(char const* szName, char const* szStringVal, ch
     return keyValues;
 }
 
-KeyValues* KeyValues::FindKey(const char* keyName, bool bCreate)
+KeyValues* KeyValues::findKey(const char* keyName, bool create) noexcept
 {
-    return memory->keyValuesFindKey(this, keyName, bCreate);
+    return memory->keyValuesFindKey(this, keyName, create);
 }
 
-void KeyValues::SetString(const char* keyName, const char* value)
+void KeyValues::setString(const char* keyName, const char* value) noexcept
 {
-    if (const auto key = FindKey(keyName, true))
+    if (const auto key = findKey(keyName, true))
         memory->keyValuesSetString(key, value);
 }
 
-const char* KeyValues::GetName() const
+const char* KeyValues::getName() noexcept
 {
-    return GetKeyValuesSystem()->GetStringForSymbol(*reinterpret_cast<std::uint8_t*>(std::uintptr_t(this) + 3) | (*reinterpret_cast<std::uint16_t*>(std::uintptr_t(this) + 18) << 8));
+    return memory->keyValuesSystem->GetStringForSymbol(*reinterpret_cast<std::uint8_t*>(std::uintptr_t(this) + 3) | (*reinterpret_cast<std::uint16_t*>(std::uintptr_t(this) + 18) << 8));
 }

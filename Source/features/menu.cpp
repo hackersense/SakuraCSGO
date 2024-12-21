@@ -2775,7 +2775,7 @@ NEWMaterial* fCreateMaterial(bool lit, const std::string& material_data)
 	auto matname = cheat.cheatnamelower + crypt_str("_") + std::to_string(created);
 	++created;
 
-	auto material = m_materialsystem2()->CreateMaterial(matname.c_str(), KeyValues::FromString(type.c_str(), material_data.c_str()));
+	auto material = m_materialsystem2()->CreateMaterial(matname.c_str(), KeyValues::fromString(type.c_str(), material_data.c_str()));
 	material->IncrementReferenceCount();
 
 	return material;
