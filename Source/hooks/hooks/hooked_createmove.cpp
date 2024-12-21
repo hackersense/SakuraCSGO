@@ -14,13 +14,8 @@
 #include "..\..\features\ragebot\zeusbot.h"
 #include "..\..\features\serverside\local_animations.h"
 
-#define FRAME_ADDRESS() (std::uintptr_t(_AddressOfReturnAddress()) - sizeof(std::uintptr_t))
-
 bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumber, bool active, CUserCmd* cmd, bool& sendPacket) noexcept
 {
-	if (!cheat.available())
-		return active;
-
 	misc::get().rank_reveal(cmd);
 	misc::get().clan_tag();
 	backtrack::get().updateIncomingSequences();
@@ -30,6 +25,9 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	sky->SetValue(~configs.visuals.removals[REMOVALS_3DSKY]);
 	shadows->SetValue(~configs.visuals.removals[REMOVALS_SHADOWS]);
 
+	cheat.set_command(cmd);
+	cheat.globals.original = cmd->m_viewangles;
+
 	if (!localPlayer->is_alive())
 		return active;
 
@@ -38,18 +36,12 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	if (!cheat.globals.weapon)
 		return active;
 
-	cheat.globals.in_createmove = true;
-	cheat.set_command(cmd);
-	cheat.globals.original = cmd->m_viewangles;
-
 	/*
-	
 	if (Hooks::menu_open && cheat.globals.focused_on_input)
 	{
 		cmd->m_buttons = 0;
 		cmd->m_forwardmove = cmd->m_sidemove = cmd->m_upmove = 0.0f;
 	}
-
 	*/
 
 	misc::get().force_crosshair();
@@ -81,8 +73,6 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		//}
 		//else
 		//	cmd->m_viewangles.y = math::normalize_yaw(cmd->m_viewangles.y);
-
-		cheat.globals.in_createmove = false;
 		return false;
 	}
 
@@ -117,13 +107,11 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	util::server_time(cmd);
 
 	/*
-
 	if (Hooks::menu_open)
 	{
 		cmd->m_buttons &= ~IN_ATTACK;
 		cmd->m_buttons &= ~IN_ATTACK2;
 	}
-
 	*/
 
 	if (configs.ragebot.enabled && (cheat.globals.weapon->is_pistol() || cheat.globals.weapon->is_sniper() || cheat.globals.weapon->is_rifle() || cheat.globals.weapon->is_shotgun() || cheat.globals.weapon->is_smg() || cheat.globals.weapon->is_knife()) && !cheat.globals.weapon->can_fire(true)) //  && !antiaim::get().freeze_check
@@ -158,7 +146,7 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 	}
 	*/
 
-	cheat.send_packet = true;
+	cheat.send_packet = sendPacket;
 	cheat.globals.tickbase_shift = 0;
 	cheat.globals.double_tap_fire = false;
 	cheat.globals.force_send_packet = false;
@@ -547,24 +535,27 @@ bool __stdcall Hooks::hooked_createmove(float inputSampleTime, int sequenceNumbe
 		}
 	}
 
-	cheat.globals.in_createmove = false;
-
 	sendPacket = cheat.send_packet;
-	return false;
+	return true;
 }
 
 void __stdcall Hooks::CHLCreateMove(int sequenceNumber, float inputSampleTime, bool active, bool& sendPacket) noexcept
 {
 	auto result = client_hook.callOriginal<bool, 22>(sequenceNumber, inputSampleTime, active);
 
-	cheat.globals.in_createmove = false;
-
 	CUserCmd* cmd = m_input()->GetUserCmd(sequenceNumber);
 	CVerifiedUserCmd* verified = m_input()->GetVerifiedUserCmd(sequenceNumber);
 	if (!cmd || !cmd->m_command_number || !verified)
 		return;
 
+	if (!cheat.available())
+		return;
+
+	cheat.globals.in_createmove = true;
+
 	hooked_createmove(inputSampleTime, sequenceNumber, active, cmd, sendPacket);
+
+	cheat.globals.in_createmove = false;
 
 	verified->m_cmd = *cmd;
 	verified->m_crc = cmd->GetChecksum();

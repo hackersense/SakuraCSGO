@@ -151,7 +151,7 @@ void remove_molotov()
 
 void __stdcall Hooks::hooked_fsn(ClientFrameStage_t stage) noexcept
 {
-	// animation_system::get().init();
+	animation_system::get().init();
 
 	if (stage == FRAME_RENDER_START)
 	{

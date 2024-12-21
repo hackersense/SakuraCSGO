@@ -1,14 +1,12 @@
 #include "..\hooks.hpp"
 
-void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx) noexcept
+void __fastcall Hooks::hooked_sceneend() noexcept
 {
-	static auto original_fn = renderview_hook.getOriginal<void, 9>();
-
 	if (!localPlayer)
-		return original_fn(ecx);
+		return renderview_hook.callOriginal<void, 9>();
 
 	if (!configs.esp.type[ENEMY].ragdoll_chams && !configs.esp.type[TEAM].ragdoll_chams)
-		return original_fn(ecx);
+		return renderview_hook.callOriginal<void, 9>();
 
 	const auto HighestEntityIndex = m_entitylist()->GetHighestEntityIndex();
 	for (auto i = 1; i <= HighestEntityIndex; i++)
@@ -75,5 +73,5 @@ void __fastcall Hooks::hooked_sceneend(void* ecx, void* edx) noexcept
 		}
 	}
 
-	return original_fn(ecx);
+	renderview_hook.callOriginal<void, 9>();
 }

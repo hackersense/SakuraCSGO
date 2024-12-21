@@ -4,7 +4,7 @@
 
 #include "VmtSwap.h"
 
-std::size_t calculateVmtLength(const std::uintptr_t* vmt) noexcept
+static std::size_t calculateVmtLength(const std::uintptr_t* vmt) noexcept
 {
     std::size_t length = 0;
     MEMORY_BASIC_INFORMATION memoryInfo;

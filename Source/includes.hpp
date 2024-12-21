@@ -31,7 +31,6 @@
 #include "utils\md5.h"
 #include "utils\crypt_str.h"
 #include "lua\Clua.h"
-#include "hooks\core\Detours.h"
 #include "hooks\hooks.hpp"
 #include "configs\configs.h"
 

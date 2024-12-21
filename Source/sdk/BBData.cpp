@@ -210,8 +210,8 @@ BoxInfo BBData::getBox(int index)
 {
 	if (index < 65 && index > 0)
 		return player_info[index];
-	else
-		return BoxInfo{};
+
+	return BoxInfo{};
 }
 
 void BBData::setBox(int index, BoxInfo box)

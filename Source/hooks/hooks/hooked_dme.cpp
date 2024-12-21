@@ -22,13 +22,10 @@ void __stdcall Hooks::hooked_dme(IMatRenderContext* ctx, const DrawModelState_t&
 {
 	static auto original_fn = modelrender_hook->getOriginal<DrawModelExecute_t>(21);
 
-	if (!configs.esp.enabled)
+	if (!configs.esp.enabled || !info.pModel)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
 	if (m_engine()->IsTakingScreenshot() && configs.misc.anti_screenshot)
-		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
-
-	if (!info.pModel)
 		return original_fn(m_modelrender(), ctx, state, info, bone_to_world);
 
 	auto model_entity = static_cast<player_t*>(m_entitylist()->GetClientEntity(info.entity_index));

@@ -34,9 +34,6 @@ namespace Hooks
 	int rage_weapon = 0;
 	int legit_weapon = 0;
 	bool menu_open = false;
-	bool input_shouldListen = false;
-
-	ButtonCode_t* input_receivedKeyval;
 
 	LRESULT __stdcall Hooked_WndProc(HWND window, UINT msg, WPARAM wParam, LPARAM lParam)
 	{
@@ -214,35 +211,42 @@ namespace Hooks
 		return hr;
 	}
 
-	VmtSwap player_hook;
-	VmtSwap inputinternal_hook;
-	VmtSwap renderview_hook;
-	ClientHook* modelrender_hook;
-	VmtSwap steam_hook;
-	//ClientHook* directx_hook;
-	PresentFn oPresent;
-	ResetFn oReset;
+	// Memory Hook
+	MinHook modifyeyeposition_hook;
 	MinHook getforeignfallbackfontname_hook;
 	MinHook shouldskipanimationframe_hook;
-	MinHook processinterpolatedlist_hook;
-	MinHook doextrabonesprocessing_hook;
-	MinHook updateclientsideanimation_hook;
-	MinHook calcviewmodelbob_hook;
-	MinHook standardblendingrules_hook;
 	MinHook setupbones_hook;
+	MinHook standardblendingrules_hook;
+	MinHook processinterpolatedlist_hook;
+	MinHook physicssimulate_hook;
+	MinHook updateclientsideanimation_hook;
+	MinHook doextrabonesprocessing_hook;
+	MinHook calcviewmodelbob_hook;
+	MinHook calculateview_hook;
+	MinHook checkforsequencechang_hook;
+	MinHook clmove_hook;
+	MinHook particlecollection_hook;
+	MinHook senddatagram_hook;
+	MinHook performscreenoverlay_hook;
+	MinHook isdepthoffieldenabled_hook;
+	MinHook tracefilterforheadcollision_hook;
+	MinHook buildtransformations_hook;
+	MinHook eyeangles_hook;
 	MinHook setupvelocity_hook;
 	MinHook setupmovement_hook;
 	MinHook setupaliveloop_hook;
 	MinHook updatestate_hook;
 	MinHook resetstate_hook;
-	MinHook eyeangles_hook;
-	MinHook checkforsequencechang_hook;
-	MinHook buildtransformations_hook;
-	MinHook particlecollection_hook;
-	MinHook modifyeyeposition_hook;
-	MinHook physicssimulate_hook;
-	MinHook calculateview_hook;
-	MinHook clmove_hook;
+
+	// Return Address
+	MinHook returnaddressclient_hook;
+	MinHook returnaddressengine_hook;
+	MinHook returnaddressstudiorender_hook;
+	MinHook returnaddressmaterialsystem_hook;
+
+	ClientHook* modelrender_hook;
+	VmtSwap steam_hook;
+	MinHook renderview_hook;
 	MinHook bspquery_hook;
 	MinHook client_hook;
 	MinHook clientmode_hook;
@@ -258,44 +262,9 @@ namespace Hooks
 	MinHook filesystem_hook;
 	MinHook svcheats_hook;
 	MinHook keyvaluessystem_hook;
-	MinHook returnaddressclient_hook;
-	MinHook returnaddressengine_hook;
-	MinHook returnaddressstudiorender_hook;
-	MinHook returnaddressmaterialsystem_hook;
-	MinHook senddatagram_hook;
-	MinHook performscreenoverlay_hook;
-	MinHook isdepthoffieldenabled_hook;
-	MinHook tracefilterforheadcollision_hook;
+
+	PresentFn oPresent;
+	ResetFn oReset;
 
 	C_HookedEvents hooked_events;
-}
-
-void __fastcall Hooks::hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t code, bool down) noexcept
-{
-	static auto original_fn = inputinternal_hook.getOriginal<void, 91>(code, down);
-
-	if (input_shouldListen && down)
-	{
-		input_shouldListen = false;
-
-		if (input_receivedKeyval)
-			*input_receivedKeyval = code;
-	}
-
-	return original_fn(ecx, code, down);
-}
-
-void __fastcall Hooks::hooked_setmousecodestate(void* ecx, void* edx, ButtonCode_t code, MouseCodeState_t state) noexcept
-{
-	static auto original_fn = inputinternal_hook.getOriginal<void, 92>(code, state);
-
-	if (input_shouldListen && state == BUTTON_PRESSED)
-	{
-		input_shouldListen = false;
-
-		if (input_receivedKeyval)
-			*input_receivedKeyval = code;
-	}
-
-	return original_fn(ecx, code, state);
 }

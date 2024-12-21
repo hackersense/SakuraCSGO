@@ -43,40 +43,45 @@ namespace Hooks
 	extern int rage_weapon;
 	extern int legit_weapon;
 
-	extern ButtonCode_t* input_receivedKeyval;
-
 	typedef long(__stdcall* ResetFn)(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	typedef long(__stdcall* PresentFn)(IDirect3DDevice9*, RECT*, RECT*, HWND, RGNDATA*);
 
-	extern VmtSwap player_hook;
-	extern VmtSwap inputinternal_hook;
-	extern VmtSwap renderview_hook;
-	extern ClientHook* modelrender_hook;
-	extern VmtSwap steam_hook;
-	//extern ClientHook* directx_hook;
-	extern PresentFn oPresent;
-	extern ResetFn oReset;
+	// Memory Hook
+	extern MinHook modifyeyeposition_hook;
 	extern MinHook getforeignfallbackfontname_hook;
 	extern MinHook shouldskipanimationframe_hook;
-	extern MinHook processinterpolatedlist_hook;
-	extern MinHook doextrabonesprocessing_hook;
-	extern MinHook updateclientsideanimation_hook;
-	extern MinHook calcviewmodelbob_hook;
-	extern MinHook standardblendingrules_hook;
 	extern MinHook setupbones_hook;
+	extern MinHook standardblendingrules_hook;
+	extern MinHook processinterpolatedlist_hook;
+	extern MinHook physicssimulate_hook;
+	extern MinHook updateclientsideanimation_hook;
+	extern MinHook doextrabonesprocessing_hook;
+	extern MinHook calcviewmodelbob_hook;
+	extern MinHook calculateview_hook;
+	extern MinHook checkforsequencechang_hook;
+	extern MinHook clmove_hook;
+	extern MinHook particlecollection_hook;
+	extern MinHook senddatagram_hook;
+	extern MinHook performscreenoverlay_hook;
+	extern MinHook isdepthoffieldenabled_hook;
+	extern MinHook tracefilterforheadcollision_hook;
+	extern MinHook buildtransformations_hook;
+	extern MinHook eyeangles_hook;
 	extern MinHook setupvelocity_hook;
 	extern MinHook setupmovement_hook;
 	extern MinHook setupaliveloop_hook;
-	extern MinHook eyeangles_hook;
 	extern MinHook updatestate_hook;
 	extern MinHook resetstate_hook;
-	extern MinHook checkforsequencechang_hook;
-	extern MinHook buildtransformations_hook;
-	extern MinHook particlecollection_hook;
-	extern MinHook modifyeyeposition_hook;
-	extern MinHook physicssimulate_hook;
-	extern MinHook calculateview_hook;
-	extern MinHook clmove_hook;
+
+	// Return Address
+	extern MinHook returnaddressclient_hook;
+	extern MinHook returnaddressengine_hook;
+	extern MinHook returnaddressstudiorender_hook;
+	extern MinHook returnaddressmaterialsystem_hook;
+
+	extern ClientHook* modelrender_hook;
+	extern VmtSwap steam_hook;
+	extern MinHook renderview_hook;
 	extern MinHook bspquery_hook;
 	extern MinHook client_hook;
 	extern MinHook clientmode_hook;
@@ -92,14 +97,9 @@ namespace Hooks
 	extern MinHook filesystem_hook;
 	extern MinHook svcheats_hook;
 	extern MinHook keyvaluessystem_hook;
-	extern MinHook returnaddressclient_hook;
-	extern MinHook returnaddressengine_hook;
-	extern MinHook returnaddressstudiorender_hook;
-	extern MinHook returnaddressmaterialsystem_hook;
-	extern MinHook senddatagram_hook;
-	extern MinHook performscreenoverlay_hook;
-	extern MinHook isdepthoffieldenabled_hook;
-	extern MinHook tracefilterforheadcollision_hook;
+
+	extern PresentFn oPresent;
+	extern ResetFn oReset;
 
 	extern C_HookedEvents hooked_events;
 
@@ -115,9 +115,7 @@ namespace Hooks
 	void __stdcall hooked_emitsound(SoundParams_t params) noexcept;
 	void __stdcall hooked_dme(IMatRenderContext* ctx, const DrawModelState_t& state, const ModelRenderInfo_t& info, matrix3x4_t* bone_to_world) noexcept;
 	void  __stdcall hooked_postscreeneffects(void* param) noexcept;
-	void __fastcall hooked_setkeycodestate(void* ecx, void* edx, ButtonCode_t code, bool bDown) noexcept;
-	void __fastcall hooked_setmousecodestate(void* ecx, void* edx, ButtonCode_t code, MouseCodeState_t state) noexcept;
-	void __fastcall hooked_sceneend(void* ecx, void* edx) noexcept;
+	void __fastcall hooked_sceneend() noexcept;
 	void __fastcall hooked_findmdl(void* ecx, void* edx, char* filePath) noexcept;
 	void __stdcall hooked_painttraverse(vgui::VPANEL panel, bool force_repaint, bool allow_force) noexcept;
 	const char* __fastcall hooked_getforeignfallbackfontname(void* ecx, void* edx) noexcept;

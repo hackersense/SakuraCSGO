@@ -715,20 +715,20 @@ Vector player_t::get_eye_position()
 	if (!this)
 		return ZERO;
 
-	//Vector position;
-	//VirtualMethod::call<void, 285>(this, std::ref(position));
+	Vector position;
+	VirtualMethod::call<void, 285>(this, std::ref(position));
 
-	Vector position = m_vecOrigin() + m_vecViewOffset();
+	//Vector position = m_vecOrigin() + m_vecViewOffset();
 
-	if (this != localPlayer.get())
-	{
+	//if (this != localPlayer.get())
+	//{
 		//modify_another_eye_position(get_animation_state(), position);
 
-		return position;
-	}
+	//	return position;
+	//}
 
 	//modify_another_eye_position(get_animation_state(), position);
-	modify_eye_position(position);
+	//modify_eye_position(position);
 
 	return position;
 }

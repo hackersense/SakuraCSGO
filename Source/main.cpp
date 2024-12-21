@@ -49,7 +49,7 @@ __forceinline void setup_netvars()
 int buildTransformsIndex;
 Vector correctAngle;
 
-static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
+/*static Vector* __fastcall getEyeAngles(void* ecx, void* edx) noexcept
 {
     static auto original = Hooks::player_hook.getOriginal<Vector*, 170>();
 
@@ -85,22 +85,20 @@ static void __fastcall buildTransformations(void* ecx, void* edx, CStudioHdr* hd
         //localPlayer->m_flCollisionChangeTime() = 0.0f;
     }
 
-    /*
-    const CUtlVector<int> backupFlags = hdr->boneFlags;
+    const SafeCUtlVector<int> backupFlags = hdr->boneFlags;
 
-    for (int i = 0; i < hdr->boneFlags.m_Size; i++)
+    for (int i = 0; i < hdr->boneFlags.size; i++)
     {
         if (configs.visuals.disable_jiggle_bones)
-            hdr->boneFlags.m_pElements[i] &= ~0x04;
+            hdr->boneFlags.elements[i] &= ~0x04;
         else
-            hdr->boneFlags.m_pElements[i] |= 0x04;
+            hdr->boneFlags.elements[i] |= 0x04;
     }
-    */
 
     original(ecx, hdr, pos, q, cameraTransform, bonemask, computed);
 
-    //hdr->boneFlags = backupFlags;
-}
+    hdr->boneFlags = backupFlags;
+}*/
 
 static Vector* __fastcall eyeAnglesHook(void* thisPointer, void* edx) noexcept
 {
@@ -572,8 +570,7 @@ __forceinline void setup_hooks()
     Hooks::client_hook.hookAt(37, Hooks::hooked_fsn);
     Hooks::client_hook.hookAt(38, dispatchUserMessage);
 
-    //Hooks::clientstate_hook.init(&memory->splitScreen->splitScreenPlayers[0]->client);
-    Hooks::clientstate_hook.init((CClientState*)(uint32_t(m_clientstate()) + 0x8));
+    Hooks::clientstate_hook.init(&memory->splitScreen->splitScreenPlayers[0]->client);
     Hooks::clientstate_hook.hookAt(5, Hooks::hooked_packetstart);
     Hooks::clientstate_hook.hookAt(6, Hooks::hooked_packetend);
     Hooks::clientstate_hook.hookAt(39, Hooks::hooked_packetprocess);
@@ -581,12 +578,7 @@ __forceinline void setup_hooks()
     Hooks::clientmode_hook.init(m_clientmode());
     Hooks::clientmode_hook.hookAt(17, Hooks::hooked_drawfog);
     Hooks::clientmode_hook.hookAt(18, Hooks::hooked_overrideview);
-    //Hooks::clientmode_hook.hookAt(24, createMove);
     Hooks::clientmode_hook.hookAt(44, Hooks::hooked_postscreeneffects);
-
-    //Hooks::inputinternal_hook = new ClientHook(m_inputinternal());
-    //Hooks::inputinternal_hook->hookAt(91, Hooks::hooked_setkeycodestate);
-    //Hooks::inputinternal_hook->hookAt(92, Hooks::hooked_setmousecodestate);
 
     Hooks::renderview_hook.init(m_renderview());
     Hooks::renderview_hook.hookAt(9, Hooks::hooked_sceneend);
@@ -774,9 +766,9 @@ LONG WINAPI ExceptionFilter(LPEXCEPTION_POINTERS pointers) {
     return CreateDump(pointers);
 }
 
-#define USE_THREAD true
+#define USE_THREAD
 
-#if USE_THREAD
+#ifdef USE_THREAD
 DWORD WINAPI threadMain(PVOID base)
 #else
 void threadMain()
@@ -903,7 +895,7 @@ void threadMain()
     antiDetection.emplace();
     antiDetection->run();
 
-    //SetUnhandledExceptionFilter(ExceptionFilter);
+    SetUnhandledExceptionFilter(ExceptionFilter);
 
     //while (!GetModuleHandleW(crypt_str(L"serverbrowser.dll")))
     //    std::this_thread::sleep_for(std::chrono::milliseconds(100));
@@ -945,7 +937,7 @@ void threadMain()
     //if (InitSafeModuleFn)
     //	InitSafeModuleFn((PVOID)WindowInfo::handle, nullptr);
 
-#if USE_THREAD
+#ifdef USE_THREAD
     FreeLibraryAndExitThread(HMODULE(base), 0);
     return EXIT_SUCCESS;
 #endif
@@ -957,7 +949,7 @@ BOOL WINAPI DllMain(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
     {
         std::setlocale(LC_CTYPE, crypt_str(".utf8"));
 
-#if USE_THREAD
+#ifdef USE_THREAD
         DisableThreadLibraryCalls(moduleHandle);
 #endif
 
@@ -971,7 +963,7 @@ BOOL WINAPI DllMain(HMODULE moduleHandle, DWORD reason, LPVOID reserved)
 
         WindowInfo::handle = moduleHandle;
 
-#if USE_THREAD
+#ifdef USE_THREAD
         CreateThread(nullptr, 0, threadMain, moduleHandle, 0, nullptr);
 #else
         threadMain();
