@@ -21,6 +21,5 @@ public:
     virtual entity_t*                   GetBaseEntity() = 0;
     virtual IClientThinkable*           GetClientThinkable() = 0;
     //virtual IClientModelRenderable*   GetClientModelRenderable() = 0;
-    //virtual void*                       GetClientModelRenderable() = 0;
     virtual IClientAlphaProperty*       GetClientAlphaProperty() = 0;
 };

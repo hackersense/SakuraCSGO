@@ -855,7 +855,7 @@ std::vector<int> ragebot::get_hitboxes(adjust_data* record, bool optimized)
 	return hitboxes;
 }
 
-float ragebot::GetBodyScale(player_t* player)
+float ragebot::GetBodyScale(player_t* player) const
 {
 	if (currentWeapon.scan_point_mode == 1 && currentWeapon.body_scale)
 		return currentWeapon.body_scale;
@@ -1460,9 +1460,7 @@ void ragebot::fire(CUserCmd* cmd)
 			bool can_scope = cheat.globals.weapon && cheat.globals.weapon->m_zoomLevel() == 0 && cheat.globals.weapon->IsZoomable(true);
 
 			if (can_scope && configs.ragebot.autoscope != 0 && (configs.ragebot.autoscope == 1 || (configs.ragebot.autoscope == 2 && !hit)))
-				cmd->m_buttons |= IN_ZOOM;
-
-			//cmd->m_buttons |= IN_ATTACK2;
+				cmd->m_buttons |= IN_ZOOM; // IN_ATTACK2
 
 			return;
 		}

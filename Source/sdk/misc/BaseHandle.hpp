@@ -88,7 +88,7 @@ inline int CBaseHandle::GetSerialNumber( ) const {
 }
 
 inline int CBaseHandle::ToInt( ) const {
-	return ( int )m_Index;
+	return (int)m_Index;
 }
 
 inline unsigned long CBaseHandle::ToLong() const {

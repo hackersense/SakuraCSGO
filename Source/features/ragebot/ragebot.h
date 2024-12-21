@@ -169,7 +169,7 @@ class ragebot : public singleton <ragebot>
 	void find_best_target();
 	void fire(CUserCmd* cmd);
 	int hitchance(const Vector& aim_angle);
-	float GetBodyScale(player_t* player);
+	float GetBodyScale(player_t* player) const;
 	float GetHeadScale(player_t* player);
 
 	std::vector<scanned_target> scanned_targets;
