@@ -104,7 +104,7 @@ void BBData::update()
 
 	for (int i = 0; i < 4; i++)
 		for (int j = 0; j < 4; j++)
-			viewMatrix[i][j] = math::world_to_screen_matrix()[i][j];
+			viewMatrix[i][j] = m_engine()->WorldToScreenMatrix()[i][j];
 
 	c_dormant_esp::get().start();
 

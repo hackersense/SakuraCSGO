@@ -476,7 +476,7 @@ namespace math
 			+ a.z * b.z);
 	}
 	//--------------------------------------------------------------------------------
-	const matrix3x4_t& world_to_screen_matrix()
+	/*const matrix3x4_t& world_to_screen_matrix()
 	{
 		static DWORD view_matrix = 0;
 		if (!view_matrix)
@@ -485,7 +485,7 @@ namespace math
 			view_matrix = *reinterpret_cast<DWORD*>(view_matrix + 3) + 176;
 		}
 		return *reinterpret_cast<matrix3x4_t*>(view_matrix);
-	}
+	}*/
 	//--------------------------------------------------------------------------------
 	bool screen_transform(const Vector& in, Vector& out)
 	{

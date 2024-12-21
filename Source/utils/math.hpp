@@ -44,7 +44,7 @@ namespace math {
 	void VectorMA(const float* start, float scale, const float* direction, float* dest);
 	Vector cross_product(const Vector& a, const Vector& b);
 	float dot_product(const Vector& a, const Vector& b);
-	const matrix3x4_t& world_to_screen_matrix();
+	//const matrix3x4_t& world_to_screen_matrix();
 	bool screen_transform(const Vector& in, Vector& out);
 	bool world_to_screen(const Vector& in, Vector& out);
 	Vector world_to_screen(const Vector& in);
