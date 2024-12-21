@@ -7,6 +7,7 @@
 #include "..\..\features\misc\misc.h"
 #include "..\..\features\visuals\dormant_esp.h"
 #include "..\..\features\movement\walkbot.h"
+#include "..\sdk\interfaces\IViewRenderBeams.hpp"
 
 bool weapon_is_aim(const std::string& weapon)
 {
@@ -81,10 +82,10 @@ void C_HookedEvents::FireGameEvent(IGameEvent* event)
 				info.m_flEndRadius = (float)configs.esp.type[type].radius;
 				info.m_bRenderable = true;
 
-				auto beam_draw = m_viewrenderbeams()->CreateBeamRingPoint(info);
+				auto beam_draw = memory->viewRenderBeams->CreateBeamRingPoint(info);
 
 				if (beam_draw)
-					m_viewrenderbeams()->DrawBeam(beam_draw);
+					memory->viewRenderBeams->DrawBeam(beam_draw);
 			}
 		}
 

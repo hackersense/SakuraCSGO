@@ -23,35 +23,22 @@
 #include "..\sdk\interfaces\CInput.hpp"
 #include "..\sdk\interfaces\ISurface.hpp"
 #include "..\sdk\interfaces\IVDebugOverlay.hpp"
-#include "..\sdk\interfaces\IViewRenderBeams.hpp"
 #include "..\sdk\interfaces\IPhysics.hpp"
 #include "..\sdk\interfaces\ILocalize.hpp"
 #include "..\sdk\interfaces\IPanoramaUIEngine.hpp"
 #include "..\sdk\misc\GlobalVars.hpp"
-#include "..\sdk\misc\glow_outline_effect.hpp"
 #include "..\sdk\interfaces\IGameEventManager.hpp"
 #include "..\sdk\interfaces\CSPlayerResource.h"
-#include "..\sdk\interfaces\IWeaponSystem.h"
 #include "..\sdk\new\MaterialSystem.h"
 #include "..\sdk\new\ConVar.h"
 #include "..\sdk\new\CVar.h"
 #include <d3dx9.h>
 #include <d3d9.h>
 
-class InterfaceReg
-{
-private:
-	using InstantiateInterfaceFn = void*(*)();
-public:
-	InstantiateInterfaceFn m_CreateFn;
-	const char *m_pName;
-	InterfaceReg *m_pNext;
-};
-
 class C_CSGO
 {
 public:
-	IDirect3DDevice9* m_device();
+	// IDirect3DDevice9* m_device();
 	IVEngineClient* m_engine();
 	IInputSystem* m_inputsystem();
 	IBaseClientDLL* m_client();
@@ -77,14 +64,10 @@ public:
 	IVDebugOverlay* m_debugoverlay();
 	IPhysicsSurfaceProps* m_physsurface();
 	IGameEventManager* m_eventmanager();
-	IViewRenderBeams* m_viewrenderbeams();
 	IMemAlloc* m_memalloc();
 	IClientMode* m_clientmode();
 	CGlobalVarsBase* m_globals();
-	CGlowObjectManager* m_glow();
 	CClientState* m_clientstate();
-	IMoveHelper* m_movehelper();
-	CMoveData* m_movedata();
 	CInput* m_input();
 	CSPlayerResource* m_playerresource();
 	CSGameRulesProxy* m_gamerules();
@@ -92,15 +75,13 @@ public:
 	IEngineTool* m_enginetool();
 	IBaseFileSystem* m_basefilesystem();
 	IFileSystem* m_filesystem();
-	IWeaponSystem* m_weaponsystem();
-	DWORD m_ccsplayerrenderablevftable();
 private:
-	IDirect3DDevice9 * p_device = nullptr;
+	// IDirect3DDevice9* p_device = nullptr;
 	IVEngineClient* p_engine = nullptr;
-	IInputSystem * p_inputsystem = nullptr;
-	IBaseClientDLL * p_client = nullptr;
-	IClientEntityList * p_entitylist = nullptr;
-	IEngineTrace * p_trace = nullptr;
+	IInputSystem* p_inputsystem = nullptr;
+	IBaseClientDLL* p_client = nullptr;
+	IClientEntityList* p_entitylist = nullptr;
+	IEngineTrace* p_trace = nullptr;
 	VSoundEmitter* p_soundemitter = nullptr;
 	IEngineSound * p_enginesound = nullptr;
 	ICvar* p_cvar = nullptr;
@@ -121,14 +102,10 @@ private:
 	IVDebugOverlay* p_debugoverlay = nullptr;
 	IPhysicsSurfaceProps* p_physsurface = nullptr;
 	IGameEventManager* p_eventmanager = nullptr;
-	IViewRenderBeams* p_viewrenderbeams = nullptr;
 	IMemAlloc* p_memalloc = nullptr;
 	IClientMode* p_clientmode = nullptr;
 	CGlobalVarsBase* p_globals = nullptr;
-	CGlowObjectManager* p_glow = nullptr;
 	CClientState* p_clientstate = nullptr;
-	IMoveHelper* p_movehelper = nullptr;
-	CMoveData* p_movedata = nullptr;
 	CInput* p_input = nullptr;
 	CSPlayerResource* p_playerresource = nullptr;
 	CSGameRulesProxy* p_gamerules = nullptr;
@@ -136,8 +113,6 @@ private:
 	IEngineTool* p_enginetool = nullptr;
 	IBaseFileSystem* p_basefilesystem = nullptr;
 	IFileSystem* p_filesystem = nullptr;
-	IWeaponSystem* p_weaponsystem = nullptr;
-	DWORD p_ccsplayerrenderablevftable = 0;
 };
 
 extern C_CSGO g_csgo;

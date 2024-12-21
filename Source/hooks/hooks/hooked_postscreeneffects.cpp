@@ -1,16 +1,17 @@
 #include "..\hooks.hpp"
+#include "..\sdk\misc\glow_outline_effect.hpp"
 
 void __stdcall Hooks::hooked_postscreeneffects(void* param) noexcept
 {
 	if (!configs.esp.enabled || !localPlayer)
 		return clientmode_hook.callOriginal<void, 44>(param);
 
-	for (auto i = 0; i < m_glow()->m_GlowObjectDefinitions.Count(); i++)
+	for (auto i = 0; i < memory->glowObjectManager->m_GlowObjectDefinitions.Count(); i++)
 	{
-		if (m_glow()->m_GlowObjectDefinitions[i].IsUnused())
+		if (memory->glowObjectManager->m_GlowObjectDefinitions[i].IsUnused())
 			continue;
 
-		auto object = &m_glow()->m_GlowObjectDefinitions[i];
+		auto object = &memory->glowObjectManager->m_GlowObjectDefinitions[i];
 		auto entity = object->GetEnt();
 
 		if (!entity)

@@ -109,7 +109,7 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	localPlayer->runPreThink();
 	localPlayer->runThink();
 
-	m_movehelper()->SetHost(localPlayer.get());
+	memory->moveHelper->SetHost(localPlayer.get());
 
 	//CMoveData move_data;
 	//move_data.m_flForwardMove = m_pcmd->m_forwardmove;
@@ -121,15 +121,15 @@ void engineprediction::predict(CUserCmd* m_pcmd)
 	//move_data.m_nImpulseCommand = m_pcmd->m_impulse;
 	//memset(&move_data, 0, sizeof(CMoveData));
 
-	m_prediction()->SetupMove(localPlayer.get(), m_pcmd, m_movehelper(), m_movedata());
-	m_gamemovement()->ProcessMovement(localPlayer.get(), m_movedata());
-	m_prediction()->FinishMove(localPlayer.get(), m_pcmd, m_movedata());
-	m_movehelper()->ProcessImpacts();
+	m_prediction()->SetupMove(localPlayer.get(), m_pcmd, memory->moveHelper, memory->moveData);
+	m_gamemovement()->ProcessMovement(localPlayer.get(), memory->moveData);
+	m_prediction()->FinishMove(localPlayer.get(), m_pcmd, memory->moveData);
+	memory->moveHelper->ProcessImpacts();
 
 	localPlayer->runPostThink();
 
 	m_gamemovement()->FinishTrackPredictionErrors(localPlayer.get());
-	m_movehelper()->SetHost(nullptr);
+	memory->moveHelper->SetHost(nullptr);
 	m_gamemovement()->Reset();
 
 	*memory->predictionRandomSeed = -1;

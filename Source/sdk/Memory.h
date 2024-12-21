@@ -28,6 +28,10 @@ class matrix3x4_t;
 class CGameTrace;
 class ItemSystem;
 struct CSplitScreen;
+class CMoveData;
+class IMoveHelper;
+class IViewRenderBeams;
+class CGlowObjectManager;
 
 struct tesla_info_t {
     Vector m_pos;
@@ -138,6 +142,10 @@ public:
     std::uintptr_t jmpEbxGadgetInClient;
     std::uintptr_t shouldDrawFogReturnAddress;
     std::uintptr_t performScreenOverlay;
+    CMoveData* moveData;
+    IMoveHelper* moveHelper;
+    IViewRenderBeams* viewRenderBeams;
+    CGlowObjectManager* glowObjectManager;
     MemAlloc* memalloc;
     SteamGameCoordinator* steamGameCoordinator;
 

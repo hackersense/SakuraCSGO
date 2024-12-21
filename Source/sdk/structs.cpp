@@ -90,11 +90,10 @@ float entity_t::getSequenceMoveDist(CStudioHdr* studioHdr, int sequence)
 
 weapon_info_t* weapon_t::get_weapon_info()
 {
-	if (!this || !m_weaponsystem())
+	if (!this)
 		return nullptr;
 
-	//return VirtualMethod::call<weapon_info_t*, 461>(this);
-	return m_weaponsystem()->GetWeaponData(m_iItemDefinitionIndex());
+	return VirtualMethod::call<weapon_info_t*, 461>(this);
 }
 
 float weapon_t::get_inaccuracy()

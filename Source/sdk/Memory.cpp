@@ -127,6 +127,10 @@ Memory::Memory() noexcept
     jmpEbxGadgetInClient = findPattern(crypt_str("client"), "\x1B\xFF\x23\xF8\xF6\x87") + 1;
     shouldDrawFogReturnAddress = relativeToAbsolute<std::uintptr_t>(findPattern(crypt_str("client"), "\xE8????\x8B\x0D????\x0F\xB6\xD0") + 1) + 82;
     performScreenOverlay = findPattern(crypt_str("client"), "\x55\x8B\xEC\x51\xA1????\x53\x56\x8B\xD9");
+    moveData = **reinterpret_cast<CMoveData***>(findPattern(crypt_str("client"), "\xA1????\xF3\x0F\x59\xCD") + 1);
+    moveHelper = **reinterpret_cast<IMoveHelper***>(findPattern(crypt_str("client"), "\x8B\x0D????\x8B\x45?\x51\x8B\xD4\x89\x02\x8B\x01") + 2);
+    viewRenderBeams = *reinterpret_cast<IViewRenderBeams**>(findPattern(crypt_str("client"), "\xB9????\x0F\x11\x44\x24?\xC7\x44\x24?????\xF3\x0F\x10\x84\x24") + 1);
+    glowObjectManager = *reinterpret_cast<CGlowObjectManager**>(findPattern(crypt_str("client"), "\x0F\x11\x05????\x83\xC8\x01") + 3);
     memalloc = *reinterpret_cast<MemAlloc**>(GetProcAddress(GetModuleHandleW(L"tier0"), "g_pMemAlloc"));
     SteamClient* steamClient = ((SteamClient * (__cdecl*)(void))GetProcAddress(GetModuleHandleW(L"steam_api"), "SteamClient"))();
     steamGameCoordinator = (SteamGameCoordinator*)steamClient->getGenericInterface((void*)1, (void*)1, "SteamGameCoordinator001");

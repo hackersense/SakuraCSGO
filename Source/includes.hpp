@@ -55,7 +55,7 @@
 #define m_cvar g_csgo.m_cvar
 #define m_cvar2 g_csgo.m_cvar2
 #define m_debugoverlay g_csgo.m_debugoverlay
-#define m_device g_csgo.m_device
+// #define m_device g_csgo.m_device
 #define m_engine g_csgo.m_engine
 #define m_soundemitter g_csgo.m_soundemitter
 #define m_enginesound g_csgo.m_enginesound
@@ -66,7 +66,6 @@
 #define m_gamemovement g_csgo.m_gamemovement
 #define m_gamerules g_csgo.m_gamerules
 #define m_globals g_csgo.m_globals
-#define m_glow g_csgo.m_glow
 #define m_input g_csgo.m_input
 #define m_inputinternal g_csgo.m_inputinternal
 #define m_studiorender g_csgo.m_studiorender
@@ -78,8 +77,6 @@
 #define m_modelcache g_csgo.m_modelcache
 #define m_modelinfo g_csgo.m_modelinfo
 #define m_modelrender g_csgo.m_modelrender
-#define m_movehelper g_csgo.m_movehelper
-#define m_movedata g_csgo.m_movedata
 #define m_panel g_csgo.m_panel
 #define m_physsurface g_csgo.m_physsurface
 #define m_playerresource g_csgo.m_playerresource
@@ -87,7 +84,5 @@
 #define m_renderview g_csgo.m_renderview
 #define m_surface g_csgo.m_surface
 #define m_trace g_csgo.m_trace
-#define m_viewrenderbeams g_csgo.m_viewrenderbeams
 #define m_basefilesystem g_csgo.m_basefilesystem
 #define m_filesystem g_csgo.m_filesystem
-#define m_weaponsystem g_csgo.m_weaponsystem

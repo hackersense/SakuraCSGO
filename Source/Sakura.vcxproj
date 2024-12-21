@@ -836,7 +836,6 @@
     <ClInclude Include="sdk\interfaces\IViewRenderBeams.hpp" />
     <ClInclude Include="sdk\interfaces\IVModelInfoClient.hpp" />
     <ClInclude Include="sdk\interfaces\IVModelRender.hpp" />
-    <ClInclude Include="sdk\interfaces\IWeaponSystem.h" />
     <ClInclude Include="sdk\interfaces\IMemAlloc.h" />
     <ClInclude Include="sdk\ItemSchema.h" />
     <ClInclude Include="sdk\math\QAngle.hpp" />

@@ -1,8 +1,9 @@
 #include "bullet_tracers.h"
-#include "..\..\sdk\misc\BeamInfo_t.hpp"
+#include "..\sdk\misc\BeamInfo_t.hpp"
 #include "..\ragebot\ragebot.h"
-#include "..\..\utils\cheat.hpp"
+#include "..\utils\cheat.hpp"
 #include "..\misc\logs.h"
+#include "..\sdk\interfaces\IViewRenderBeams.hpp"
 
 void bullettracers::draw_beam(bool local_tracer, const Vector& src, const Vector& end, Color color)
 {
@@ -36,10 +37,10 @@ void bullettracers::draw_beam(bool local_tracer, const Vector& src, const Vector
 	beam_info.m_bRenderable = true; 
 	beam_info.m_nFlags = FBEAM_SHADEIN | FBEAM_ONLYNOISEONCE | FBEAM_NOTILE | FBEAM_HALOBEAM;
 	
-	auto beam = m_viewrenderbeams()->CreateBeamPoints(beam_info);
+	auto beam = memory->viewRenderBeams->CreateBeamPoints(beam_info);
 	
 	if (beam)
-		m_viewrenderbeams()->DrawBeam(beam);
+		memory->viewRenderBeams->DrawBeam(beam);
 }
 
 void bullettracers::draw_grenade_beam(const Vector& src, const Vector& end, Color color)
@@ -72,10 +73,10 @@ void bullettracers::draw_grenade_beam(const Vector& src, const Vector& end, Colo
 	beam_info.m_bRenderable = true;
 	beam_info.m_nFlags = FBEAM_ONLYNOISEONCE | FBEAM_NOTILE | FBEAM_HALOBEAM;
 
-	auto beam = m_viewrenderbeams()->CreateBeamPoints(beam_info);
+	auto beam = memory->viewRenderBeams->CreateBeamPoints(beam_info);
 
 	if (beam)
-		m_viewrenderbeams()->DrawBeam(beam);
+		memory->viewRenderBeams->DrawBeam(beam);
 }
 
 void bullettracers::events(IGameEvent* event)
