@@ -57,8 +57,7 @@ Configuration files are saved inside `Sakura` folder in your `CSGO` folder (`%ST
 ### What hooking methods Sakura uses?
 Currently implemented hooking methods are:
 *   MinHook - trampoline hook
-*   VmtHook (ClientHook) - hook a function directly in a vtable
-*   Detours - Microsoft developed hook
+*   VmtHook - hook a function directly in a vtable
 
 Hooking implementation files are located in [Hooks](https://github.com/hackersense/SakuraCSGO/tree/main/Source/hooks/core) directory.
 
@@ -72,4 +71,4 @@ Hooking implementation files are located in [Hooks](https://github.com/hackersen
 
 ## License
 
-> Copyright (c) 2015-2023 HackerSense Team.
+> Copyright (c) 2015-2025 HackerSense Team.
